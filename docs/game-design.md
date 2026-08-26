@@ -62,4 +62,4 @@ The first playable scene is a short corridor with two parallel lanes. The player
 - There is no win condition in this slice: spawning continues until the player dies.
 
 ### Scene
-`SampleScene` contains a `Systems` object with `GameplayInstaller`, which builds the corridor, player, templates, HUD, and camera at runtime.
+`SampleScene` contains the authored gameplay structure: systems, corridor, player, camera, and HUD. Enemies, projectiles, and Upgrade Targets are instantiated from prefabs during play.

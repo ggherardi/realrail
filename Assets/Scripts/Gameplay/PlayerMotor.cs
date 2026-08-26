@@ -11,12 +11,6 @@ namespace RealRail
 
         InputAction _move;
 
-        public void Bind(LaneLayout laneLayout, GameSession gameSession)
-        {
-            lanes = laneLayout;
-            session = gameSession;
-        }
-
         void OnEnable()
         {
             if (InputSystem.actions == null)

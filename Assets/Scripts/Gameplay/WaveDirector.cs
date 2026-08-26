@@ -37,11 +37,11 @@ namespace RealRail
         };
         [SerializeField] GameObject upgradeTargetPrefab;
         [SerializeField] float upgradeTargetSpeed = 4f;
+        [SerializeField] GameSession session;
+        [SerializeField] EnemySpawner spawner;
+        [SerializeField] LaneLayout lanes;
+        [SerializeField] AutoFire autoFire;
 
-        GameSession _session;
-        EnemySpawner _spawner;
-        LaneLayout _lanes;
-        AutoFire _autoFire;
         WaveProgress _progress;
         int _waveIndex = -1;
 
@@ -49,36 +49,30 @@ namespace RealRail
         public int CurrentWaveNumber => _waveIndex + 1;
         public WaveProgress Progress => _progress;
 
-        public void Bind(GameSession session, EnemySpawner spawner, LaneLayout lanes, AutoFire autoFire, GameObject targetPrefab)
+        void Awake()
         {
-            if (_spawner != null)
+            if (spawner != null)
             {
-                _spawner.EnemySpawned -= OnEnemySpawned;
+                spawner.EnemySpawned += OnEnemySpawned;
             }
+        }
 
-            _session = session;
-            _spawner = spawner;
-            _lanes = lanes;
-            _autoFire = autoFire;
-            upgradeTargetPrefab = targetPrefab;
-
-            if (_spawner != null)
-            {
-                _spawner.EnemySpawned += OnEnemySpawned;
-            }
+        void Start()
+        {
+            StartRun();
         }
 
         void OnDestroy()
         {
-            if (_spawner != null)
+            if (spawner != null)
             {
-                _spawner.EnemySpawned -= OnEnemySpawned;
+                spawner.EnemySpawned -= OnEnemySpawned;
             }
         }
 
         public void StartRun()
         {
-            if (_session == null || !_session.IsPlaying || waves == null || waves.Length != 3)
+            if (session == null || !session.IsPlaying || spawner == null || waves == null || waves.Length != 3)
             {
                 return;
             }
@@ -91,7 +85,7 @@ namespace RealRail
             _waveIndex++;
             _progress = new WaveProgress(waves[_waveIndex].KillGoal);
             Phase = WavePhase.Spawning;
-            _spawner.BeginWave(waves[_waveIndex]);
+            spawner.BeginWave(waves[_waveIndex]);
         }
 
         void OnEnemySpawned(WaveEnemy enemy)
@@ -121,7 +115,7 @@ namespace RealRail
 
             if (_progress.KillGoalReached)
             {
-                _spawner.StopSpawning();
+                spawner.StopSpawning();
             }
 
             if (_progress.IsComplete)
@@ -135,7 +129,7 @@ namespace RealRail
             if (_waveIndex == waves.Length - 1)
             {
                 Phase = WavePhase.Complete;
-                _session.Win();
+                session.Win();
                 return;
             }
 
@@ -144,13 +138,13 @@ namespace RealRail
 
         void SpawnUpgradeTarget()
         {
-            if (upgradeTargetPrefab == null || _lanes == null)
+            if (upgradeTargetPrefab == null || lanes == null)
             {
                 return;
             }
 
-            var laneIndex = UnityEngine.Random.Range(0, _lanes.LaneCount);
-            var instance = Instantiate(upgradeTargetPrefab, _lanes.GetSpawnPosition(laneIndex), Quaternion.identity);
+            var laneIndex = UnityEngine.Random.Range(0, lanes.LaneCount);
+            var instance = Instantiate(upgradeTargetPrefab, lanes.GetSpawnPosition(laneIndex), Quaternion.identity);
             instance.SetActive(true);
             var target = instance.GetComponent<UpgradeTarget>();
             if (target == null)
@@ -159,7 +153,7 @@ namespace RealRail
                 return;
             }
 
-            target.Initialize(_session, _lanes.GetLaneX(laneIndex), _lanes.PlayerZ, _lanes.ActorY, upgradeTargetSpeed);
+            target.Initialize(session, lanes.GetLaneX(laneIndex), lanes.PlayerZ, lanes.ActorY, upgradeTargetSpeed);
             target.Resolved += OnUpgradeTargetResolved;
         }
 
@@ -167,17 +161,17 @@ namespace RealRail
         {
             target.Resolved -= OnUpgradeTargetResolved;
 
-            if (_session == null || !_session.IsPlaying || !collected)
+            if (session == null || !session.IsPlaying || !collected)
             {
                 return;
             }
 
-            _autoFire?.EnableDoubleShot();
+            autoFire?.EnableDoubleShot();
         }
 
         bool IsActiveWave()
         {
-            return _session != null && _session.IsPlaying && Phase == WavePhase.Spawning && _progress != null;
+            return session != null && session.IsPlaying && Phase == WavePhase.Spawning && _progress != null;
         }
     }
 }

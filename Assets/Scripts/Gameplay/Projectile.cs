@@ -7,17 +7,15 @@ namespace RealRail
         [SerializeField] float speed = 22f;
         [SerializeField] int damage = 1;
         [SerializeField] float maxZ = 30f;
+        [SerializeField] LayerMask enemyLayers;
+        [SerializeField] LayerMask dividerLayers;
 
         GameSession _session;
-        int _enemyLayer;
-        int _dividerLayer;
         bool _consumed;
 
-        public void Initialize(GameSession session, int enemyLayer, int dividerLayer)
+        public void Initialize(GameSession session)
         {
             _session = session;
-            _enemyLayer = enemyLayer;
-            _dividerLayer = dividerLayer;
         }
 
         void Update()
@@ -44,14 +42,14 @@ namespace RealRail
                 return;
             }
 
-            if (other.gameObject.layer == _dividerLayer)
+            if (IsInLayerMask(other.gameObject.layer, dividerLayers))
             {
                 _consumed = true;
                 Destroy(gameObject);
                 return;
             }
 
-            if (other.gameObject.layer != _enemyLayer)
+            if (!IsInLayerMask(other.gameObject.layer, enemyLayers))
             {
                 return;
             }
@@ -65,6 +63,11 @@ namespace RealRail
             _consumed = true;
             health.TakeDamage(damage);
             Destroy(gameObject);
+        }
+
+        static bool IsInLayerMask(int layer, LayerMask mask)
+        {
+            return (mask.value & (1 << layer)) != 0;
         }
     }
 }

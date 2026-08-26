@@ -8,22 +8,26 @@ namespace RealRail
         [SerializeField] Text hpText;
         [SerializeField] Text gameOverText;
         [SerializeField] Text victoryText;
+        [SerializeField] Health playerHealth;
+        [SerializeField] GameSession session;
 
-        Health _health;
-        GameSession _session;
+        void Awake()
+        {
+            Bind(hpText, gameOverText, victoryText, playerHealth, session);
+        }
 
         public void Bind(Text hitPoints, Text gameOver, Text victory, Health playerHealth, GameSession session)
         {
             hpText = hitPoints;
             gameOverText = gameOver;
             victoryText = victory;
-            _health = playerHealth;
-            _session = session;
+            this.playerHealth = playerHealth;
+            this.session = session;
 
-            if (_health != null)
+            if (this.playerHealth != null)
             {
-                _health.Changed += OnHealthChanged;
-                OnHealthChanged(_health.Current, _health.Max);
+                this.playerHealth.Changed += OnHealthChanged;
+                OnHealthChanged(this.playerHealth.Current, this.playerHealth.Max);
             }
 
             if (gameOverText != null)
@@ -36,24 +40,24 @@ namespace RealRail
                 victoryText.gameObject.SetActive(false);
             }
 
-            if (_session != null)
+            if (this.session != null)
             {
-                _session.Lost += OnLost;
-                _session.Victory += OnVictory;
+                this.session.Lost += OnLost;
+                this.session.Victory += OnVictory;
             }
         }
 
         void OnDestroy()
         {
-            if (_health != null)
+            if (playerHealth != null)
             {
-                _health.Changed -= OnHealthChanged;
+                playerHealth.Changed -= OnHealthChanged;
             }
 
-            if (_session != null)
+            if (session != null)
             {
-                _session.Lost -= OnLost;
-                _session.Victory -= OnVictory;
+                session.Lost -= OnLost;
+                session.Victory -= OnVictory;
             }
         }
 

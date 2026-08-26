@@ -12,7 +12,7 @@ namespace RealRail
 
     public sealed class GameSession : MonoBehaviour
     {
-        Health _playerHealth;
+        [SerializeField] Health playerHealth;
 
         public SessionState State { get; private set; } = SessionState.Playing;
         public bool IsPlaying => State == SessionState.Playing;
@@ -20,25 +20,30 @@ namespace RealRail
         public event Action Lost;
         public event Action Victory;
 
+        void Awake()
+        {
+            BindPlayer(playerHealth);
+        }
+
         public void BindPlayer(Health playerHealth)
         {
-            if (_playerHealth != null)
+            if (playerHealth != null)
             {
-                _playerHealth.Died -= OnPlayerDied;
+                playerHealth.Died -= OnPlayerDied;
             }
 
-            _playerHealth = playerHealth;
-            if (_playerHealth != null)
+            this.playerHealth = playerHealth;
+            if (this.playerHealth != null)
             {
-                _playerHealth.Died += OnPlayerDied;
+                this.playerHealth.Died += OnPlayerDied;
             }
         }
 
         void OnDestroy()
         {
-            if (_playerHealth != null)
+            if (playerHealth != null)
             {
-                _playerHealth.Died -= OnPlayerDied;
+                playerHealth.Died -= OnPlayerDied;
             }
         }
 

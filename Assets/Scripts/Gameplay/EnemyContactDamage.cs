@@ -5,15 +5,14 @@ namespace RealRail
     public sealed class EnemyContactDamage : MonoBehaviour
     {
         [SerializeField] int damage = 1;
+        [SerializeField] LayerMask playerLayers;
 
         GameSession _session;
-        int _playerLayer;
         bool _applied;
 
-        public void Initialize(GameSession session, int playerLayer)
+        public void Initialize(GameSession session)
         {
             _session = session;
-            _playerLayer = playerLayer;
         }
 
         void OnTriggerEnter(Collider other)
@@ -23,7 +22,7 @@ namespace RealRail
                 return;
             }
 
-            if (other.gameObject.layer != _playerLayer)
+            if ((playerLayers.value & (1 << other.gameObject.layer)) == 0)
             {
                 return;
             }
