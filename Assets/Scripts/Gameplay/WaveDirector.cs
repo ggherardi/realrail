@@ -9,12 +9,14 @@ namespace RealRail
         [Min(1)] public int KillGoal;
         [Min(0.01f)] public float SpawnInterval;
         [Min(0f)] public float MoveSpeed;
+        [Min(0)] public int UpgradeTriggerKillCount;
 
-        public WaveConfig(int killGoal, float spawnInterval, float moveSpeed)
+        public WaveConfig(int killGoal, float spawnInterval, float moveSpeed, int upgradeTriggerKillCount = 0)
         {
             KillGoal = killGoal;
             SpawnInterval = spawnInterval;
             MoveSpeed = moveSpeed;
+            UpgradeTriggerKillCount = upgradeTriggerKillCount;
         }
     }
 
@@ -22,7 +24,6 @@ namespace RealRail
     {
         None,
         Spawning,
-        Upgrade,
         Complete
     }
 
@@ -30,8 +31,8 @@ namespace RealRail
     {
         [SerializeField] WaveConfig[] waves =
         {
-            new WaveConfig(20, 0.35f, 3.6f),
-            new WaveConfig(40, 0.22f, 4f),
+            new WaveConfig(20, 0.35f, 3.6f, 8),
+            new WaveConfig(40, 0.22f, 4f, 16),
             new WaveConfig(70, 0.14f, 4.4f)
         };
         [SerializeField] GameObject upgradeTargetPrefab;
@@ -42,7 +43,6 @@ namespace RealRail
         LaneLayout _lanes;
         AutoFire _autoFire;
         WaveProgress _progress;
-        UpgradeTarget _activeUpgradeTarget;
         int _waveIndex = -1;
 
         public WavePhase Phase { get; private set; }
@@ -114,6 +114,11 @@ namespace RealRail
             }
 
             _progress.RegisterResolved(resolution);
+            if (_progress.TryConsumeUpgradeTrigger(waves[_waveIndex].UpgradeTriggerKillCount))
+            {
+                SpawnUpgradeTarget();
+            }
+
             if (_progress.KillGoalReached)
             {
                 _spawner.StopSpawning();
@@ -134,52 +139,40 @@ namespace RealRail
                 return;
             }
 
-            Phase = WavePhase.Upgrade;
-            SpawnUpgradeTarget();
+            StartNextWave();
         }
 
         void SpawnUpgradeTarget()
         {
             if (upgradeTargetPrefab == null || _lanes == null)
             {
-                StartNextWave();
                 return;
             }
 
             var laneIndex = UnityEngine.Random.Range(0, _lanes.LaneCount);
             var instance = Instantiate(upgradeTargetPrefab, _lanes.GetSpawnPosition(laneIndex), Quaternion.identity);
             instance.SetActive(true);
-            _activeUpgradeTarget = instance.GetComponent<UpgradeTarget>();
-            if (_activeUpgradeTarget == null)
+            var target = instance.GetComponent<UpgradeTarget>();
+            if (target == null)
             {
                 Destroy(instance);
-                StartNextWave();
                 return;
             }
 
-            _activeUpgradeTarget.Initialize(_session, _lanes.GetLaneX(laneIndex), _lanes.PlayerZ, _lanes.ActorY, upgradeTargetSpeed);
-            _activeUpgradeTarget.Resolved += OnUpgradeTargetResolved;
+            target.Initialize(_session, _lanes.GetLaneX(laneIndex), _lanes.PlayerZ, _lanes.ActorY, upgradeTargetSpeed);
+            target.Resolved += OnUpgradeTargetResolved;
         }
 
         void OnUpgradeTargetResolved(UpgradeTarget target, bool collected)
         {
             target.Resolved -= OnUpgradeTargetResolved;
-            if (_activeUpgradeTarget == target)
-            {
-                _activeUpgradeTarget = null;
-            }
 
-            if (_session == null || !_session.IsPlaying || Phase != WavePhase.Upgrade)
+            if (_session == null || !_session.IsPlaying || !collected)
             {
                 return;
             }
 
-            if (collected)
-            {
-                _autoFire?.EnableDoubleShot();
-            }
-
-            StartNextWave();
+            _autoFire?.EnableDoubleShot();
         }
 
         bool IsActiveWave()

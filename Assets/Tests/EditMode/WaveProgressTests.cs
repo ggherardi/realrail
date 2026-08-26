@@ -65,5 +65,47 @@ namespace RealRail.Tests
             Assert.AreEqual(0, progress.ActiveEnemyCount);
             Assert.IsTrue(progress.IsComplete);
         }
+
+        [Test]
+        public void UpgradeTrigger_IsConsumedOnceWhenKillThresholdIsReached()
+        {
+            var progress = new WaveProgress(20);
+            for (var index = 0; index < 7; index++)
+            {
+                progress.RegisterSpawned();
+                progress.RegisterResolved(WaveEnemyResolution.Killed);
+            }
+
+            Assert.IsFalse(progress.TryConsumeUpgradeTrigger(8));
+
+            progress.RegisterSpawned();
+            progress.RegisterResolved(WaveEnemyResolution.Killed);
+
+            Assert.IsTrue(progress.TryConsumeUpgradeTrigger(8));
+            Assert.IsFalse(progress.TryConsumeUpgradeTrigger(8));
+        }
+
+        [Test]
+        public void UpgradeTrigger_DoesNotCountRemovedEnemies()
+        {
+            var progress = new WaveProgress(20);
+            for (var index = 0; index < 8; index++)
+            {
+                progress.RegisterSpawned();
+                progress.RegisterResolved(WaveEnemyResolution.Removed);
+            }
+
+            Assert.IsFalse(progress.TryConsumeUpgradeTrigger(8));
+        }
+
+        [Test]
+        public void UpgradeTrigger_CanBeDisabled()
+        {
+            var progress = new WaveProgress(1);
+            progress.RegisterSpawned();
+            progress.RegisterResolved(WaveEnemyResolution.Killed);
+
+            Assert.IsFalse(progress.TryConsumeUpgradeTrigger(0));
+        }
     }
 }

@@ -13,6 +13,8 @@ namespace RealRail
         public bool KillGoalReached => KillCount >= KillGoal;
         public bool IsComplete => KillGoalReached && ActiveEnemyCount == 0;
 
+        bool _upgradeTriggerConsumed;
+
         public void RegisterSpawned()
         {
             ActiveEnemyCount++;
@@ -30,6 +32,17 @@ namespace RealRail
             {
                 KillCount++;
             }
+        }
+
+        public bool TryConsumeUpgradeTrigger(int triggerKillCount)
+        {
+            if (_upgradeTriggerConsumed || triggerKillCount <= 0 || KillCount < triggerKillCount)
+            {
+                return false;
+            }
+
+            _upgradeTriggerConsumed = true;
+            return true;
         }
     }
 }

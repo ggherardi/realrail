@@ -2,108 +2,54 @@
 
 ## Goal
 
-Introduce a three-wave structure with increasing difficulty and a first temporary in-run weapon upgrade.
+The run consists of three escalating enemy waves. The first two waves also create a parallel, optional weapon-upgrade objective during the active horde.
 
-## Wave Structure
+## Wave structure
 
-- The run contains 3 waves.
-- Each wave has a KillGoal.
-- `EnemySpawner` continues spawning enemies at the configured interval until that wave's KillGoal has been reached.
-- A wave is considered complete only when:
-  - the KillGoal has been reached; and
-  - no spawned enemies remain alive.
-- Only enemies killed by player projectile damage count toward the KillGoal.
-- An enemy that reaches the player still deals contact damage and is destroyed, but does not count as a kill or advance wave progression.
-- Once the KillGoal is reached, spawning stops immediately. Enemies already alive remain in play and may be killed or reach the player.
-- Kills beyond the KillGoal do not advance progression further.
-- The next wave starts only after the previous wave is complete.
-- Difficulty should increase between waves through a simple combination of:
-  - KillGoal;
-  - spawn interval;
-  - enemy movement speed.
+- The run contains exactly three waves.
+- Each wave has a `KillGoal`, `SpawnInterval`, `MoveSpeed`, and optional `UpgradeTriggerKillCount`.
+- `EnemySpawner` continues spawning normal enemies at the configured interval until that wave's `KillGoal` has been reached.
+- Only normal enemies killed by player projectile damage count toward `KillGoal`. Enemies that reach the player are resolved but do not count as kills.
+- Once `KillGoal` is reached, normal enemy spawning stops immediately. Existing normal enemies remain until killed or removed at the player.
+- A wave completes when its `KillGoal` is reached and no normal enemies spawned for that wave remain alive.
+- Upgrade Targets are not normal enemies for wave progression: they do not count toward kills or remaining-enemy checks.
+- On completion, a wave immediately starts the next wave. Completing Wave 3 produces Victory.
 
-Keep the balancing values simple and serialized/configurable where practical.
-Each wave configuration contains `KillGoal`, `SpawnInterval`, and `MoveSpeed`.
+## Upgrade Targets
 
-## Upgrade Phase
-
-- Between Wave 1 and Wave 2, and between Wave 2 and Wave 3, spawn one Upgrade Target.
-- The Upgrade Target occupies one of the two lanes.
-- It moves toward the player similarly to an enemy.
-- It can be damaged by projectiles.
-- It starts with 3 HP; this value should remain configurable.
-- It must be destroyed before reaching or passing the player.
-- If it reaches/passes the player, it disappears and the upgrade is lost.
-- Whether the player obtains the upgrade or misses it, the next wave starts afterward.
-- Upgrade Targets do not damage the player.
+- Wave 1 triggers one target on KillCount `8` of `20`; Wave 2 triggers one on KillCount `16` of `40`; Wave 3 has no target.
+- Trigger points are configured as integer kill counts. A configured trigger is consumed exactly once after the required player kill is registered.
+- The target spawns in a randomly selected one of the two lanes, centered on that lane's X coordinate.
+- Normal enemies continue spawning and advancing without interruption while a target is present.
+- Once spawned, a target owns its own independent lifecycle. Its origin wave does not own, wait for, remove, or otherwise alter it.
+- A target remains available across subsequent wave transitions. Targets from Waves 1 and 2 may coexist.
+- A target is missed only when it reaches or passes the player; it does not damage the player.
+- Player loss and Victory stop gameplay through `GameSession`; target callbacks ignore non-playing sessions safely.
 
 ## Double Shot
 
-Destroying an Upgrade Target grants Double Shot.
+Destroying an Upgrade Target grants Double Shot:
 
-Before the upgrade:
+- Before the upgrade, each auto-fire cycle creates one projectile.
+- After it, each cycle creates two straight, parallel projectiles with a small horizontal separation.
+- Double Shot lasts for the rest of the run.
+- It is idempotent and non-stackable. Collecting another target after obtaining it leaves firing at two projectiles per cycle.
 
-- each auto-fire cycle creates one projectile.
+## Initial balance
 
-After the upgrade:
+| Wave | KillGoal | SpawnInterval | MoveSpeed | Upgrade trigger |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 20 | 0.35s | 3.6 | 8 |
+| 2 | 40 | 0.22s | 4.0 | 16 |
+| 3 | 70 | 0.14s | 4.4 | none |
 
-- each auto-fire cycle creates two parallel projectiles;
-- the projectiles have a small horizontal separation;
-- both travel straight forward;
-- Double Shot remains active for the rest of the run.
+## Victory and Game Over
 
-Double Shot is not stackable.
+- Clearing Wave 3 after its KillGoal ends the run in Victory.
+- Player death ends the run in Game Over.
+- Both terminal states use the existing session-state mechanism; `Time.timeScale` is not changed.
 
-If the player already has Double Shot and destroys another Double Shot target, the weapon must remain at two projectiles per firing cycle.
+## Out of scope
 
-## Victory
-
-- After Wave 3 has reached its KillGoal and the field is clear, the run ends in Victory.
-- Show a simple Victory message.
-- Gameplay systems stop through the existing session-state mechanism.
-- Do not use `Time.timeScale = 0`.
-- The existing Game Over behavior must continue to work.
-
-## Initial Balancing
-
-Exact values may be adjusted during implementation, but the initial plan should use simple values in this general direction:
-
-| Wave | KillGoal | SpawnInterval | MoveSpeed |
-| --- | ---: | ---: | ---: |
-| 1 | 5 | 1.6s | 4.0 |
-| 2 | 8 | 1.2s | 4.5 |
-| 3 | 12 | 0.9s | 5.0 |
-
-Do not introduce a separate balancing framework solely for this milestone.
-
-## Out of Scope
-
-Do not implement:
-
-- multiple upgrade types;
-- upgrade selection UI;
-- upgrade rarity;
-- stacking Double Shot beyond two projectiles;
-- permanent or meta progression;
-- currencies;
-- inventory;
-- shops;
-- bosses;
-- save/load;
-- procedural level generation.
-
-## Acceptance Criteria
-
-The milestone is complete when:
-
-1. The game progresses through exactly three KillGoal-based waves.
-2. Only projectile kills count toward a wave KillGoal; enemies reaching the player do not advance it.
-3. A wave does not finish while enemies from that wave are still alive, even after its KillGoal is reached.
-4. Difficulty visibly increases across the three waves.
-5. An Upgrade Target appears between Wave 1→2 and Wave 2→3.
-6. Shooting and destroying the Upgrade Target grants Double Shot.
-7. Missing the Upgrade Target does not grant the upgrade and does not block progression.
-8. Double Shot produces exactly two projectiles per firing cycle and does not stack further.
-9. Existing enemy damage, player HP, and Game Over still work.
-10. Clearing Wave 3 results in Victory.
-11. Existing automated tests still pass and new testable behavior is covered where reasonable.
+- Additional upgrade types, selection UI, rarity, and stacking beyond Double Shot.
+- Permanent/meta progression, currencies, inventory, shops, bosses, save/load, and procedural level generation.
