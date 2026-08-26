@@ -22,7 +22,12 @@ namespace RealRail
             var upgradeTargetTemplate = CreateUpgradeTargetTemplate();
 
             var autoFire = player.GetComponent<AutoFire>();
-            autoFire.Bind(session, player.transform.Find("Muzzle"), projectileTemplate, LayerMask.NameToLayer(GameplayLayers.Enemy));
+            autoFire.Bind(
+                session,
+                player.transform.Find("Muzzle"),
+                projectileTemplate,
+                LayerMask.NameToLayer(GameplayLayers.Enemy),
+                LayerMask.NameToLayer(GameplayLayers.Divider));
 
             spawner.Bind(session, lanes, enemyTemplate, LayerMask.NameToLayer(GameplayLayers.Player));
 
@@ -38,17 +43,19 @@ namespace RealRail
             var player = LayerMask.NameToLayer(GameplayLayers.Player);
             var enemy = LayerMask.NameToLayer(GameplayLayers.Enemy);
             var projectile = LayerMask.NameToLayer(GameplayLayers.Projectile);
-            if (player < 0 || enemy < 0 || projectile < 0)
+            var divider = LayerMask.NameToLayer(GameplayLayers.Divider);
+            if (player < 0 || enemy < 0 || projectile < 0 || divider < 0)
             {
-                Debug.LogError("Player, Enemy, and Projectile layers must exist in Tags and Layers.");
+                Debug.LogError("Player, Enemy, Projectile, and Divider layers must exist in Tags and Layers.");
                 return;
             }
 
             for (var layer = 0; layer < 32; layer++)
             {
                 Physics.IgnoreLayerCollision(player, layer, layer != enemy);
-                Physics.IgnoreLayerCollision(projectile, layer, layer != enemy);
+                Physics.IgnoreLayerCollision(projectile, layer, layer != enemy && layer != divider);
                 Physics.IgnoreLayerCollision(enemy, layer, layer != player && layer != projectile);
+                Physics.IgnoreLayerCollision(divider, layer, layer != projectile);
             }
         }
 
@@ -64,19 +71,31 @@ namespace RealRail
             ApplyColor(ground, new Color(0.18f, 0.2f, 0.22f));
             Destroy(ground.GetComponent<Collider>());
 
-            CreateLaneStrip(root.transform, lanes.GetLaneX(0), new Color(0.25f, 0.45f, 0.7f));
-            CreateLaneStrip(root.transform, lanes.GetLaneX(1), new Color(0.7f, 0.35f, 0.25f));
+            CreateLaneStrip(root.transform, lanes.GetLaneX(0), lanes.LaneWidth, new Color(0.25f, 0.45f, 0.7f));
+            CreateLaneStrip(root.transform, lanes.GetLaneX(1), lanes.LaneWidth, new Color(0.7f, 0.35f, 0.25f));
+            CreateDivider(root.transform);
         }
 
-        static void CreateLaneStrip(Transform parent, float x, Color color)
+        static void CreateLaneStrip(Transform parent, float x, float width, Color color)
         {
             var strip = GameObject.CreatePrimitive(PrimitiveType.Cube);
             strip.name = $"Lane_{x}";
             strip.transform.SetParent(parent, false);
             strip.transform.position = new Vector3(x, 0.12f, 12f);
-            strip.transform.localScale = new Vector3(0.7f, 0.02f, 32f);
+            strip.transform.localScale = new Vector3(width, 0.02f, 32f);
             ApplyColor(strip, color);
             Destroy(strip.GetComponent<Collider>());
+        }
+
+        static void CreateDivider(Transform parent)
+        {
+            var divider = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            divider.name = "Divider";
+            divider.layer = LayerMask.NameToLayer(GameplayLayers.Divider);
+            divider.transform.SetParent(parent, false);
+            divider.transform.position = new Vector3(0f, 0.75f, 15f);
+            divider.transform.localScale = new Vector3(0.4f, 1.5f, 24f);
+            ApplyColor(divider, new Color(0.1f, 0.12f, 0.14f));
         }
 
         static GameObject CreatePlayer(LaneLayout lanes, GameSession session)
@@ -146,7 +165,7 @@ namespace RealRail
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
 
             var health = enemy.AddComponent<Health>();
-            health.SetMaxHealth(2);
+            health.SetMaxHealth(1);
             enemy.AddComponent<DestroyWhenDead>();
             enemy.AddComponent<EnemyMover>();
             enemy.AddComponent<EnemyContactDamage>();

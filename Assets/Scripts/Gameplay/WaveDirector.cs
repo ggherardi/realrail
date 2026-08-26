@@ -30,9 +30,9 @@ namespace RealRail
     {
         [SerializeField] WaveConfig[] waves =
         {
-            new WaveConfig(5, 1.6f, 4f),
-            new WaveConfig(8, 1.2f, 4.5f),
-            new WaveConfig(12, 0.9f, 5f)
+            new WaveConfig(20, 0.35f, 3.6f),
+            new WaveConfig(40, 0.22f, 4f),
+            new WaveConfig(70, 0.14f, 4.4f)
         };
         [SerializeField] GameObject upgradeTargetPrefab;
         [SerializeField] float upgradeTargetSpeed = 4f;

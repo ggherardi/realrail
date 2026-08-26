@@ -64,7 +64,7 @@ namespace RealRail
             instance.SetActive(true);
 
             var mover = instance.GetComponent<EnemyMover>();
-            mover.Initialize(session, lanes.GetLaneX(laneIndex), lanes.PlayerZ, lanes.ActorY, _moveSpeed);
+            mover.Initialize(session, position.x, lanes.PlayerZ, lanes.ActorY, _moveSpeed);
 
             var contact = instance.GetComponent<EnemyContactDamage>();
             contact.Initialize(session, _playerLayer);

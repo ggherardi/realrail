@@ -6,15 +6,18 @@ namespace RealRail
     {
         [SerializeField] float leftLaneX = -2.5f;
         [SerializeField] float rightLaneX = 2.5f;
+        [SerializeField] float laneWidth = 4.5f;
+        [SerializeField] float spawnEdgeInset = 0.55f;
         [SerializeField] float spawnZ = 24f;
         [SerializeField] float playerZ;
-        [SerializeField] float strafeMinX = -3.5f;
-        [SerializeField] float strafeMaxX = 3.5f;
+        [SerializeField] float strafeMinX = -4.5f;
+        [SerializeField] float strafeMaxX = 4.5f;
         [SerializeField] float actorY = 1f;
 
         public float PlayerZ => playerZ;
         public float ActorY => actorY;
         public int LaneCount => 2;
+        public float LaneWidth => laneWidth;
 
         public float GetLaneX(int laneIndex)
         {
@@ -23,7 +26,9 @@ namespace RealRail
 
         public Vector3 GetSpawnPosition(int laneIndex)
         {
-            return new Vector3(GetLaneX(laneIndex), actorY, spawnZ);
+            var minX = GetLaneX(laneIndex) - laneWidth * 0.5f + spawnEdgeInset;
+            var maxX = GetLaneX(laneIndex) + laneWidth * 0.5f - spawnEdgeInset;
+            return new Vector3(Random.Range(minX, maxX), actorY, spawnZ);
         }
 
         public float ClampStrafe(float x)

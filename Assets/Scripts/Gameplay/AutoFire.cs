@@ -11,16 +11,18 @@ namespace RealRail
         [SerializeField] float doubleShotSeparation = 0.45f;
 
         int _enemyLayer;
+        int _dividerLayer;
         float _cooldown;
 
         public bool HasDoubleShot { get; private set; }
 
-        public void Bind(GameSession gameSession, Transform muzzleTransform, GameObject prefab, int enemyLayer)
+        public void Bind(GameSession gameSession, Transform muzzleTransform, GameObject prefab, int enemyLayer, int dividerLayer)
         {
             session = gameSession;
             muzzle = muzzleTransform;
             projectilePrefab = prefab;
             _enemyLayer = enemyLayer;
+            _dividerLayer = dividerLayer;
         }
 
         void Update()
@@ -58,7 +60,7 @@ namespace RealRail
             var instance = Instantiate(projectilePrefab, position, Quaternion.identity);
             instance.SetActive(true);
             var projectile = instance.GetComponent<Projectile>();
-            projectile.Initialize(session, _enemyLayer);
+            projectile.Initialize(session, _enemyLayer, _dividerLayer);
         }
     }
 }
