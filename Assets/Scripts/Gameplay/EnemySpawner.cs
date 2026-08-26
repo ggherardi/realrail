@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace RealRail
@@ -11,6 +12,10 @@ namespace RealRail
 
         int _playerLayer;
         float _cooldown;
+        float _moveSpeed;
+        bool _isSpawning;
+
+        public event Action<WaveEnemy> EnemySpawned;
 
         public void Bind(GameSession gameSession, LaneLayout laneLayout, GameObject prefab, int playerLayer)
         {
@@ -18,12 +23,25 @@ namespace RealRail
             lanes = laneLayout;
             enemyPrefab = prefab;
             _playerLayer = playerLayer;
+            StopSpawning();
+        }
+
+        public void BeginWave(WaveConfig config)
+        {
+            spawnInterval = config.SpawnInterval;
+            _moveSpeed = config.MoveSpeed;
             _cooldown = spawnInterval;
+            _isSpawning = true;
+        }
+
+        public void StopSpawning()
+        {
+            _isSpawning = false;
         }
 
         void Update()
         {
-            if (session == null || !session.IsPlaying || lanes == null || enemyPrefab == null)
+            if (!_isSpawning || session == null || !session.IsPlaying || lanes == null || enemyPrefab == null)
             {
                 return;
             }
@@ -40,16 +58,18 @@ namespace RealRail
 
         void Spawn()
         {
-            var laneIndex = Random.Range(0, lanes.LaneCount);
+            var laneIndex = UnityEngine.Random.Range(0, lanes.LaneCount);
             var position = lanes.GetSpawnPosition(laneIndex);
             var instance = Instantiate(enemyPrefab, position, Quaternion.identity);
             instance.SetActive(true);
 
             var mover = instance.GetComponent<EnemyMover>();
-            mover.Initialize(session, lanes.GetLaneX(laneIndex), lanes.PlayerZ, lanes.ActorY);
+            mover.Initialize(session, lanes.GetLaneX(laneIndex), lanes.PlayerZ, lanes.ActorY, _moveSpeed);
 
             var contact = instance.GetComponent<EnemyContactDamage>();
             contact.Initialize(session, _playerLayer);
+
+            EnemySpawned?.Invoke(instance.GetComponent<WaveEnemy>());
         }
     }
 }

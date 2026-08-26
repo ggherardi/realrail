@@ -13,11 +13,13 @@ namespace RealRail
             var lanes = gameObject.AddComponent<LaneLayout>();
             var session = gameObject.AddComponent<GameSession>();
             var spawner = gameObject.AddComponent<EnemySpawner>();
+            var waveDirector = gameObject.AddComponent<WaveDirector>();
 
             CreateEnvironment(lanes);
             var player = CreatePlayer(lanes, session);
             var projectileTemplate = CreateProjectileTemplate();
             var enemyTemplate = CreateEnemyTemplate();
+            var upgradeTargetTemplate = CreateUpgradeTargetTemplate();
 
             var autoFire = player.GetComponent<AutoFire>();
             autoFire.Bind(session, player.transform.Find("Muzzle"), projectileTemplate, LayerMask.NameToLayer(GameplayLayers.Enemy));
@@ -26,6 +28,8 @@ namespace RealRail
 
             session.BindPlayer(player.GetComponent<Health>());
             CreateHud(player.GetComponent<Health>(), session);
+            waveDirector.Bind(session, spawner, lanes, autoFire, upgradeTargetTemplate);
+            waveDirector.StartRun();
             PositionCamera();
         }
 
@@ -146,8 +150,33 @@ namespace RealRail
             enemy.AddComponent<DestroyWhenDead>();
             enemy.AddComponent<EnemyMover>();
             enemy.AddComponent<EnemyContactDamage>();
+            enemy.AddComponent<WaveEnemy>();
             enemy.SetActive(false);
             return enemy;
+        }
+
+        static GameObject CreateUpgradeTargetTemplate()
+        {
+            var target = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            target.name = "UpgradeTarget";
+            target.layer = LayerMask.NameToLayer(GameplayLayers.Enemy);
+            target.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
+            ApplyColor(target, new Color(0.35f, 0.9f, 1f));
+
+            var collider = target.GetComponent<BoxCollider>();
+            collider.isTrigger = true;
+
+            var body = target.AddComponent<Rigidbody>();
+            body.isKinematic = true;
+            body.useGravity = false;
+            body.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+
+            target.AddComponent<Health>();
+            target.AddComponent<DestroyWhenDead>();
+            target.AddComponent<EnemyMover>();
+            target.AddComponent<UpgradeTarget>();
+            target.SetActive(false);
+            return target;
         }
 
         static void CreateHud(Health playerHealth, GameSession session)
@@ -162,9 +191,12 @@ namespace RealRail
             var gameOverText = CreateLabel(canvasObject.transform, "GameOverText", Vector2.zero, TextAnchor.MiddleCenter, 48);
             gameOverText.text = "Game Over";
             gameOverText.alignment = TextAnchor.MiddleCenter;
+            var victoryText = CreateLabel(canvasObject.transform, "VictoryText", Vector2.zero, TextAnchor.MiddleCenter, 48);
+            victoryText.text = "Victory";
+            victoryText.alignment = TextAnchor.MiddleCenter;
 
             var hud = canvasObject.AddComponent<HudView>();
-            hud.Bind(hpText, gameOverText, playerHealth, session);
+            hud.Bind(hpText, gameOverText, victoryText, playerHealth, session);
         }
 
         static Text CreateLabel(Transform parent, string name, Vector2 anchoredPosition, TextAnchor anchor, int fontSize)

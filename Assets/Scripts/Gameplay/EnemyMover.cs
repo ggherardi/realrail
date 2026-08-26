@@ -11,12 +11,16 @@ namespace RealRail
         float _targetZ;
         float _y;
 
-        public void Initialize(GameSession session, float laneX, float targetZ, float y)
+        public void Initialize(GameSession session, float laneX, float targetZ, float y, float movementSpeed = -1f)
         {
             _session = session;
             _laneX = laneX;
             _targetZ = targetZ;
             _y = y;
+            if (movementSpeed >= 0f)
+            {
+                speed = movementSpeed;
+            }
         }
 
         void Update()

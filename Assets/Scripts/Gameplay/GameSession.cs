@@ -6,7 +6,8 @@ namespace RealRail
     public enum SessionState
     {
         Playing,
-        Lost
+        Lost,
+        Victory
     }
 
     public sealed class GameSession : MonoBehaviour
@@ -17,6 +18,7 @@ namespace RealRail
         public bool IsPlaying => State == SessionState.Playing;
 
         public event Action Lost;
+        public event Action Victory;
 
         public void BindPlayer(Health playerHealth)
         {
@@ -42,13 +44,24 @@ namespace RealRail
 
         void OnPlayerDied()
         {
-            if (State == SessionState.Lost)
+            if (!IsPlaying)
             {
                 return;
             }
 
             State = SessionState.Lost;
             Lost?.Invoke();
+        }
+
+        public void Win()
+        {
+            if (!IsPlaying)
+            {
+                return;
+            }
+
+            State = SessionState.Victory;
+            Victory?.Invoke();
         }
     }
 }

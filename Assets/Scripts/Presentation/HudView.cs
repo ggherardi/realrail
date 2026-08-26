@@ -7,14 +7,16 @@ namespace RealRail
     {
         [SerializeField] Text hpText;
         [SerializeField] Text gameOverText;
+        [SerializeField] Text victoryText;
 
         Health _health;
         GameSession _session;
 
-        public void Bind(Text hitPoints, Text gameOver, Health playerHealth, GameSession session)
+        public void Bind(Text hitPoints, Text gameOver, Text victory, Health playerHealth, GameSession session)
         {
             hpText = hitPoints;
             gameOverText = gameOver;
+            victoryText = victory;
             _health = playerHealth;
             _session = session;
 
@@ -29,9 +31,15 @@ namespace RealRail
                 gameOverText.gameObject.SetActive(false);
             }
 
+            if (victoryText != null)
+            {
+                victoryText.gameObject.SetActive(false);
+            }
+
             if (_session != null)
             {
                 _session.Lost += OnLost;
+                _session.Victory += OnVictory;
             }
         }
 
@@ -45,6 +53,7 @@ namespace RealRail
             if (_session != null)
             {
                 _session.Lost -= OnLost;
+                _session.Victory -= OnVictory;
             }
         }
 
@@ -61,6 +70,14 @@ namespace RealRail
             if (gameOverText != null)
             {
                 gameOverText.gameObject.SetActive(true);
+            }
+        }
+
+        void OnVictory()
+        {
+            if (victoryText != null)
+            {
+                victoryText.gameObject.SetActive(true);
             }
         }
     }
