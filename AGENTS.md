@@ -31,6 +31,16 @@ Before considering a task complete:
 - Add or update tests when the changed behavior can reasonably be tested.
 - Report any verification that could not be performed.
 
+### Unity batch-mode licensing
+
+An initial LicensingClient protocol or handshake error in a Unity batch log can
+be recoverable. Unity may subsequently launch its bundled version-specific
+LicensingClient; evaluate the final licensing state, where `Licensing is
+initialized` confirms successful initialization. Determine test success from
+process completion, creation of `TestResults.xml`, and its NUnit results. If no
+results file is created, inspect the end of the Unity log and report the final
+shutdown cause rather than an earlier licensing warning.
+
 ## Documentation
 
 Project documentation is stored under `docs/`.

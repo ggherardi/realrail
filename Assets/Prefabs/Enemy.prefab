@@ -184,7 +184,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7549163733765803137}
+  - {fileID: 5435058644836914415}
   m_Father: {fileID: 1549407865211761985}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &5541552313196802820
@@ -200,6 +200,10 @@ PrefabInstance:
       value: Enemy_Grunt
       objectReference: {fileID: 0}
     - target: {fileID: 400100000, guid: 59b3e1bb3f3044f08567ed9f543bdc53, type: 3}
+      propertyPath: m_LocalScale
+      value: 1, 1, 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 400100000, guid: 59b3e1bb3f3044f08567ed9f543bdc53, type: 3}
       propertyPath: m_LocalPosition
       value: 0, 0, 0
       objectReference: {fileID: 0}
@@ -208,20 +212,20 @@ PrefabInstance:
       value: 0, 0, 0, 1
       objectReference: {fileID: 0}
     - target: {fileID: 400100000, guid: 59b3e1bb3f3044f08567ed9f543bdc53, type: 3}
-      propertyPath: m_LocalScale
-      value: 1, 1, 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400100000, guid: 59b3e1bb3f3044f08567ed9f543bdc53, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 59b3e1bb3f3044f08567ed9f543bdc53, type: 3}
+      propertyPath: m_Controller
+      value:
+      objectReference: {fileID: 9100000, guid: e7a1146e70f43433d871241845842124, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 59b3e1bb3f3044f08567ed9f543bdc53, type: 3}
---- !u!4 &7549163733765803137 stripped
+--- !u!4 &5435058644836914415 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 400100000, guid: 59b3e1bb3f3044f08567ed9f543bdc53, type: 3}
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 59b3e1bb3f3044f08567ed9f543bdc53, type: 3}
   m_PrefabInstance: {fileID: 5541552313196802820}
   m_PrefabAsset: {fileID: 0}

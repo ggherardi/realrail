@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -82,6 +83,7 @@ namespace RealRail.Tests
             Assert.AreEqual(1, Property(enemy.GetComponent<EnemyContactDamage>(), "damage").intValue);
             Assert.AreEqual(1 << LayerMask.NameToLayer(GameplayLayers.Player), Property(enemy.GetComponent<EnemyContactDamage>(), "playerLayers").intValue);
             AssertVisualChild(enemy);
+            AssertEnemyGruntVisualAnimation(enemy);
 
             var projectile = LoadPrefab("Assets/Prefabs/Projectile.prefab");
             Assert.AreEqual(LayerMask.NameToLayer(GameplayLayers.Projectile), projectile.layer);
@@ -182,6 +184,28 @@ namespace RealRail.Tests
             Assert.IsEmpty(visual.GetComponentsInChildren<Collider>(true));
             Assert.IsEmpty(visual.GetComponentsInChildren<Rigidbody>(true));
             Assert.IsEmpty(visual.GetComponentsInChildren<MonoBehaviour>(true));
+        }
+
+        static void AssertEnemyGruntVisualAnimation(GameObject enemy)
+        {
+            Assert.IsNull(enemy.GetComponent<Animator>());
+
+            var visual = enemy.transform.Find("Visual");
+            var animator = visual.GetComponentInChildren<Animator>(true);
+            Assert.NotNull(animator);
+            Assert.NotNull(animator.runtimeAnimatorController);
+            Assert.IsFalse(animator.applyRootMotion);
+
+            var importer = AssetImporter.GetAtPath("Assets/Art/Enemies/Enemy_Grunt/Enemy_Grunt.fbx") as ModelImporter;
+            Assert.NotNull(importer);
+            Assert.IsTrue(importer.importAnimation);
+            Assert.AreEqual(ModelImporterAnimationType.Generic, importer.animationType);
+
+            var walk = AssetDatabase.LoadAllAssetsAtPath("Assets/Art/Enemies/Enemy_Grunt/Enemy_Grunt.fbx")
+                .OfType<AnimationClip>()
+                .Single(clip => clip.name == "Walk");
+            Assert.IsTrue(walk.isLooping);
+            Assert.Contains(walk, animator.runtimeAnimatorController.animationClips);
         }
 
         static void AssertAssigned(Object target, string propertyName)
