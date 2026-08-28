@@ -85,6 +85,10 @@ namespace RealRail.Tests
             AssertVisualChild(enemy);
             AssertEnemyGruntVisualAnimation(enemy);
 
+            var heavy = LoadPrefab("Assets/Prefabs/Enemy_Heavy.prefab");
+            AssertEnemyHeavyVariant(enemy, heavy);
+            AssertEnemyHeavyVisualAnimation(heavy);
+
             var projectile = LoadPrefab("Assets/Prefabs/Projectile.prefab");
             Assert.AreEqual(LayerMask.NameToLayer(GameplayLayers.Projectile), projectile.layer);
             AssertPrefabPhysics(projectile, projectile.GetComponent<BoxCollider>());
@@ -206,6 +210,87 @@ namespace RealRail.Tests
                 .Single(clip => clip.name == "Walk");
             Assert.IsTrue(walk.isLooping);
             Assert.Contains(walk, animator.runtimeAnimatorController.animationClips);
+        }
+
+        static void AssertEnemyHeavyVariant(GameObject enemy, GameObject heavy)
+        {
+            Assert.AreEqual(PrefabAssetType.Variant, PrefabUtility.GetPrefabAssetType(heavy));
+            Assert.AreSame(enemy, PrefabUtility.GetCorrespondingObjectFromSource(heavy));
+            Assert.AreEqual(enemy.layer, heavy.layer);
+
+            CollectionAssert.AreEquivalent(
+                enemy.GetComponents<Component>().Select(component => component.GetType()),
+                heavy.GetComponents<Component>().Select(component => component.GetType()));
+
+            var collider = heavy.GetComponent<CapsuleCollider>();
+            AssertPrefabPhysics(heavy, collider);
+            Assert.AreEqual(1, heavy.GetComponents<Collider>().Length);
+            Assert.AreEqual(0.5f, collider.radius);
+            Assert.AreEqual(1f, collider.height);
+            Assert.AreEqual(Vector3.zero, collider.center);
+            Assert.AreEqual(1, collider.direction);
+            Assert.AreEqual(1, Property(heavy.GetComponent<Health>(), "maxHealth").intValue);
+            Assert.AreEqual(4f, Property(heavy.GetComponent<EnemyMover>(), "speed").floatValue);
+            Assert.AreEqual(1, Property(heavy.GetComponent<EnemyContactDamage>(), "damage").intValue);
+            Assert.AreEqual(
+                1 << LayerMask.NameToLayer(GameplayLayers.Player),
+                Property(heavy.GetComponent<EnemyContactDamage>(), "playerLayers").intValue);
+
+            AssertVisualChild(heavy);
+        }
+
+        static void AssertEnemyHeavyVisualAnimation(GameObject heavy)
+        {
+            const string heavyFbxPath = "Assets/Art/Enemies/Enemy_Heavy/Enemy_Heavy.fbx";
+            const string rootBoneName = "HV_Root";
+
+            Assert.IsNull(heavy.GetComponent<Animator>());
+            var visual = heavy.transform.Find("Visual");
+            var animators = heavy.GetComponentsInChildren<Animator>(true);
+            Assert.AreEqual(1, animators.Length);
+            var animator = animators.Single();
+            Assert.IsTrue(animator.transform.IsChildOf(visual));
+            Assert.NotNull(animator.runtimeAnimatorController);
+            Assert.IsFalse(animator.applyRootMotion);
+
+            var importer = AssetImporter.GetAtPath(heavyFbxPath) as ModelImporter;
+            Assert.NotNull(importer);
+            Assert.IsTrue(importer.importAnimation);
+            Assert.AreEqual(ModelImporterAnimationType.Generic, importer.animationType);
+            Assert.IsEmpty(importer.motionNodeName);
+
+            var clips = AssetDatabase.LoadAllAssetsAtPath(heavyFbxPath)
+                .OfType<AnimationClip>()
+                .Where(clip => !clip.name.StartsWith("__preview__"))
+                .ToArray();
+            Assert.AreEqual(1, clips.Length, "Enemy Heavy must import exactly one intended animation clip.");
+            var walk = clips.Single();
+            Assert.AreEqual("Walk", walk.name);
+            Assert.IsTrue(walk.isLooping);
+            CollectionAssert.AreEquivalent(new[] { walk }, animator.runtimeAnimatorController.animationClips);
+
+            AssertRootHasNoAnimatedMotion(walk, rootBoneName);
+        }
+
+        static void AssertRootHasNoAnimatedMotion(AnimationClip clip, string rootBoneName)
+        {
+            var rootTransformBindings = AnimationUtility.GetCurveBindings(clip)
+                .Where(binding => binding.path.Split('/').LastOrDefault() == rootBoneName)
+                .Where(binding => binding.propertyName.StartsWith("m_LocalPosition") ||
+                                  binding.propertyName.StartsWith("m_LocalRotation") ||
+                                  binding.propertyName.StartsWith("localEulerAngles"));
+
+            foreach (var binding in rootTransformBindings)
+            {
+                var curve = AnimationUtility.GetEditorCurve(clip, binding);
+                Assert.NotNull(curve, $"Missing root curve for {binding.propertyName}");
+                Assert.Greater(curve.length, 0, $"Empty root curve for {binding.propertyName}");
+
+                var initialValue = curve.keys[0].value;
+                Assert.IsTrue(
+                    curve.keys.All(key => Mathf.Approximately(initialValue, key.value)),
+                    $"{rootBoneName}.{binding.propertyName} changes over the Walk clip and would animate root motion.");
+            }
         }
 
         static void AssertAssigned(Object target, string propertyName)
