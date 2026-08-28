@@ -65,14 +65,22 @@ namespace RealRail.Tests
         {
             var enemy = LoadPrefab("Assets/Prefabs/Enemy.prefab");
             Assert.AreEqual(LayerMask.NameToLayer(GameplayLayers.Enemy), enemy.layer);
-            AssertPrefabPhysics(enemy, enemy.GetComponent<CapsuleCollider>());
+            var enemyCollider = enemy.GetComponent<CapsuleCollider>();
+            AssertPrefabPhysics(enemy, enemyCollider);
+            Assert.AreEqual(1, enemy.GetComponents<Collider>().Length);
+            Assert.AreEqual(0.5f, enemyCollider.radius);
+            Assert.AreEqual(1f, enemyCollider.height);
+            Assert.AreEqual(Vector3.zero, enemyCollider.center);
+            Assert.AreEqual(1, enemyCollider.direction);
             Assert.NotNull(enemy.GetComponent<Health>());
             Assert.NotNull(enemy.GetComponent<DestroyWhenDead>());
             Assert.NotNull(enemy.GetComponent<EnemyMover>());
             Assert.NotNull(enemy.GetComponent<EnemyContactDamage>());
             Assert.NotNull(enemy.GetComponent<WaveEnemy>());
             Assert.AreEqual(1, Property(enemy.GetComponent<Health>(), "maxHealth").intValue);
+            Assert.AreEqual(4f, Property(enemy.GetComponent<EnemyMover>(), "speed").floatValue);
             Assert.AreEqual(1, Property(enemy.GetComponent<EnemyContactDamage>(), "damage").intValue);
+            Assert.AreEqual(1 << LayerMask.NameToLayer(GameplayLayers.Player), Property(enemy.GetComponent<EnemyContactDamage>(), "playerLayers").intValue);
             AssertVisualChild(enemy);
 
             var projectile = LoadPrefab("Assets/Prefabs/Projectile.prefab");
@@ -170,8 +178,10 @@ namespace RealRail.Tests
         {
             var visual = prefab.transform.Find("Visual");
             Assert.NotNull(visual);
-            Assert.NotNull(visual.GetComponent<Renderer>());
-            Assert.IsNull(visual.GetComponent<Collider>());
+            Assert.NotNull(visual.GetComponentInChildren<Renderer>(true));
+            Assert.IsEmpty(visual.GetComponentsInChildren<Collider>(true));
+            Assert.IsEmpty(visual.GetComponentsInChildren<Rigidbody>(true));
+            Assert.IsEmpty(visual.GetComponentsInChildren<MonoBehaviour>(true));
         }
 
         static void AssertAssigned(Object target, string propertyName)
