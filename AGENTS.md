@@ -21,6 +21,19 @@ This is a Unity 6.5 3D game project written in C#.
 - Do not manually edit generated project/solution files unless required.
 - Keep gameplay logic separate from presentation where practical.
 
+### Unity `.meta` files
+
+- Do not fabricate minimal `.meta` files; let Unity generate and fully serialize
+  metadata for new assets and folders whenever possible.
+- Preserve valid GUIDs. Never regenerate one merely to normalize metadata.
+- Treat importer sections (`DefaultImporter`, `ModelImporter`,
+  `TextureImporter`, animation settings, and similar) as semantic changes.
+  Inspect the actual Git diff before calling metadata formatting-only or
+  restoring it; do not automatically discard Unity-generated importer data.
+- When generating external assets (`.blend`, `.fbx`, textures, audio, etc.),
+  verify their final Unity-imported `.meta` state and version-control it with
+  the asset.
+
 ## Verification
 
 Before considering a task complete:
