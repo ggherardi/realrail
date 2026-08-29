@@ -110,3 +110,9 @@ shutdown cause rather than an earlier licensing warning.
 Project documentation is stored under `docs/`.
 
 When a task introduces or changes an important architectural decision or game rule, update the relevant documentation.
+
+## Art Direction
+
+Before making major visual decisions for assets, environment/art, UI/HUD, VFX,
+or camera/presentation, Leads must read `docs/art/ART_DIRECTION.md` and inspect
+its associated visual reference.
