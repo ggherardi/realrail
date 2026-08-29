@@ -42,6 +42,14 @@ namespace RealRail.Tests
             AssertAssigned(spawner, "lanes");
             AssertAssigned(spawner, "enemyPrefab");
             AssertAssigned(spawner, "heavyEnemyPrefab");
+            var heavyReference = Property(spawner, "heavyEnemyPrefab").objectReferenceValue;
+            Assert.IsInstanceOf<GameObject>(heavyReference);
+            Assert.AreEqual(
+                PrefabAssetType.Variant,
+                PrefabUtility.GetPrefabAssetType((GameObject)heavyReference));
+            Assert.AreSame(
+                LoadPrefab("Assets/Prefabs/Enemy_Heavy.prefab"),
+                heavyReference);
         }
 
         [Test]
@@ -130,6 +138,9 @@ namespace RealRail.Tests
             Assert.AreEqual(new Vector3(0f, 0.75f, 21f), divider.position);
             Assert.AreEqual(new Vector3(0.4f, 1.5f, 36f), divider.localScale);
             Assert.NotNull(divider.GetComponent<BoxCollider>());
+
+            AssertLaneSurface(environment.transform.Find("LeftLane"), -2.5f);
+            AssertLaneSurface(environment.transform.Find("RightLane"), 2.5f);
         }
 
         [Test]
@@ -190,6 +201,14 @@ namespace RealRail.Tests
             Assert.IsTrue(body.isKinematic);
             Assert.IsFalse(body.useGravity);
             Assert.AreEqual(CollisionDetectionMode.ContinuousSpeculative, body.collisionDetectionMode);
+        }
+
+        static void AssertLaneSurface(Transform lane, float expectedX)
+        {
+            Assert.NotNull(lane);
+            Assert.AreEqual(new Vector3(expectedX, 0.12f, 21f), lane.position);
+            Assert.AreEqual(new Vector3(4.5f, 0.02f, 36f), lane.localScale);
+            Assert.NotNull(lane.GetComponent<MeshRenderer>());
         }
 
         static void AssertVisualChild(GameObject prefab)
