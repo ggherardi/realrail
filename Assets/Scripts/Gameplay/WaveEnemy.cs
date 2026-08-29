@@ -40,6 +40,11 @@ namespace RealRail
             Resolve(WaveEnemyResolution.Killed);
         }
 
+        public void ResolveRemoved()
+        {
+            Resolve(WaveEnemyResolution.Removed);
+        }
+
         void Resolve(WaveEnemyResolution resolution)
         {
             if (_resolved)

@@ -41,6 +41,7 @@ namespace RealRail.Tests
             AssertAssigned(spawner, "session");
             AssertAssigned(spawner, "lanes");
             AssertAssigned(spawner, "enemyPrefab");
+            AssertAssigned(spawner, "heavyEnemyPrefab");
         }
 
         [Test]
@@ -76,12 +77,10 @@ namespace RealRail.Tests
             Assert.NotNull(enemy.GetComponent<Health>());
             Assert.NotNull(enemy.GetComponent<DestroyWhenDead>());
             Assert.NotNull(enemy.GetComponent<EnemyMover>());
-            Assert.NotNull(enemy.GetComponent<EnemyContactDamage>());
+            Assert.NotNull(enemy.GetComponent<EnemyDefenseLine>());
             Assert.NotNull(enemy.GetComponent<WaveEnemy>());
             Assert.AreEqual(1, Property(enemy.GetComponent<Health>(), "maxHealth").intValue);
             Assert.AreEqual(4f, Property(enemy.GetComponent<EnemyMover>(), "speed").floatValue);
-            Assert.AreEqual(1, Property(enemy.GetComponent<EnemyContactDamage>(), "damage").intValue);
-            Assert.AreEqual(1 << LayerMask.NameToLayer(GameplayLayers.Player), Property(enemy.GetComponent<EnemyContactDamage>(), "playerLayers").intValue);
             AssertVisualChild(enemy);
             AssertEnemyGruntVisualAnimation(enemy);
 
@@ -96,7 +95,7 @@ namespace RealRail.Tests
             Assert.NotNull(projectileComponent);
             Assert.AreEqual(22f, Property(projectileComponent, "speed").floatValue);
             Assert.AreEqual(1, Property(projectileComponent, "damage").intValue);
-            Assert.AreEqual(30f, Property(projectileComponent, "maxZ").floatValue);
+            Assert.AreEqual(45f, Property(projectileComponent, "maxZ").floatValue);
             Assert.AreEqual(1 << LayerMask.NameToLayer(GameplayLayers.Enemy), Property(projectileComponent, "enemyLayers").intValue);
             Assert.AreEqual(1 << LayerMask.NameToLayer(GameplayLayers.Divider), Property(projectileComponent, "dividerLayers").intValue);
             AssertVisualChild(projectile);
@@ -119,7 +118,8 @@ namespace RealRail.Tests
             Assert.AreEqual(-2.5f, layout.GetLaneX(0));
             Assert.AreEqual(2.5f, layout.GetLaneX(1));
             Assert.AreEqual(4.5f, layout.LaneWidth);
-            Assert.AreEqual(24f, layout.GetSpawnPosition(0).z);
+            Assert.AreEqual(36f, layout.GetSpawnPosition(0).z);
+            Assert.AreEqual(0f, layout.DefenseLineZ);
             Assert.AreEqual(-4.5f, layout.ClampStrafe(-100f));
             Assert.AreEqual(4.5f, layout.ClampStrafe(100f));
 
@@ -127,9 +127,21 @@ namespace RealRail.Tests
             var divider = environment.transform.Find("Divider");
             Assert.NotNull(divider);
             Assert.AreEqual(LayerMask.NameToLayer(GameplayLayers.Divider), divider.gameObject.layer);
-            Assert.AreEqual(new Vector3(0f, 0.75f, 15f), divider.position);
-            Assert.AreEqual(new Vector3(0.4f, 1.5f, 24f), divider.localScale);
+            Assert.AreEqual(new Vector3(0f, 0.75f, 21f), divider.position);
+            Assert.AreEqual(new Vector3(0.4f, 1.5f, 36f), divider.localScale);
             Assert.NotNull(divider.GetComponent<BoxCollider>());
+        }
+
+        [Test]
+        public void Scene_UsesExplicitIncreasingHeavyWaveComposition()
+        {
+            var director = FindRoot("Systems").GetComponentInChildren<WaveDirector>(true);
+            var waves = Property(director, "waves");
+
+            Assert.AreEqual(3, waves.arraySize);
+            Assert.AreEqual(0f, waves.GetArrayElementAtIndex(0).FindPropertyRelative("HeavySpawnChance").floatValue);
+            Assert.AreEqual(0.15f, waves.GetArrayElementAtIndex(1).FindPropertyRelative("HeavySpawnChance").floatValue);
+            Assert.AreEqual(0.30f, waves.GetArrayElementAtIndex(2).FindPropertyRelative("HeavySpawnChance").floatValue);
         }
 
         [Test]
@@ -229,12 +241,8 @@ namespace RealRail.Tests
             Assert.AreEqual(1f, collider.height);
             Assert.AreEqual(Vector3.zero, collider.center);
             Assert.AreEqual(1, collider.direction);
-            Assert.AreEqual(1, Property(heavy.GetComponent<Health>(), "maxHealth").intValue);
-            Assert.AreEqual(4f, Property(heavy.GetComponent<EnemyMover>(), "speed").floatValue);
-            Assert.AreEqual(1, Property(heavy.GetComponent<EnemyContactDamage>(), "damage").intValue);
-            Assert.AreEqual(
-                1 << LayerMask.NameToLayer(GameplayLayers.Player),
-                Property(heavy.GetComponent<EnemyContactDamage>(), "playerLayers").intValue);
+            Assert.AreEqual(4, Property(heavy.GetComponent<Health>(), "maxHealth").intValue);
+            Assert.AreEqual(3f, Property(heavy.GetComponent<EnemyMover>(), "speed").floatValue);
 
             AssertVisualChild(heavy);
         }

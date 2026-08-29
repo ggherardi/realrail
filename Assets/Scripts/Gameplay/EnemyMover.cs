@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace RealRail
@@ -10,6 +11,11 @@ namespace RealRail
         float _laneX;
         float _targetZ;
         float _y;
+        bool _hasReachedDestination;
+
+        public float BaseSpeed => speed;
+
+        public event Action DestinationReached;
 
         public void Initialize(GameSession session, float laneX, float targetZ, float y, float movementSpeed = -1f)
         {
@@ -17,6 +23,7 @@ namespace RealRail
             _laneX = laneX;
             _targetZ = targetZ;
             _y = y;
+            _hasReachedDestination = false;
             if (movementSpeed >= 0f)
             {
                 speed = movementSpeed;
@@ -24,6 +31,11 @@ namespace RealRail
         }
 
         void Update()
+        {
+            Advance(Time.deltaTime);
+        }
+
+        public void Advance(float deltaTime)
         {
             if (_session != null && !_session.IsPlaying)
             {
@@ -33,8 +45,14 @@ namespace RealRail
             var position = transform.position;
             position.x = _laneX;
             position.y = _y;
-            position.z = Mathf.MoveTowards(position.z, _targetZ, speed * Time.deltaTime);
+            position.z = Mathf.MoveTowards(position.z, _targetZ, speed * deltaTime);
             transform.position = position;
+
+            if (!_hasReachedDestination && Mathf.Approximately(position.z, _targetZ))
+            {
+                _hasReachedDestination = true;
+                DestinationReached?.Invoke();
+            }
         }
     }
 }

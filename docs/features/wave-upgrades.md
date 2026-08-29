@@ -7,12 +7,12 @@ The run consists of three escalating enemy waves. The first two waves also creat
 ## Wave structure
 
 - The run contains exactly three waves.
-- Each wave has a `KillGoal`, `SpawnInterval`, `MoveSpeed`, and optional `UpgradeTriggerKillCount`.
-- `EnemySpawner` continues spawning normal enemies at the configured interval until that wave's `KillGoal` has been reached.
-- Only normal enemies killed by player projectile damage count toward `KillGoal`. Enemies that reach the player are resolved but do not count as kills.
-- Once `KillGoal` is reached, normal enemy spawning stops immediately. Existing normal enemies remain until killed or removed at the player.
-- A wave completes when its `KillGoal` is reached and no normal enemies spawned for that wave remain alive.
-- Upgrade Targets are not normal enemies for wave progression: they do not count toward kills or remaining-enemy checks.
+- Each wave has a `KillGoal`, `SpawnInterval`, Grunt `MoveSpeed`, explicit `HeavySpawnChance`, and optional `UpgradeTriggerKillCount`.
+- `EnemySpawner` continues spawning Grunts and configured Heavy variants at the configured interval until that wave's `KillGoal` has been reached.
+- Only enemies killed by player projectile damage count toward `KillGoal`. Enemies that cross the Defense Line are resolved but do not count as kills.
+- Once `KillGoal` is reached, enemy spawning stops immediately. Existing enemies remain until killed or removed at the Defense Line.
+- A wave completes when its `KillGoal` is reached and no enemies spawned for that wave remain alive.
+- Upgrade Targets are not wave enemies for progression: they do not count toward kills or remaining-enemy checks.
 - On completion, a wave immediately starts the next wave. Completing Wave 3 produces Victory.
 
 ## Upgrade Targets
@@ -37,11 +37,11 @@ Destroying an Upgrade Target grants Double Shot:
 
 ## Initial balance
 
-| Wave | KillGoal | SpawnInterval | MoveSpeed | Upgrade trigger |
-| --- | ---: | ---: | ---: | ---: |
-| 1 | 20 | 0.35s | 3.6 | 8 |
-| 2 | 40 | 0.22s | 4.0 | 16 |
-| 3 | 70 | 0.14s | 4.4 | none |
+| Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance | Upgrade trigger |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1 | 20 | 0.35s | 3.6 | 0% | 8 |
+| 2 | 40 | 0.22s | 4.0 | 15% | 16 |
+| 3 | 70 | 0.14s | 4.4 | 30% | none |
 
 ## Victory and Game Over
 

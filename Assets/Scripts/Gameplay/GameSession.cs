@@ -68,5 +68,15 @@ namespace RealRail
             State = SessionState.Victory;
             Victory?.Invoke();
         }
+
+        public void ApplyPlayerDamage(int amount)
+        {
+            if (!IsPlaying || playerHealth == null || amount <= 0)
+            {
+                return;
+            }
+
+            playerHealth.TakeDamage(amount);
+        }
     }
 }

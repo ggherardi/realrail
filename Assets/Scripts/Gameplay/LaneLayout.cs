@@ -8,13 +8,15 @@ namespace RealRail
         [SerializeField] float rightLaneX = 2.5f;
         [SerializeField] float laneWidth = 4.5f;
         [SerializeField] float spawnEdgeInset = 0.55f;
-        [SerializeField] float spawnZ = 24f;
+        [SerializeField] float spawnZ = 36f;
         [SerializeField] float playerZ;
+        [SerializeField] float defenseLineZ;
         [SerializeField] float strafeMinX = -4.5f;
         [SerializeField] float strafeMaxX = 4.5f;
         [SerializeField] float actorY = 1f;
 
         public float PlayerZ => playerZ;
+        public float DefenseLineZ => defenseLineZ;
         public float ActorY => actorY;
         public int LaneCount => 2;
         public float LaneWidth => laneWidth;

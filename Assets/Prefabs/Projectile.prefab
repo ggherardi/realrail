@@ -97,7 +97,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: RealRail::RealRail.Projectile
   speed: 22
   damage: 1
-  maxZ: 30
+  maxZ: 45
   enemyLayers:
     serializedVersion: 2
     m_Bits: 128

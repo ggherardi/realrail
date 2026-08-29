@@ -9,14 +9,26 @@ namespace RealRail
         [Min(1)] public int KillGoal;
         [Min(0.01f)] public float SpawnInterval;
         [Min(0f)] public float MoveSpeed;
+        [Range(0f, 1f)] public float HeavySpawnChance;
         [Min(0)] public int UpgradeTriggerKillCount;
 
-        public WaveConfig(int killGoal, float spawnInterval, float moveSpeed, int upgradeTriggerKillCount = 0)
+        public WaveConfig(
+            int killGoal,
+            float spawnInterval,
+            float moveSpeed,
+            int upgradeTriggerKillCount = 0,
+            float heavySpawnChance = 0f)
         {
             KillGoal = killGoal;
             SpawnInterval = spawnInterval;
             MoveSpeed = moveSpeed;
             UpgradeTriggerKillCount = upgradeTriggerKillCount;
+            HeavySpawnChance = Mathf.Clamp01(heavySpawnChance);
+        }
+
+        public bool ShouldSpawnHeavy(float roll)
+        {
+            return roll >= 0f && roll < Mathf.Clamp01(HeavySpawnChance);
         }
     }
 
@@ -32,8 +44,8 @@ namespace RealRail
         [SerializeField] WaveConfig[] waves =
         {
             new WaveConfig(20, 0.35f, 3.6f, 8),
-            new WaveConfig(40, 0.22f, 4f, 16),
-            new WaveConfig(70, 0.14f, 4.4f)
+            new WaveConfig(40, 0.22f, 4f, 16, 0.15f),
+            new WaveConfig(70, 0.14f, 4.4f, 0, 0.30f)
         };
         [SerializeField] GameObject upgradeTargetPrefab;
         [SerializeField] float upgradeTargetSpeed = 4f;

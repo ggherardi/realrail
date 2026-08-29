@@ -19,19 +19,21 @@ Milestone 3 changes the prototype from two sparse, aligned enemy columns into a 
 
 - A visual, physical divider is centered at X `0`.
 - It is approximately 0.4 units wide and 1.5 units high.
-- It extends through the enemy corridor but starts at Z `3`, leaving a clear player-side crossing area at the player position (Z `0`).
+- It extends from Z `3` through Z `39`, leaving a clear player-side crossing area at the Defense Line and player position (Z `0`).
 - Projectiles are destroyed when they hit the divider, preventing attacks through to the opposite lane.
 - The divider does not collide with the player or enemies. Enemies remain in their selected lane because their movement preserves spawn X.
 
 ## Horde balance
 
-Base enemies have 1 HP. Initial wave values are:
+Grunts have 1 HP. Heavies have 4 HP and use 75% of the equivalent Grunt movement speed. Initial wave values are:
 
-| Wave | KillGoal | SpawnInterval | MoveSpeed |
-| --- | ---: | ---: | ---: |
-| 1 | 20 | 0.35s | 3.6 |
-| 2 | 40 | 0.22s | 4.0 |
-| 3 | 70 | 0.14s | 4.4 |
+| Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 20 | 0.35s | 3.6 | 0% |
+| 2 | 40 | 0.22s | 4.0 | 15% |
+| 3 | 70 | 0.14s | 4.4 | 30% |
+
+Enemies spawn at Z `36`. Crossing the lane-wide Defense Line at Z `0` damages the player once and removes that enemy, regardless of lane or X position. This is not a kill and does not advance the wave goal.
 
 Double Shot is unchanged. The intended difficulty comes from enemy density and spatial distribution rather than increased enemy durability.
 

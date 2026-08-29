@@ -32,8 +32,8 @@ namespace RealRail.Tests
                 Assert.That(left.x, Is.InRange(-4.2f, -0.8f));
                 Assert.That(right.x, Is.InRange(0.8f, 4.2f));
                 Assert.AreEqual(_lanes.ActorY, left.y);
-                Assert.AreEqual(24f, left.z);
-                Assert.AreEqual(24f, right.z);
+                Assert.AreEqual(36f, left.z);
+                Assert.AreEqual(36f, right.z);
             }
         }
 
@@ -42,6 +42,13 @@ namespace RealRail.Tests
         {
             Assert.AreEqual(-4.5f, _lanes.ClampStrafe(-10f));
             Assert.AreEqual(4.5f, _lanes.ClampStrafe(10f));
+        }
+
+        [Test]
+        public void DefenseLine_IsIndependentFromLaneAndPlayerPosition()
+        {
+            Assert.AreEqual(0f, _lanes.DefenseLineZ);
+            Assert.AreEqual(0f, _lanes.PlayerZ);
         }
     }
 }

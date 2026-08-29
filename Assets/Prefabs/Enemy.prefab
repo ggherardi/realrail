@@ -136,13 +136,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2750532192330122097}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2daa32aeebd642a682cdc78d19897f52, type: 3}
+  m_Script: {fileID: 11500000, guid: c241cc338d824493bbe5d81dceaddc5b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: RealRail::RealRail.EnemyContactDamage
-  damage: 1
-  playerLayers:
-    serializedVersion: 2
-    m_Bits: 64
+  m_EditorClassIdentifier: RealRail::RealRail.EnemyDefenseLine
 --- !u!114 &561666606183091433
 MonoBehaviour:
   m_ObjectHideFlags: 0

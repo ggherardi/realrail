@@ -65,5 +65,21 @@ namespace RealRail.Tests
 
             Assert.AreEqual(SessionState.Lost, _session.State);
         }
+
+        [Test]
+        public void ApplyPlayerDamage_UsesBoundPlayerHealthOnlyWhilePlaying()
+        {
+            _health.SetMaxHealth(3);
+
+            _session.ApplyPlayerDamage(1);
+            _session.ApplyPlayerDamage(0);
+
+            Assert.AreEqual(2, _health.Current);
+
+            _session.Win();
+            _session.ApplyPlayerDamage(1);
+
+            Assert.AreEqual(2, _health.Current);
+        }
     }
 }

@@ -18,7 +18,7 @@ The first playable prototype should contain only:
 
 - one player character;
 - two enemy lanes;
-- one enemy type;
+- Grunt and Heavy enemy variants;
 - automatic firing;
 - projectile damage;
 - enemy health and death;
@@ -42,7 +42,7 @@ For now, do not implement:
 
 ## Prototype Slice
 
-The first playable scene is a short corridor with two parallel lanes. The player stands at a fixed Z and strafes on X. Enemies spawn on a lane and walk toward the player. The player auto-fires along +Z from their current X; shots do not home, so you must line up with a lane to hit.
+The first playable scene is a two-lane horde corridor. The player stands at a fixed Z and strafes on X. Enemies spawn on a lane and walk toward the lane-wide Defense Line. The player auto-fires along +Z from their current X; shots do not home, so you must line up with a lane to hit.
 
 ### Player
 - One capsule, 3 HP.
@@ -51,9 +51,9 @@ The first playable scene is a short corridor with two parallel lanes. The player
 
 ### Combat
 - Auto-fire spawns a small projectile at the muzzle. Projectiles travel +Z only and deal 1 damage.
-- One enemy type: 2 HP, walks down a random lane.
+- Grunts have 1 HP; Heavies have 4 HP and advance at 75% of the equivalent Grunt speed.
 - Projectile hits destroy the shot and damage the enemy. At 0 HP the enemy is destroyed.
-- If an enemy overlaps the player, it deals 1 damage once and is then destroyed. No repeating contact damage.
+- Crossing the Defense Line deals 1 player damage once and removes that enemy. It is independent of player/enemy X position and does not count as a kill.
 
 ### Fail state
 - The run is lost at 0 player HP.
