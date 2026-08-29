@@ -40,8 +40,8 @@ Destroying an Upgrade Target grants Double Shot:
 | Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance | Upgrade trigger |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | 1 | 20 | 0.35s | 3.6 | 0% | 8 |
-| 2 | 40 | 0.22s | 4.0 | 15% | 16 |
-| 3 | 70 | 0.14s | 4.4 | 30% | none |
+| 2 | 40 | 0.22s | 4.0 | 10% | 16 |
+| 3 | 70 | 0.14s | 4.4 | 15% | none |
 
 ## Victory and Game Over
 

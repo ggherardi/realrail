@@ -151,8 +151,8 @@ namespace RealRail.Tests
 
             Assert.AreEqual(3, waves.arraySize);
             Assert.AreEqual(0f, waves.GetArrayElementAtIndex(0).FindPropertyRelative("HeavySpawnChance").floatValue);
-            Assert.AreEqual(0.15f, waves.GetArrayElementAtIndex(1).FindPropertyRelative("HeavySpawnChance").floatValue);
-            Assert.AreEqual(0.30f, waves.GetArrayElementAtIndex(2).FindPropertyRelative("HeavySpawnChance").floatValue);
+            Assert.AreEqual(0.10f, waves.GetArrayElementAtIndex(1).FindPropertyRelative("HeavySpawnChance").floatValue);
+            Assert.AreEqual(0.15f, waves.GetArrayElementAtIndex(2).FindPropertyRelative("HeavySpawnChance").floatValue);
         }
 
         [Test]
@@ -206,8 +206,8 @@ namespace RealRail.Tests
         static void AssertLaneSurface(Transform lane, float expectedX)
         {
             Assert.NotNull(lane);
-            Assert.AreEqual(new Vector3(expectedX, 0.12f, 21f), lane.position);
-            Assert.AreEqual(new Vector3(4.5f, 0.02f, 36f), lane.localScale);
+            Assert.AreEqual(new Vector3(expectedX, 0.12f, 19.5f), lane.position);
+            Assert.AreEqual(new Vector3(4.5f, 0.02f, 39f), lane.localScale);
             Assert.NotNull(lane.GetComponent<MeshRenderer>());
         }
 
@@ -297,6 +297,84 @@ namespace RealRail.Tests
             CollectionAssert.AreEquivalent(new[] { walk }, animator.runtimeAnimatorController.animationClips);
 
             AssertRootHasNoAnimatedMotion(walk, rootBoneName);
+            AssertHeavyRigIsCompactAndRigid(heavyFbxPath, rootBoneName);
+            AssertHeavySilhouetteIsTallerThanGrunt(heavy);
+        }
+
+        static void AssertHeavyRigIsCompactAndRigid(string heavyFbxPath, string rootBoneName)
+        {
+            var heavyModel = AssetDatabase.LoadAssetAtPath<GameObject>(heavyFbxPath);
+            Assert.NotNull(heavyModel);
+
+            var renderers = heavyModel.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            Assert.AreEqual(3, renderers.Length, "Enemy Heavy should retain its three material sections for horde rendering.");
+            Assert.That(renderers.Sum(renderer => renderer.sharedMaterials.Length), Is.LessThanOrEqualTo(3));
+
+            var bones = renderers
+                .SelectMany(renderer => renderer.bones)
+                .Where(bone => bone != null)
+                .Distinct()
+                .ToArray();
+            Assert.AreEqual(11, bones.Length, "Enemy Heavy must retain the compact 11-bone rig.");
+            Assert.IsTrue(bones.Any(bone => bone.name == rootBoneName));
+
+            foreach (var renderer in renderers)
+            {
+                AssertRigidSingleBoneWeights(renderer.sharedMesh);
+            }
+        }
+
+        static void AssertRigidSingleBoneWeights(Mesh mesh)
+        {
+            Assert.NotNull(mesh);
+            foreach (var weight in mesh.boneWeights)
+            {
+                var weights = new[] { weight.weight0, weight.weight1, weight.weight2, weight.weight3 };
+                Assert.AreEqual(1, weights.Count(value => Mathf.Approximately(value, 1f)));
+                Assert.AreEqual(3, weights.Count(value => Mathf.Approximately(value, 0f)));
+            }
+        }
+
+        static void AssertHeavySilhouetteIsTallerThanGrunt(GameObject heavy)
+        {
+            const string gruntPrefabPath = "Assets/Prefabs/Enemy.prefab";
+            const string heavyPrefabPath = "Assets/Prefabs/Enemy_Heavy.prefab";
+            var gruntContents = PrefabUtility.LoadPrefabContents(gruntPrefabPath);
+            var heavyContents = PrefabUtility.LoadPrefabContents(heavyPrefabPath);
+
+            try
+            {
+                var gruntHeight = GetVisualHeight(gruntContents);
+                var heavyHeight = GetVisualHeight(heavyContents);
+                Assert.That(heavyHeight, Is.GreaterThanOrEqualTo(gruntHeight * 1.4f),
+                    "Enemy Heavy must read primarily as a taller silhouette, not a widened Grunt.");
+
+                var visual = heavy.transform.Find("Visual");
+                var animator = visual.GetComponentInChildren<Animator>(true);
+                Assert.AreEqual(Vector3.one, visual.localScale,
+                    "Heavy height must come from authored proportions, not a prefab Visual scale override.");
+                Assert.AreEqual(Vector3.one, animator.transform.localScale,
+                    "Heavy height must come from authored proportions, not a model-root scale override.");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(gruntContents);
+                PrefabUtility.UnloadPrefabContents(heavyContents);
+            }
+        }
+
+        static float GetVisualHeight(GameObject prefabContents)
+        {
+            var renderers = prefabContents.transform.Find("Visual").GetComponentsInChildren<Renderer>(true);
+            Assert.IsNotEmpty(renderers);
+
+            var bounds = renderers[0].bounds;
+            foreach (var renderer in renderers.Skip(1))
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+
+            return bounds.size.y;
         }
 
         static void AssertRootHasNoAnimatedMotion(AnimationClip clip, string rootBoneName)

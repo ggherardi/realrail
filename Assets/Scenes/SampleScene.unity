@@ -181,8 +181,8 @@ Transform:
   m_GameObject: {fileID: 98787520}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.5, y: 0.12, z: 21}
-  m_LocalScale: {x: 4.5, y: 0.02, z: 36}
+  m_LocalPosition: {x: 2.5, y: 0.12, z: 19.5}
+  m_LocalScale: {x: 4.5, y: 0.02, z: 39}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1955800131}
@@ -891,12 +891,12 @@ MonoBehaviour:
   - KillGoal: 40
     SpawnInterval: 0.22
     MoveSpeed: 4
-    HeavySpawnChance: 0.15
+    HeavySpawnChance: 0.1
     UpgradeTriggerKillCount: 16
   - KillGoal: 70
     SpawnInterval: 0.14
     MoveSpeed: 4.4
-    HeavySpawnChance: 0.3
+    HeavySpawnChance: 0.15
     UpgradeTriggerKillCount: 0
   upgradeTargetPrefab: {fileID: 7239206535507173236, guid: 1ea7925369c644ed0b7e5a92d75f8f3f, type: 3}
   upgradeTargetSpeed: 4
@@ -1535,8 +1535,8 @@ Transform:
   m_GameObject: {fileID: 1941002666}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.5, y: 0.12, z: 21}
-  m_LocalScale: {x: 4.5, y: 0.02, z: 36}
+  m_LocalPosition: {x: -2.5, y: 0.12, z: 19.5}
+  m_LocalScale: {x: 4.5, y: 0.02, z: 39}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1955800131}

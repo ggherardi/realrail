@@ -7,11 +7,11 @@ namespace RealRail.Tests
         [Test]
         public void HeavySelection_UsesAnInclusiveZeroAndExclusiveChanceThreshold()
         {
-            var config = new WaveConfig(1, 1f, 4f, heavySpawnChance: 0.15f);
+            var config = new WaveConfig(1, 1f, 4f, heavySpawnChance: 0.10f);
 
             Assert.IsTrue(config.ShouldSpawnHeavy(0f));
-            Assert.IsTrue(config.ShouldSpawnHeavy(0.1499f));
-            Assert.IsFalse(config.ShouldSpawnHeavy(0.15f));
+            Assert.IsTrue(config.ShouldSpawnHeavy(0.0999f));
+            Assert.IsFalse(config.ShouldSpawnHeavy(0.10f));
             Assert.IsFalse(config.ShouldSpawnHeavy(-0.01f));
         }
 
