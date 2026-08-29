@@ -67,15 +67,15 @@ def make_armature(root):
     # rigid visual parts; this mirrors the compact Grunt topology.
     definitions = (
         ("HV_Root", (0, 0, 0), (0, 0, .25), None, False),
-        ("HV_Pelvis", (0, 0, 1.20), (0, 0, 1.43), "HV_Root", True),
-        ("HV_Torso", (0, 0, 1.41), (0, 0, 2.32), "HV_Pelvis", True),
-        ("HV_Arm_L", (-.65, 0, 2.08), (-.65, 0, 1.02), "HV_Torso", True),
-        ("HV_Arm_R", (.65, 0, 2.08), (.65, 0, 1.02), "HV_Torso", True),
-        ("HV_Thigh_L", (-.31, .04, 1.22), (-.31, .04, .76), "HV_Pelvis", True),
-        ("HV_Shin_L", (-.31, .04, .76), (-.31, .04, .20), "HV_Thigh_L", True),
+        ("HV_Pelvis", (0, 0, 1.50), (0, 0, 1.73), "HV_Root", True),
+        ("HV_Torso", (0, 0, 1.71), (0, 0, 2.95), "HV_Pelvis", True),
+        ("HV_Arm_L", (-.65, 0, 2.57), (-.65, 0, 1.18), "HV_Torso", True),
+        ("HV_Arm_R", (.65, 0, 2.57), (.65, 0, 1.18), "HV_Torso", True),
+        ("HV_Thigh_L", (-.31, .04, 1.52), (-.31, .04, .88), "HV_Pelvis", True),
+        ("HV_Shin_L", (-.31, .04, .88), (-.31, .04, .20), "HV_Thigh_L", True),
         ("HV_Foot_L", (-.31, .06, .20), (-.31, -.16, .07), "HV_Shin_L", True),
-        ("HV_Thigh_R", (.31, .04, 1.22), (.31, .04, .76), "HV_Pelvis", True),
-        ("HV_Shin_R", (.31, .04, .76), (.31, .04, .20), "HV_Thigh_R", True),
+        ("HV_Thigh_R", (.31, .04, 1.52), (.31, .04, .88), "HV_Pelvis", True),
+        ("HV_Shin_R", (.31, .04, .88), (.31, .04, .20), "HV_Thigh_R", True),
         ("HV_Foot_R", (.31, .06, .20), (.31, -.16, .07), "HV_Shin_R", True),
     )
     for name, head, tail, parent, deform in definitions:
@@ -141,35 +141,35 @@ for x, side in ((-.31, "L"), (.31, "R")):
     part(add_box("Foot_" + side, (x, -.055, .085), (.34, .52, .17), DARK, .028), foot)
     part(add_box("ToeArmor_" + side, (x, -.20, .14), (.29, .24, .12), IVORY, .020), foot)
     part(add_joint("Ankle_" + side, (x, .055, .205), .11), foot)
-    part(add_box("Shin_" + side, (x, .035, .48), (.25, .26, .52), DARK, .028), shin)
-    part(add_box("ShinArmor_" + side, (x, -.115, .50), (.29, .065, .42), IVORY, .016), shin)
-    part(add_joint("Knee_" + side, (x, -.02, .79), .13), shin)
-    part(add_box("Thigh_" + side, (x, .035, 1.01), (.30, .30, .39), DARK, .028), thigh)
-    part(add_box("ThighArmor_" + side, (x, -.125, 1.04), (.33, .065, .30), IVORY, .016), thigh)
+    part(add_box("Shin_" + side, (x, .035, .56), (.25, .26, .68), DARK, .028), shin)
+    part(add_box("ShinArmor_" + side, (x, -.115, .58), (.29, .065, .56), IVORY, .016), shin)
+    part(add_joint("Knee_" + side, (x, -.02, .95), .13), shin)
+    part(add_box("Thigh_" + side, (x, .035, 1.24), (.30, .30, .52), DARK, .028), thigh)
+    part(add_box("ThighArmor_" + side, (x, -.125, 1.28), (.33, .065, .40), IVORY, .016), thigh)
 
-part(add_box("Pelvis", (0, .03, 1.30), (.76, .44, .22), DARK, .040), "HV_Pelvis")
-part(add_box("PelvisPlate", (0, -.21, 1.33), (.52, .050, .15), IVORY, .015), "HV_Pelvis")
-# A tall layered chest and raised sensor crown distinguish the Heavy in a crowd.
-part(add_box("ChestCore", (0, .04, 1.82), (1.08, .58, .84), DARK, .055), "HV_Torso")
-part(add_box("ChestArmor", (0, -.275, 1.85), (.98, .085, .66), IVORY, .025), "HV_Torso")
-part(add_box("ChestUpperArmor", (0, -.25, 2.23), (.88, .10, .18), IVORY, .020), "HV_Torso")
-part(add_box("BackPowerBlock", (0, .34, 1.84), (.66, .18, .64), DARK, .035), "HV_Torso")
-part(add_box("Collar", (0, -.05, 2.28), (.64, .38, .13), IVORY, .025), "HV_Torso")
-part(add_box("SensorHousing", (0, -.335, 1.98), (.74, .10, .20), DARK, .018), "HV_Torso")
-part(add_box("WideRedSensor", (0, -.395, 1.98), (.58, .026, .075), RED, .008), "HV_Torso")
-part(add_cylinder("TopVent", (0, .09, 2.42), .075, .18, DARK, 8), "HV_Torso")
-part(add_box("TopArmor", (0, .03, 2.53), (.32, .25, .16), IVORY, .020), "HV_Torso")
+part(add_box("Pelvis", (0, .03, 1.60), (.76, .44, .22), DARK, .040), "HV_Pelvis")
+part(add_box("PelvisPlate", (0, -.21, 1.63), (.52, .050, .15), IVORY, .015), "HV_Pelvis")
+# Extended legs and a tower chest make the Heavy unmistakable at gameplay distance.
+part(add_box("ChestCore", (0, .04, 2.20), (1.08, .58, 1.05), DARK, .055), "HV_Torso")
+part(add_box("ChestArmor", (0, -.275, 2.22), (.98, .085, .84), IVORY, .025), "HV_Torso")
+part(add_box("ChestUpperArmor", (0, -.25, 2.70), (.88, .10, .20), IVORY, .020), "HV_Torso")
+part(add_box("BackPowerBlock", (0, .34, 2.22), (.66, .18, .82), DARK, .035), "HV_Torso")
+part(add_box("Collar", (0, -.05, 2.76), (.64, .38, .13), IVORY, .025), "HV_Torso")
+part(add_box("SensorHousing", (0, -.335, 2.40), (.74, .10, .22), DARK, .018), "HV_Torso")
+part(add_box("WideRedSensor", (0, -.395, 2.40), (.58, .026, .08), RED, .008), "HV_Torso")
+part(add_cylinder("TopVent", (0, .09, 3.05), .075, .18, DARK, 8), "HV_Torso")
+part(add_box("TopArmor", (0, .03, 3.16), (.32, .25, .18), IVORY, .020), "HV_Torso")
 
 for x, side in ((-.65, "L"), (.65, "R")):
     arm = "HV_Arm_" + side
-    part(add_box("ShoulderBlock_" + side, (x, .01, 2.12), (.32, .44, .27), IVORY, .035), arm)
-    part(add_joint("ShoulderJoint_" + side, (x, .05, 2.00), .15), arm)
-    part(add_box("UpperArm_" + side, (x, .015, 1.72), (.24, .28, .43), DARK, .025), arm)
-    part(add_box("UpperArmArmor_" + side, (x, -.145, 1.75), (.27, .060, .32), IVORY, .014), arm)
-    part(add_joint("Elbow_" + side, (x, 0, 1.45), .11), arm)
-    part(add_box("Forearm_" + side, (x, .015, 1.20), (.23, .28, .40), DARK, .025), arm)
-    part(add_box("Fist_" + side, (x, -.045, .97), (.28, .24, .17), DARK, .025), arm)
-    part(add_box("ArmStripe_" + side, (x, -.145, 1.22), (.13, .025, .05), RED, .006), arm)
+    part(add_box("ShoulderBlock_" + side, (x, .01, 2.62), (.32, .44, .27), IVORY, .035), arm)
+    part(add_joint("ShoulderJoint_" + side, (x, .05, 2.49), .15), arm)
+    part(add_box("UpperArm_" + side, (x, .015, 2.12), (.24, .28, .55), DARK, .025), arm)
+    part(add_box("UpperArmArmor_" + side, (x, -.145, 2.15), (.27, .060, .42), IVORY, .014), arm)
+    part(add_joint("Elbow_" + side, (x, 0, 1.77), .11), arm)
+    part(add_box("Forearm_" + side, (x, .015, 1.47), (.23, .28, .52), DARK, .025), arm)
+    part(add_box("Fist_" + side, (x, -.045, 1.18), (.28, .24, .17), DARK, .025), arm)
+    part(add_box("ArmStripe_" + side, (x, -.145, 1.50), (.13, .025, .05), RED, .006), arm)
 
 # Joining by material keeps the mobile-oriented renderer/material-section count at three.
 meshes = []
@@ -190,7 +190,7 @@ for mat, name in ((IVORY, "Enemy_Heavy_Ivory"), (DARK, "Enemy_Heavy_Dark"), (RED
 
 walk = create_walk_action(armature)
 root["asset_contract"] = "Visual-only skinned robot; no colliders, rigidbodies, scripts, or gameplay motion. Walk animates local bones only; HV_Root has no animation. Front is -Y in Blender / -Z in Unity."
-root["unity_height_units"] = 2.61
+root["unity_height_units"] = 3.25
 root["rig_type"] = "Generic rigid mechanical rig"
 root["animation"] = "Walk, 24 fps, frames 1-25 looped, visual-only"
 bpy.context.scene.render.fps = 24

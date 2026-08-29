@@ -346,8 +346,8 @@ namespace RealRail.Tests
             {
                 var gruntHeight = GetVisualHeight(gruntContents);
                 var heavyHeight = GetVisualHeight(heavyContents);
-                Assert.That(heavyHeight, Is.GreaterThanOrEqualTo(gruntHeight * 1.4f),
-                    "Enemy Heavy must read primarily as a taller silhouette, not a widened Grunt.");
+                Assert.That(heavyHeight, Is.InRange(gruntHeight * 1.75f, gruntHeight * 1.85f),
+                    "Enemy Heavy must tower over Grunts through authored proportions, not a scale override.");
 
                 var visual = heavy.transform.Find("Visual");
                 var animator = visual.GetComponentInChildren<Animator>(true);
