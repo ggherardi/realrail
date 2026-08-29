@@ -19,6 +19,8 @@ namespace RealRail.Tests
             Assert.NotNull(indicator);
             Assert.AreEqual("HealthIndicator", indicator.gameObject.name);
             Assert.AreSame(heavy.GetComponent<Health>(), indicator.HealthSource);
+            Assert.AreEqual(Quaternion.identity, indicator.transform.localRotation);
+            Assert.AreEqual(Vector3.one * 0.0135f, indicator.transform.localScale);
             Assert.NotNull(indicator.GetComponent<Canvas>());
             Assert.AreEqual(RenderMode.WorldSpace, indicator.GetComponent<Canvas>().renderMode);
             Assert.NotNull(indicator.transform.Find("Bar/Fill").GetComponent<Image>());
