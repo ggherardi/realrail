@@ -236,6 +236,7 @@ namespace RealRail.Tests
 
             AssertQuaterniusLocomotion(gruntFbxPath, animator);
             AssertQuaterniusRig(gruntFbxPath, 2, 2, 43, 7344);
+            AssertQuaterniusAppearance(enemy);
         }
 
         static void AssertEnemyHeavyVariant(GameObject enemy, GameObject heavy)
@@ -277,6 +278,7 @@ namespace RealRail.Tests
 
             AssertQuaterniusLocomotion(heavyFbxPath, animator);
             AssertQuaterniusRig(heavyFbxPath, 1, 1, 43, 6094);
+            AssertQuaterniusAppearance(heavy);
             AssertHeavySilhouetteIsTallerThanGrunt(heavy);
         }
 
@@ -322,6 +324,28 @@ namespace RealRail.Tests
             foreach (var renderer in renderers)
             {
                 Assert.NotNull(renderer.sharedMesh);
+            }
+        }
+
+        static void AssertQuaterniusAppearance(GameObject enemy)
+        {
+            const string atlasPath = "Assets/Art/ThirdParty/Quaternius/UltimateMonstersOct2022/Atlas_Monsters.png";
+            const string materialPath = "Assets/Art/ThirdParty/Quaternius/UltimateMonstersOct2022/QuaterniusMonstersAtlas.mat";
+            var atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(atlasPath);
+            var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+
+            Assert.NotNull(atlas);
+            Assert.NotNull(material);
+            Assert.AreSame(atlas, material.GetTexture("_BaseMap"));
+            Assert.AreEqual("Universal Render Pipeline/Lit", material.shader.name);
+
+            var renderers = enemy.transform.Find("Visual").GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            Assert.IsNotEmpty(renderers);
+            foreach (var renderer in renderers)
+            {
+                CollectionAssert.AreEquivalent(
+                    Enumerable.Repeat(material, renderer.sharedMaterials.Length),
+                    renderer.sharedMaterials);
             }
         }
 

@@ -243,10 +243,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6073088336778414266, guid: 97f1169adeaf34f8cb5d2cd00e115c11, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value:
+      objectReference: {fileID: 2100000, guid: 35ee2817cab0840e8a5d17fe493ca7b5, type: 2}
     - target: {fileID: 919132149155446097, guid: 97f1169adeaf34f8cb5d2cd00e115c11, type: 3}
       propertyPath: m_Name
       value: Orc
       objectReference: {fileID: 0}
+    - target: {fileID: 3798214047891171059, guid: 97f1169adeaf34f8cb5d2cd00e115c11, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value:
+      objectReference: {fileID: 2100000, guid: 35ee2817cab0840e8a5d17fe493ca7b5, type: 2}
     - target: {fileID: 5866666021909216657, guid: 97f1169adeaf34f8cb5d2cd00e115c11, type: 3}
       propertyPath: m_Controller
       value:

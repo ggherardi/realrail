@@ -11,6 +11,7 @@ Only these source files are imported from the local Quaternius archive
 
 - `Characters and Animals/Ultimate Monsters - Oct 2022/Big/FBX/Orc.fbx`
 - `Characters and Animals/Ultimate Monsters - Oct 2022/Big/FBX/Yeti.fbx`
+- `Characters and Animals/Ultimate Monsters - Oct 2022/Atlas_Monsters.png`
 - `Characters and Animals/Ultimate Monsters - Oct 2022/License.txt`
 
 They live in `Assets/Art/ThirdParty/Quaternius/UltimateMonstersOct2022/`.
@@ -23,6 +24,10 @@ The preserved source license is CC0 1.0 Universal.
   visual-only child with a Yeti.
 - Both FBX files use Generic rigs, source-authored materials, no generated
   colliders/cameras/lights, and native `Walk` clips configured to loop.
+- Both models use the source `Atlas_Monsters.png` through the shared
+  `QuaterniusMonstersAtlas` URP/Lit material. This reproduces the source
+  pack's single non-metallic base-color atlas rather than Unity's untextured
+  imported FBX material.
 - The native Walk loop was chosen for both characters. Its one-second cadence
   is visually less hurried at the existing EnemyMover speeds than the
   source's 0.57-second Run loop.
