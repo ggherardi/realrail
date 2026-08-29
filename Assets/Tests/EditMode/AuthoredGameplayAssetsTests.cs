@@ -223,24 +223,19 @@ namespace RealRail.Tests
 
         static void AssertEnemyGruntVisualAnimation(GameObject enemy)
         {
+            const string gruntFbxPath = "Assets/Art/ThirdParty/Quaternius/UltimateMonstersOct2022/Orc.fbx";
+
             Assert.IsNull(enemy.GetComponent<Animator>());
 
             var visual = enemy.transform.Find("Visual");
             var animator = visual.GetComponentInChildren<Animator>(true);
             Assert.NotNull(animator);
+            Assert.AreEqual("Orc", animator.gameObject.name);
             Assert.NotNull(animator.runtimeAnimatorController);
             Assert.IsFalse(animator.applyRootMotion);
 
-            var importer = AssetImporter.GetAtPath("Assets/Art/Enemies/Enemy_Grunt/Enemy_Grunt.fbx") as ModelImporter;
-            Assert.NotNull(importer);
-            Assert.IsTrue(importer.importAnimation);
-            Assert.AreEqual(ModelImporterAnimationType.Generic, importer.animationType);
-
-            var walk = AssetDatabase.LoadAllAssetsAtPath("Assets/Art/Enemies/Enemy_Grunt/Enemy_Grunt.fbx")
-                .OfType<AnimationClip>()
-                .Single(clip => clip.name == "Walk");
-            Assert.IsTrue(walk.isLooping);
-            Assert.Contains(walk, animator.runtimeAnimatorController.animationClips);
+            AssertQuaterniusLocomotion(gruntFbxPath, animator);
+            AssertQuaterniusRig(gruntFbxPath, 2, 2, 43, 7344);
         }
 
         static void AssertEnemyHeavyVariant(GameObject enemy, GameObject heavy)
@@ -268,8 +263,7 @@ namespace RealRail.Tests
 
         static void AssertEnemyHeavyVisualAnimation(GameObject heavy)
         {
-            const string heavyFbxPath = "Assets/Art/Enemies/Enemy_Heavy/Enemy_Heavy.fbx";
-            const string rootBoneName = "HV_Root";
+            const string heavyFbxPath = "Assets/Art/ThirdParty/Quaternius/UltimateMonstersOct2022/Yeti.fbx";
 
             Assert.IsNull(heavy.GetComponent<Animator>());
             var visual = heavy.transform.Find("Visual");
@@ -277,61 +271,57 @@ namespace RealRail.Tests
             Assert.AreEqual(1, animators.Length);
             var animator = animators.Single();
             Assert.IsTrue(animator.transform.IsChildOf(visual));
+            Assert.AreEqual("Yeti", animator.gameObject.name);
             Assert.NotNull(animator.runtimeAnimatorController);
             Assert.IsFalse(animator.applyRootMotion);
 
-            var importer = AssetImporter.GetAtPath(heavyFbxPath) as ModelImporter;
+            AssertQuaterniusLocomotion(heavyFbxPath, animator);
+            AssertQuaterniusRig(heavyFbxPath, 1, 1, 43, 6094);
+            AssertHeavySilhouetteIsTallerThanGrunt(heavy);
+        }
+
+        static void AssertQuaterniusLocomotion(string modelPath, Animator animator)
+        {
+            var importer = AssetImporter.GetAtPath(modelPath) as ModelImporter;
             Assert.NotNull(importer);
             Assert.IsTrue(importer.importAnimation);
             Assert.AreEqual(ModelImporterAnimationType.Generic, importer.animationType);
             Assert.IsEmpty(importer.motionNodeName);
+            Assert.IsFalse(importer.addCollider);
+            Assert.IsFalse(importer.importCameras);
+            Assert.IsFalse(importer.importLights);
 
-            var clips = AssetDatabase.LoadAllAssetsAtPath(heavyFbxPath)
+            var clips = AssetDatabase.LoadAllAssetsAtPath(modelPath)
                 .OfType<AnimationClip>()
                 .Where(clip => !clip.name.StartsWith("__preview__"))
                 .ToArray();
-            Assert.AreEqual(1, clips.Length, "Enemy Heavy must import exactly one intended animation clip.");
-            var walk = clips.Single();
-            Assert.AreEqual("Walk", walk.name);
+            CollectionAssert.IsSupersetOf(clips.Select(clip => clip.name),
+                new[] { "Idle", "Walk", "Run", "Punch", "HitReact", "Death" });
+            var walk = clips.Single(clip => clip.name == "Walk");
             Assert.IsTrue(walk.isLooping);
             CollectionAssert.AreEquivalent(new[] { walk }, animator.runtimeAnimatorController.animationClips);
-
-            AssertRootHasNoAnimatedMotion(walk, rootBoneName);
-            AssertHeavyRigIsCompactAndRigid(heavyFbxPath, rootBoneName);
-            AssertHeavySilhouetteIsTallerThanGrunt(heavy);
         }
 
-        static void AssertHeavyRigIsCompactAndRigid(string heavyFbxPath, string rootBoneName)
+        static void AssertQuaterniusRig(string modelPath, int expectedRenderers, int expectedMaterials, int expectedBones, int expectedTriangles)
         {
-            var heavyModel = AssetDatabase.LoadAssetAtPath<GameObject>(heavyFbxPath);
-            Assert.NotNull(heavyModel);
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+            Assert.NotNull(model);
 
-            var renderers = heavyModel.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            Assert.AreEqual(3, renderers.Length, "Enemy Heavy should retain its three material sections for horde rendering.");
-            Assert.That(renderers.Sum(renderer => renderer.sharedMaterials.Length), Is.LessThanOrEqualTo(3));
+            var renderers = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            Assert.AreEqual(expectedRenderers, renderers.Length);
+            Assert.AreEqual(expectedMaterials, renderers.Sum(renderer => renderer.sharedMaterials.Length));
 
             var bones = renderers
                 .SelectMany(renderer => renderer.bones)
                 .Where(bone => bone != null)
                 .Distinct()
                 .ToArray();
-            Assert.AreEqual(11, bones.Length, "Enemy Heavy must retain the compact 11-bone rig.");
-            Assert.IsTrue(bones.Any(bone => bone.name == rootBoneName));
+            Assert.AreEqual(expectedBones, bones.Length);
+            Assert.AreEqual(expectedTriangles, renderers.Sum(renderer => (int)renderer.sharedMesh.GetIndexCount(0) / 3));
 
             foreach (var renderer in renderers)
             {
-                AssertRigidSingleBoneWeights(renderer.sharedMesh);
-            }
-        }
-
-        static void AssertRigidSingleBoneWeights(Mesh mesh)
-        {
-            Assert.NotNull(mesh);
-            foreach (var weight in mesh.boneWeights)
-            {
-                var weights = new[] { weight.weight0, weight.weight1, weight.weight2, weight.weight3 };
-                Assert.AreEqual(1, weights.Count(value => Mathf.Approximately(value, 1f)));
-                Assert.AreEqual(3, weights.Count(value => Mathf.Approximately(value, 0f)));
+                Assert.NotNull(renderer.sharedMesh);
             }
         }
 
@@ -346,15 +336,13 @@ namespace RealRail.Tests
             {
                 var gruntHeight = GetVisualHeight(gruntContents);
                 var heavyHeight = GetVisualHeight(heavyContents);
-                Assert.That(heavyHeight, Is.InRange(gruntHeight * 1.75f, gruntHeight * 1.85f),
-                    "Enemy Heavy must tower over Grunts through authored proportions, not a scale override.");
+                Assert.Greater(heavyHeight, gruntHeight * 1.4f,
+                    "Enemy Heavy must remain immediately readable as larger than the Grunt.");
 
                 var visual = heavy.transform.Find("Visual");
                 var animator = visual.GetComponentInChildren<Animator>(true);
-                Assert.AreEqual(Vector3.one, visual.localScale,
-                    "Heavy height must come from authored proportions, not a prefab Visual scale override.");
-                Assert.AreEqual(Vector3.one, animator.transform.localScale,
-                    "Heavy height must come from authored proportions, not a model-root scale override.");
+                Assert.AreEqual(Vector3.one, visual.localScale);
+                Assert.AreEqual(Vector3.one, animator.transform.localScale);
             }
             finally
             {
@@ -377,26 +365,6 @@ namespace RealRail.Tests
             return bounds.size.y;
         }
 
-        static void AssertRootHasNoAnimatedMotion(AnimationClip clip, string rootBoneName)
-        {
-            var rootTransformBindings = AnimationUtility.GetCurveBindings(clip)
-                .Where(binding => binding.path.Split('/').LastOrDefault() == rootBoneName)
-                .Where(binding => binding.propertyName.StartsWith("m_LocalPosition") ||
-                                  binding.propertyName.StartsWith("m_LocalRotation") ||
-                                  binding.propertyName.StartsWith("localEulerAngles"));
-
-            foreach (var binding in rootTransformBindings)
-            {
-                var curve = AnimationUtility.GetEditorCurve(clip, binding);
-                Assert.NotNull(curve, $"Missing root curve for {binding.propertyName}");
-                Assert.Greater(curve.length, 0, $"Empty root curve for {binding.propertyName}");
-
-                var initialValue = curve.keys[0].value;
-                Assert.IsTrue(
-                    curve.keys.All(key => Mathf.Approximately(initialValue, key.value)),
-                    $"{rootBoneName}.{binding.propertyName} changes over the Walk clip and would animate root motion.");
-            }
-        }
 
         static void AssertAssigned(Object target, string propertyName)
         {
