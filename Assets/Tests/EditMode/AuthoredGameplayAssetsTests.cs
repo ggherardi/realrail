@@ -123,13 +123,13 @@ namespace RealRail.Tests
         public void Scene_PreservesLaneAndDividerAuthoring()
         {
             var layout = FindRoot("Systems").GetComponentInChildren<LaneLayout>(true);
-            Assert.AreEqual(-2.5f, layout.GetLaneX(0));
-            Assert.AreEqual(2.5f, layout.GetLaneX(1));
-            Assert.AreEqual(4.5f, layout.LaneWidth);
+            Assert.AreEqual(-3.25f, layout.GetLaneX(0));
+            Assert.AreEqual(3.25f, layout.GetLaneX(1));
+            Assert.AreEqual(5.5f, layout.LaneWidth);
             Assert.AreEqual(36f, layout.GetSpawnPosition(0).z);
             Assert.AreEqual(0f, layout.DefenseLineZ);
-            Assert.AreEqual(-4.5f, layout.ClampStrafe(-100f));
-            Assert.AreEqual(4.5f, layout.ClampStrafe(100f));
+            Assert.AreEqual(-5.75f, layout.ClampStrafe(-100f));
+            Assert.AreEqual(5.75f, layout.ClampStrafe(100f));
 
             var environment = FindRoot("Environment");
             var divider = environment.transform.Find("Divider");
@@ -139,8 +139,17 @@ namespace RealRail.Tests
             Assert.AreEqual(new Vector3(0.4f, 1.5f, 36f), divider.localScale);
             Assert.NotNull(divider.GetComponent<BoxCollider>());
 
-            AssertLaneSurface(environment.transform.Find("LeftLane"), -2.5f);
-            AssertLaneSurface(environment.transform.Find("RightLane"), 2.5f);
+            AssertLaneSurface(environment.transform.Find("LeftLane"), -3.25f);
+            AssertLaneSurface(environment.transform.Find("RightLane"), 3.25f);
+            var gameplayArena = environment.transform.Find("GameplayArena");
+            Assert.NotNull(gameplayArena);
+            Assert.IsEmpty(gameplayArena.GetComponentsInChildren<Collider>(true));
+            var visualEnvironment = FindRoot("VisualEnvironment");
+            Assert.NotNull(visualEnvironment);
+            Assert.NotNull(visualEnvironment.transform.Find("LeftSideWalkway"));
+            Assert.NotNull(visualEnvironment.transform.Find("RightSideWalkway"));
+            Assert.NotNull(visualEnvironment.transform.Find("FrontApron"));
+            Assert.IsEmpty(visualEnvironment.GetComponentsInChildren<Collider>(true));
         }
 
         [Test]
@@ -206,8 +215,8 @@ namespace RealRail.Tests
         static void AssertLaneSurface(Transform lane, float expectedX)
         {
             Assert.NotNull(lane);
-            Assert.AreEqual(new Vector3(expectedX, 0.12f, 19.5f), lane.position);
-            Assert.AreEqual(new Vector3(4.5f, 0.02f, 39f), lane.localScale);
+            Assert.AreEqual(new Vector3(expectedX, 0f, 19.5f), lane.position);
+            Assert.AreEqual(new Vector3(5.5f, 0.35f, 39f), lane.localScale);
             Assert.NotNull(lane.GetComponent<MeshRenderer>());
         }
 

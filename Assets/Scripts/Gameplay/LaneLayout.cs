@@ -4,15 +4,15 @@ namespace RealRail
 {
     public sealed class LaneLayout : MonoBehaviour
     {
-        [SerializeField] float leftLaneX = -2.5f;
-        [SerializeField] float rightLaneX = 2.5f;
-        [SerializeField] float laneWidth = 4.5f;
+        [SerializeField] float leftLaneX = -3.25f;
+        [SerializeField] float rightLaneX = 3.25f;
+        [SerializeField] float laneWidth = 5.5f;
         [SerializeField] float spawnEdgeInset = 0.55f;
         [SerializeField] float spawnZ = 36f;
         [SerializeField] float playerZ;
         [SerializeField] float defenseLineZ;
-        [SerializeField] float strafeMinX = -4.5f;
-        [SerializeField] float strafeMaxX = 4.5f;
+        [SerializeField] float strafeMinX = -5.75f;
+        [SerializeField] float strafeMaxX = 5.75f;
         [SerializeField] float actorY = 1f;
 
         public float PlayerZ => playerZ;

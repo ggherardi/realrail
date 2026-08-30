@@ -7,13 +7,15 @@ Milestone 3 changes the prototype from two sparse, aligned enemy columns into a 
 ## Lane layout
 
 - The game continues to have exactly two lanes.
-- Each visual lane is 4.5 units wide, centered at X `-2.5` and X `2.5`.
+- Each visual lane is 5.5 units wide, centered at X `-3.25` and X `3.25`. The
+  resulting 12-unit corridor is intentionally broader while retaining a clear
+  central divider and two distinct lanes.
 - Both colored lane floors extend from the Player / Defense Line at Z `0` through the arena's far end at Z `39`.
 - Enemies spawn in randomized horizontal ranges within their selected lane:
-  - left: X `-4.2` to `-0.8`;
-  - right: X `0.8` to `4.2`.
+  - left: X `-5.45` to `-1.05`;
+  - right: X `1.05` to `5.45`.
 - An enemy retains its spawn X and moves straight toward the player.
-- The player may strafe from X `-4.5` to X `4.5`.
+- The player may strafe from X `-5.75` to X `5.75`.
 - Upgrade Targets remain centered in their randomly selected lane; their X position is not randomized.
 
 ## Divider
@@ -23,6 +25,14 @@ Milestone 3 changes the prototype from two sparse, aligned enemy columns into a 
 - It extends from Z `3` through Z `39`, leaving a clear player-side crossing area at the Defense Line and player position (Z `0`).
 - Projectiles are destroyed when they hit the divider, preventing attacks through to the opposite lane.
 - The divider does not collide with the player or enemies. Enemies remain in their selected lane because their movement preserves spawn X.
+
+## Arena presentation V1
+
+The lane slabs have visible depth and are framed by non-colliding curbs,
+sidewalks, rail structures, a front apron, and a far structural cap. These are
+static presentation-only objects: gameplay space remains defined by
+`LaneLayout`, and the divider is the sole arena presentation object that keeps
+its projectile collision role.
 
 ## Horde balance
 

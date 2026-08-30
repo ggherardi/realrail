@@ -29,8 +29,8 @@ namespace RealRail.Tests
                 var left = _lanes.GetSpawnPosition(0);
                 var right = _lanes.GetSpawnPosition(1);
 
-                Assert.That(left.x, Is.InRange(-4.2f, -0.8f));
-                Assert.That(right.x, Is.InRange(0.8f, 4.2f));
+                Assert.That(left.x, Is.InRange(-5.45f, -1.05f));
+                Assert.That(right.x, Is.InRange(1.05f, 5.45f));
                 Assert.AreEqual(_lanes.ActorY, left.y);
                 Assert.AreEqual(36f, left.z);
                 Assert.AreEqual(36f, right.z);
@@ -40,8 +40,8 @@ namespace RealRail.Tests
         [Test]
         public void ClampStrafe_UsesExpandedCorridorBounds()
         {
-            Assert.AreEqual(-4.5f, _lanes.ClampStrafe(-10f));
-            Assert.AreEqual(4.5f, _lanes.ClampStrafe(10f));
+            Assert.AreEqual(-5.75f, _lanes.ClampStrafe(-10f));
+            Assert.AreEqual(5.75f, _lanes.ClampStrafe(10f));
         }
 
         [Test]
