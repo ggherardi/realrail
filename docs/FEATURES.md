@@ -121,3 +121,56 @@ The exact component slots, compatibility rules, elemental interactions, rarity,
 and acquisition system are still to be designed.
 
 ---
+
+## Lane Floor Effects
+
+Status: Planned
+
+The floor of one or both lanes can temporarily change state and modify the rules of combat for anything happening on that lane.
+
+### Core concept
+
+* A lane can acquire a temporary floor effect, visually communicated through a clear color, material or animation change.
+* Floor effects can alter weapon behavior, enemy behavior, player statistics or general combat rules.
+* The player should be able to recognize the effect quickly and decide whether to remain on that lane or switch to the other one.
+* Effects should create tactical decisions rather than simply applying unavoidable penalties.
+
+### Example
+
+**Healing Floor**
+
+* The lane floor turns yellow.
+* While the effect is active, attacks that would normally damage enemies instead heal them.
+* The player is encouraged to immediately stop firing on that lane or move to the other lane.
+
+### Possible effects
+
+* **Damage Amplification** — attacks deal increased damage.
+* **Damage Reduction** — attacks deal reduced damage.
+* **Healing Floor** — weapon damage heals enemies instead.
+* **Critical Zone** — increased critical hit chance or guaranteed critical hits.
+* **Slow Zone** — enemies moving through the lane are slowed.
+* **Acceleration Zone** — enemies move faster.
+* **Weapon Overcharge** — increased fire rate or projectile speed.
+* **Weapon Jam** — reduced fire rate or temporary firing interruptions.
+* **Explosive Floor** — enemies killed on the lane trigger explosions.
+* **Projectile Modifier** — projectiles gain piercing, bouncing, splitting or other properties.
+* **Elemental Zone** — attacks gain a temporary elemental effect.
+* **Enemy Buff Zone** — enemies gain armor, regeneration or another temporary advantage.
+
+### Gameplay principles
+
+* Effects should be highly readable through visuals and, where necessary, UI feedback.
+* Positive and negative effects can both exist.
+* Some effects may apply only to the player, only to enemies or to both.
+* Effects should encourage lane switching and make positioning more meaningful.
+* Avoid effects that remove player agency or are difficult to understand during fast gameplay.
+
+### Future considerations
+
+* Define whether floor effects appear randomly, follow predefined patterns or are triggered by specific enemies/events.
+* Determine whether both lanes can have different effects at the same time.
+* Explore interactions between floor effects and specific weapons, upgrades or enemy types.
+* Consider rare combinations where multiple floor modifiers can be active simultaneously.
+
+---
