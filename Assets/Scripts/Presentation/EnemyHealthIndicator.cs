@@ -15,6 +15,12 @@ namespace RealRail
         public Health HealthSource => health;
         public int DisplayedCurrent { get; private set; }
         public int DisplayedMax { get; private set; }
+        public float DisplayedFillFraction { get; private set; }
+
+        RectTransform _fillRect;
+        float _fullFillWidth;
+        float _fillLeftInset;
+        bool _fillGeometryCached;
 
         void Awake()
         {
@@ -23,6 +29,7 @@ namespace RealRail
                 health = GetComponentInParent<Health>();
             }
 
+            CacheFillGeometry();
             Bind(health);
         }
 
@@ -55,16 +62,46 @@ namespace RealRail
         {
             DisplayedCurrent = current;
             DisplayedMax = max;
+            DisplayedFillFraction = max > 0 ? (float)current / max : 0f;
 
             if (fillImage != null)
             {
-                fillImage.fillAmount = max > 0 ? (float)current / max : 0f;
+                fillImage.fillAmount = DisplayedFillFraction;
+                CacheFillGeometry();
+                if (_fillRect != null)
+                {
+                    // The current indicator uses Unity's sprite-less white image. Its Filled
+                    // mode does not crop visible geometry, so size the same Image from the left.
+                    _fillRect.SetInsetAndSizeFromParentEdge(
+                        RectTransform.Edge.Left,
+                        _fillLeftInset,
+                        _fullFillWidth * DisplayedFillFraction);
+                }
             }
 
             if (hitPointsText != null)
             {
                 hitPointsText.text = $"{current}/{max}";
             }
+        }
+
+        void CacheFillGeometry()
+        {
+            if (_fillGeometryCached || fillImage == null)
+            {
+                return;
+            }
+
+            _fillRect = fillImage.rectTransform;
+            var parentRect = _fillRect.parent as RectTransform;
+            if (parentRect == null)
+            {
+                return;
+            }
+
+            _fillLeftInset = _fillRect.offsetMin.x;
+            _fullFillWidth = parentRect.rect.width - _fillLeftInset + _fillRect.offsetMax.x;
+            _fillGeometryCached = true;
         }
     }
 }
