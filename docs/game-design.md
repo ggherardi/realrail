@@ -63,3 +63,23 @@ The first playable scene is a two-lane horde corridor. The player stands at a fi
 
 ### Scene
 `SampleScene` contains the authored gameplay structure: systems, corridor, player, camera, and HUD. Enemies, projectiles, and Upgrade Targets are instantiated from prefabs during play.
+
+## Environment Themes
+
+The two-lane gameplay arena is a stable combat space. Its layout, lane rules,
+player bounds, spawn positions, and gameplay systems are separate from the
+theme-specific visual world that surrounds it. This lets the same arena be
+presented as distinct environments without tying presentation to a particular
+enemy prefab or making gameplay depend on an environment asset.
+
+An Environment Theme can eventually guide visual environment, horizon,
+atmosphere, lighting, and a coherent Enemy Family pool. Frozen, Industrial,
+Wild, Wasteland, Alien, and Sci-Fi are examples of possible themes. A run or
+level configuration should eventually choose both its theme presentation and
+eligible enemy families; theme selection must not be inferred from the
+presence of a particular enemy.
+
+Frozen is the first visual vertical slice. It wraps the current arena in a
+stylized snowy mountain world while retaining the currently mixed Orc and Yeti
+gameplay roster. Exact enemy pools, progression, theme switching, and audio or
+music integration remain TBD.

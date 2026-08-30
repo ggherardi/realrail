@@ -153,6 +153,19 @@ namespace RealRail.Tests
         }
 
         [Test]
+        public void Scene_HasPresentationOnlyFrozenThemeSeparateFromGameplayArena()
+        {
+            var visualEnvironment = FindRoot("VisualEnvironment");
+            var frozen = visualEnvironment.transform.Find("Frozen");
+
+            Assert.NotNull(frozen);
+            Assert.NotNull(frozen.Find("FrozenApproach"));
+            Assert.NotNull(frozen.Find("IceFormations"));
+            Assert.NotNull(frozen.Find("DistantMountains"));
+            Assert.IsEmpty(frozen.GetComponentsInChildren<Collider>(true));
+        }
+
+        [Test]
         public void Scene_UsesExplicitIncreasingHeavyWaveComposition()
         {
             var director = FindRoot("Systems").GetComponentInChildren<WaveDirector>(true);
