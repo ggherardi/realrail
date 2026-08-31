@@ -13,8 +13,9 @@ namespace RealRail.Editor
     public static class FrozenEnvironmentBuilder
     {
         const string ScenePath = "Assets/Scenes/SampleScene.unity";
+        const string ModelsPath = "Assets/ThirdParty/Quaternius/FrozenEnvironment/Models/";
 
-        [MenuItem("RealRail/Build Frozen Environment V1")]
+        [MenuItem("RealRail/Build Frozen Environment V2")]
         public static void Build()
         {
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
@@ -29,30 +30,33 @@ namespace RealRail.Editor
             frozen.SetParent(visualEnvironment, false);
 
             var snow = LoadOrCreateMaterial("Assets/Materials/FrozenSnow.mat", new Color(0.67f, 0.82f, 0.88f), 0.08f);
-            var snowShade = LoadOrCreateMaterial("Assets/Materials/FrozenSnowShade.mat", new Color(0.41f, 0.61f, 0.70f), 0.06f);
             var ice = LoadOrCreateMaterial("Assets/Materials/FrozenIce.mat", new Color(0.30f, 0.72f, 0.82f), 0.42f);
+            var stone = LoadOrCreateMaterial("Assets/Materials/FrozenMountainStone.mat", new Color(0.25f, 0.33f, 0.39f), 0.05f);
+            var dirt = LoadOrCreateMaterial("Assets/Materials/FrozenMountainDirt.mat", new Color(0.31f, 0.37f, 0.38f), 0.03f);
             var rock = LoadOrCreateMaterial("Assets/Materials/FrozenRock.mat", new Color(0.20f, 0.29f, 0.36f), 0.12f);
-            var rockLight = LoadOrCreateMaterial("Assets/Materials/FrozenRockLight.mat", new Color(0.42f, 0.54f, 0.61f), 0.08f);
-            var frost = LoadOrCreateMaterial("Assets/Materials/FrozenFrost.mat", new Color(0.78f, 0.91f, 0.95f), 0.18f);
+            var pine = LoadOrCreateMaterial("Assets/Materials/FrozenPine.mat", new Color(0.16f, 0.31f, 0.31f), 0.04f);
 
             var continuation = CreateGroup("FrozenApproach", frozen);
-            CreateCube("SnowApproach", continuation, new Vector3(0f, -0.42f, 62f), new Vector3(34f, 0.55f, 45f), snow);
-            CreateCube("IceRiver", continuation, new Vector3(0f, -0.12f, 53f), new Vector3(7.5f, 0.08f, 27f), ice);
-            CreateCube("LeftSnowbank", continuation, new Vector3(-11.5f, 0.05f, 49f), new Vector3(11f, 0.9f, 22f), snowShade);
-            CreateCube("RightSnowbank", continuation, new Vector3(11.5f, 0.05f, 49f), new Vector3(11f, 0.9f, 22f), snowShade);
-
-            var iceFormations = CreateGroup("IceFormations", frozen);
-            CreateIceSpire(iceFormations, new Vector3(-13.5f, 1.25f, 34f), 1.0f, 3.0f, ice, frost);
-            CreateIceSpire(iceFormations, new Vector3(13.5f, 1.1f, 38f), 0.85f, 2.7f, ice, frost);
-            CreateIceSpire(iceFormations, new Vector3(-15f, 1.4f, 48f), 1.2f, 4.2f, ice, frost);
-            CreateIceSpire(iceFormations, new Vector3(15f, 1.45f, 51f), 1.25f, 4.4f, ice, frost);
+            CreateCube("SnowApproach", continuation, new Vector3(0f, -0.42f, 62f), new Vector3(42f, 0.55f, 48f), snow);
+            CreateCube("IceRiver", continuation, new Vector3(0f, -0.12f, 53f), new Vector3(6.5f, 0.08f, 25f), ice);
 
             var mountains = CreateGroup("DistantMountains", frozen);
-            CreateMountain(mountains, new Vector3(-22f, 5.0f, 70f), 10f, 13f, rock, rockLight, frost);
-            CreateMountain(mountains, new Vector3(-11f, 6.4f, 75f), 12f, 17f, rock, rockLight, frost);
-            CreateMountain(mountains, new Vector3(1f, 5.2f, 79f), 14f, 16f, rock, rockLight, frost);
-            CreateMountain(mountains, new Vector3(14f, 7.1f, 74f), 13f, 19f, rock, rockLight, frost);
-            CreateMountain(mountains, new Vector3(25f, 4.8f, 69f), 10f, 13f, rock, rockLight, frost);
+            CreateAsset("MountainGroup_Main", "Mountain_Group_1", mountains, new Vector3(-2.5f, -0.1f, 73f), new Vector3(0f, -14f, 0f), new Vector3(1.85f, 1.55f, 1.35f), stone, dirt, snow);
+            CreateAsset("MountainLarge_Left", "MountainLarge_Single", mountains, new Vector3(-19f, 0f, 64f), new Vector3(0f, 21f, 0f), new Vector3(1.6f, 1.35f, 1.25f), stone, dirt, snow);
+            CreateAsset("MountainGroup_Right", "Mountain_Group_2", mountains, new Vector3(20f, 0.1f, 68f), new Vector3(0f, -28f, 0f), new Vector3(2.05f, 1.5f, 1.45f), stone, dirt, snow);
+
+            var rocks = CreateGroup("MidgroundRocks", frozen);
+            CreateAsset("Rock_Left_Near", "Rock_Snow_4", rocks, new Vector3(-10.6f, 0.1f, 30f), new Vector3(0f, 142f, 0f), new Vector3(1.25f, 1.25f, 1.25f), rock, snow);
+            CreateAsset("Rock_Left_Far", "Rock_Snow_1", rocks, new Vector3(-13.4f, 0.05f, 43f), new Vector3(0f, 38f, 0f), new Vector3(1.65f, 1.35f, 1.65f), rock, snow);
+            CreateAsset("Rock_Left_Back", "Rock_Snow_6", rocks, new Vector3(-18.3f, 0.05f, 52f), new Vector3(0f, 233f, 0f), new Vector3(1.85f, 1.5f, 1.85f), rock, snow);
+            CreateAsset("Rock_Right_Near", "Rock_Snow_6", rocks, new Vector3(10.8f, 0.05f, 34f), new Vector3(0f, 300f, 0f), new Vector3(1.3f, 1.1f, 1.3f), rock, snow);
+            CreateAsset("Rock_Right_Far", "Rock_Snow_4", rocks, new Vector3(14.4f, 0.05f, 46f), new Vector3(0f, 85f, 0f), new Vector3(1.75f, 1.45f, 1.75f), rock, snow);
+            CreateAsset("Rock_Right_Back", "Rock_Snow_1", rocks, new Vector3(19.2f, 0.05f, 55f), new Vector3(0f, 191f, 0f), new Vector3(2.0f, 1.7f, 2.0f), rock, snow);
+
+            var vegetation = CreateGroup("SnowVegetation", frozen);
+            CreateAsset("Pine_Left_Back", "PineTree_Snow_1", vegetation, new Vector3(-17.2f, 0.05f, 47f), new Vector3(0f, 18f, 0f), new Vector3(1.1f, 1.15f, 1.1f), pine, stone, snow);
+            CreateAsset("Pine_Right_Back", "PineTree_Snow_3", vegetation, new Vector3(18.6f, 0.05f, 52f), new Vector3(0f, 328f, 0f), new Vector3(1.0f, 1.05f, 1.0f), pine, stone, snow);
+            CreateAsset("Pine_Right_Far", "PineTree_Snow_1", vegetation, new Vector3(22.5f, 0.05f, 61f), new Vector3(0f, 342f, 0f), new Vector3(0.8f, 0.85f, 0.8f), pine, stone, snow);
 
             ApplyFrozenAtmosphere();
             EditorSceneManager.MarkSceneDirty(scene);
@@ -74,21 +78,35 @@ namespace RealRail.Editor
             RenderSettings.ambientIntensity = 0.9f;
         }
 
-        static void CreateMountain(Transform parent, Vector3 position, float width, float height, Material rock, Material rockLight, Material frost)
+        static void CreateAsset(string name, string assetName, Transform parent, Vector3 position, Vector3 rotation, Vector3 scale, params Material[] materials)
         {
-            var root = CreateGroup("Mountain", parent);
-            root.localPosition = position;
-            CreateCylinder("Base", root, new Vector3(0f, -height * 0.28f, 0f), new Vector3(width, height * 0.44f, width * 0.7f), rock);
-            CreateCylinder("Mid", root, new Vector3(0.45f, height * 0.02f, 0f), new Vector3(width * 0.68f, height * 0.42f, width * 0.52f), rockLight);
-            CreateCylinder("Peak", root, new Vector3(-0.25f, height * 0.31f, 0f), new Vector3(width * 0.33f, height * 0.36f, width * 0.27f), frost);
-        }
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(ModelsPath + assetName + ".fbx");
+            if (source == null)
+            {
+                throw new System.InvalidOperationException("Missing approved Quaternius asset: " + assetName);
+            }
 
-        static void CreateIceSpire(Transform parent, Vector3 position, float width, float height, Material ice, Material frost)
-        {
-            var root = CreateGroup("IceSpire", parent);
-            root.localPosition = position;
-            CreateCylinder("Body", root, new Vector3(0f, 0f, 0f), new Vector3(width, height, width * 0.75f), ice);
-            CreateCylinder("Tip", root, new Vector3(0f, height * 0.55f, 0f), new Vector3(width * 0.45f, height * 0.45f, width * 0.32f), frost);
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(source, parent);
+            instance.name = name;
+            instance.transform.localPosition = position;
+            instance.transform.localEulerAngles = rotation;
+            instance.transform.localScale = scale;
+
+            foreach (var collider in instance.GetComponentsInChildren<Collider>(true))
+            {
+                Object.DestroyImmediate(collider);
+            }
+
+            foreach (var renderer in instance.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                var assigned = new Material[renderer.sharedMaterials.Length];
+                for (var i = 0; i < assigned.Length; i++)
+                {
+                    assigned[i] = materials[Mathf.Min(i, materials.Length - 1)];
+                }
+                renderer.sharedMaterials = assigned;
+                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccluderStatic);
+            }
         }
 
         static Transform CreateGroup(string name, Transform parent)
@@ -101,18 +119,6 @@ namespace RealRail.Editor
         static void CreateCube(string name, Transform parent, Vector3 position, Vector3 scale, Material material)
         {
             var shape = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            shape.name = name;
-            shape.transform.SetParent(parent, false);
-            shape.transform.localPosition = position;
-            shape.transform.localScale = scale;
-            Object.DestroyImmediate(shape.GetComponent<Collider>());
-            shape.GetComponent<MeshRenderer>().sharedMaterial = material;
-            GameObjectUtility.SetStaticEditorFlags(shape, StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccluderStatic);
-        }
-
-        static void CreateCylinder(string name, Transform parent, Vector3 position, Vector3 scale, Material material)
-        {
-            var shape = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             shape.name = name;
             shape.transform.SetParent(parent, false);
             shape.transform.localPosition = position;

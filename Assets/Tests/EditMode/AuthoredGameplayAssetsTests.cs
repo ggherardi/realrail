@@ -160,9 +160,35 @@ namespace RealRail.Tests
 
             Assert.NotNull(frozen);
             Assert.NotNull(frozen.Find("FrozenApproach"));
-            Assert.NotNull(frozen.Find("IceFormations"));
             Assert.NotNull(frozen.Find("DistantMountains"));
+            Assert.NotNull(frozen.Find("MidgroundRocks"));
+            Assert.NotNull(frozen.Find("SnowVegetation"));
+            Assert.NotNull(frozen.Find("DistantMountains/MountainGroup_Main"));
+            Assert.NotNull(frozen.Find("DistantMountains/MountainLarge_Left"));
+            Assert.NotNull(frozen.Find("DistantMountains/MountainGroup_Right"));
             Assert.IsEmpty(frozen.GetComponentsInChildren<Collider>(true));
+        }
+
+        [Test]
+        public void FrozenTheme_UsesOnlyTheApprovedImportedQuaterniusEnvironmentAssets()
+        {
+            const string modelsPath = "Assets/ThirdParty/Quaternius/FrozenEnvironment/Models/";
+            var approvedAssets = new[]
+            {
+                "MountainLarge_Single",
+                "Mountain_Group_1",
+                "Mountain_Group_2",
+                "Rock_Snow_1",
+                "Rock_Snow_4",
+                "Rock_Snow_6",
+                "PineTree_Snow_1",
+                "PineTree_Snow_3"
+            };
+
+            foreach (var assetName in approvedAssets)
+            {
+                Assert.NotNull(AssetDatabase.LoadAssetAtPath<GameObject>(modelsPath + assetName + ".fbx"), assetName + " should import as a model prefab.");
+            }
         }
 
         [Test]
