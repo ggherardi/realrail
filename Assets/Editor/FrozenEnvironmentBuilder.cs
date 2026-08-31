@@ -37,13 +37,13 @@ namespace RealRail.Editor
             var pine = LoadOrCreateMaterial("Assets/Materials/FrozenPine.mat", new Color(0.16f, 0.31f, 0.31f), 0.04f);
 
             var continuation = CreateGroup("FrozenApproach", frozen);
-            CreateCube("SnowApproach", continuation, new Vector3(0f, -0.42f, 62f), new Vector3(42f, 0.55f, 48f), snow);
-            CreateCube("IceRiver", continuation, new Vector3(0f, -0.12f, 53f), new Vector3(6.5f, 0.08f, 25f), ice);
+            CreateCube("SnowApproach", continuation, new Vector3(0f, -0.42f, 50f), new Vector3(30f, 0.55f, 28f), snow);
+            CreateCube("IceRiver", continuation, new Vector3(0f, -0.12f, 47f), new Vector3(5.5f, 0.08f, 16f), ice);
 
             var mountains = CreateGroup("DistantMountains", frozen);
-            CreateAsset("MountainGroup_Main", "Mountain_Group_1", mountains, new Vector3(-5.5f, -0.4f, 57f), new Vector3(0f, -10f, 0f), new Vector3(3.5f, 3.4f, 2.7f), stone, snow, dirt);
-            CreateAsset("MountainLarge_Left", "MountainLarge_Single", mountains, new Vector3(-17.5f, -0.2f, 49f), new Vector3(0f, 28f, 0f), new Vector3(3.0f, 3.5f, 2.8f), stone, snow, dirt);
-            CreateAsset("MountainGroup_Right", "Mountain_Group_2", mountains, new Vector3(16.5f, -0.3f, 53f), new Vector3(0f, -34f, 0f), new Vector3(3.1f, 3.5f, 2.9f), stone, snow, dirt);
+            CreateAsset("MountainGroup_Main", "Mountain_Group_1", mountains, new Vector3(-3f, 3f, 61f), new Vector3(0f, -8f, 0f), new Vector3(4f, 6.5f, 3.3f), stone, snow, dirt);
+            CreateAsset("MountainLarge_Left", "MountainLarge_Single", mountains, new Vector3(-17f, 2f, 57f), new Vector3(0f, 28f, 0f), new Vector3(3.8f, 10f, 3.2f), stone, snow, dirt);
+            CreateAsset("MountainGroup_Right", "Mountain_Group_2", mountains, new Vector3(16f, 2.5f, 59f), new Vector3(0f, -34f, 0f), new Vector3(3.8f, 6f, 3.3f), stone, snow, dirt);
 
             var rocks = CreateGroup("MidgroundRocks", frozen);
             CreateAsset("Rock_Left_Near", "Rock_Snow_4", rocks, new Vector3(-9.8f, 0.1f, 27f), new Vector3(0f, 142f, 0f), new Vector3(2.6f, 2.4f, 2.6f), rock, snow);
@@ -54,9 +54,9 @@ namespace RealRail.Editor
             CreateAsset("Rock_Right_Back", "Rock_Snow_1", rocks, new Vector3(16.5f, 0.05f, 47f), new Vector3(0f, 191f, 0f), new Vector3(3.4f, 2.8f, 3.4f), rock, snow);
 
             var vegetation = CreateGroup("SnowVegetation", frozen);
-            CreateAsset("Pine_Left_Back", "PineTree_Snow_1", vegetation, new Vector3(-14.8f, 0.05f, 42f), new Vector3(0f, 18f, 0f), new Vector3(2.4f, 2.8f, 2.4f), dirt, pine, snow);
-            CreateAsset("Pine_Right_Back", "PineTree_Snow_3", vegetation, new Vector3(14.7f, 0.05f, 43f), new Vector3(0f, 328f, 0f), new Vector3(2.3f, 2.7f, 2.3f), dirt, pine, snow);
-            CreateAsset("Pine_Right_Far", "PineTree_Snow_1", vegetation, new Vector3(19.5f, 0.05f, 50f), new Vector3(0f, 342f, 0f), new Vector3(1.8f, 2.1f, 1.8f), dirt, pine, snow);
+            CreateAsset("Pine_Left_Back", "PineTree_Snow_1", vegetation, new Vector3(-11.5f, 0.05f, 34f), new Vector3(0f, 18f, 0f), new Vector3(2.8f, 3.6f, 2.8f), dirt, pine, snow);
+            CreateAsset("Pine_Right_Back", "PineTree_Snow_3", vegetation, new Vector3(11.5f, 0.05f, 36f), new Vector3(0f, 328f, 0f), new Vector3(2.7f, 3.5f, 2.7f), dirt, pine, snow);
+            CreateAsset("Pine_Right_Far", "PineTree_Snow_1", vegetation, new Vector3(16f, 0.05f, 45f), new Vector3(0f, 342f, 0f), new Vector3(2.1f, 2.8f, 2.1f), dirt, pine, snow);
 
             ApplyFrozenAtmosphere();
             EditorSceneManager.MarkSceneDirty(scene);
