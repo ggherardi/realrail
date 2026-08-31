@@ -10,19 +10,19 @@ namespace RealRail
         [Min(0.01f)] public float SpawnInterval;
         [Min(0f)] public float MoveSpeed;
         [Range(0f, 1f)] public float HeavySpawnChance;
-        [Min(0)] public int UpgradeTriggerKillCount;
+        public int[] UpgradeTriggerKillCounts;
 
         public WaveConfig(
             int killGoal,
             float spawnInterval,
             float moveSpeed,
-            int upgradeTriggerKillCount = 0,
+            int[] upgradeTriggerKillCounts = null,
             float heavySpawnChance = 0f)
         {
             KillGoal = killGoal;
             SpawnInterval = spawnInterval;
             MoveSpeed = moveSpeed;
-            UpgradeTriggerKillCount = upgradeTriggerKillCount;
+            UpgradeTriggerKillCounts = upgradeTriggerKillCounts ?? Array.Empty<int>();
             HeavySpawnChance = Mathf.Clamp01(heavySpawnChance);
         }
 
@@ -43,16 +43,16 @@ namespace RealRail
     {
         [SerializeField] WaveConfig[] waves =
         {
-            new WaveConfig(20, 0.35f, 3.6f, 8),
-            new WaveConfig(40, 0.22f, 4f, 16, 0.10f),
-            new WaveConfig(70, 0.14f, 4.4f, 0, 0.15f)
+            new WaveConfig(20, 0.35f, 3.6f, new[] { 8 }),
+            new WaveConfig(40, 0.22f, 4f, new[] { 14, 28 }, 0.10f),
+            new WaveConfig(70, 0.14f, 4.4f, new[] { 21, 46 }, 0.15f)
         };
         [SerializeField] GameObject upgradeTargetPrefab;
         [SerializeField] float upgradeTargetSpeed = 4f;
         [SerializeField] GameSession session;
         [SerializeField] EnemySpawner spawner;
         [SerializeField] LaneLayout lanes;
-        [SerializeField] AutoFire autoFire;
+        [SerializeField] UpgradeSystem upgradeSystem;
 
         WaveProgress _progress;
         int _waveIndex = -1;
@@ -120,9 +120,12 @@ namespace RealRail
             }
 
             _progress.RegisterResolved(resolution);
-            if (_progress.TryConsumeUpgradeTrigger(waves[_waveIndex].UpgradeTriggerKillCount))
+            foreach (var trigger in waves[_waveIndex].UpgradeTriggerKillCounts ?? Array.Empty<int>())
             {
-                SpawnUpgradeTarget();
+                if (_progress.TryConsumeUpgradeTrigger(trigger))
+                {
+                    SpawnUpgradeTarget();
+                }
             }
 
             if (_progress.KillGoalReached)
@@ -178,7 +181,7 @@ namespace RealRail
                 return;
             }
 
-            autoFire?.EnableDoubleShot();
+            upgradeSystem?.TryApplyAutomaticReward(out _);
         }
 
         bool IsActiveWave()

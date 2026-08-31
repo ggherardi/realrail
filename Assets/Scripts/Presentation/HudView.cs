@@ -10,6 +10,10 @@ namespace RealRail
         [SerializeField] Text victoryText;
         [SerializeField] Health playerHealth;
         [SerializeField] GameSession session;
+        [SerializeField] Text upgradeText;
+        [SerializeField] UpgradeSystem upgradeSystem;
+
+        float _upgradeTextHideTime;
 
         void Awake()
         {
@@ -45,6 +49,16 @@ namespace RealRail
                 this.session.Lost += OnLost;
                 this.session.Victory += OnVictory;
             }
+
+            if (upgradeText != null)
+            {
+                upgradeText.gameObject.SetActive(false);
+            }
+
+            if (upgradeSystem != null)
+            {
+                upgradeSystem.UpgradeApplied += OnUpgradeApplied;
+            }
         }
 
         void OnDestroy()
@@ -58,6 +72,19 @@ namespace RealRail
             {
                 session.Lost -= OnLost;
                 session.Victory -= OnVictory;
+            }
+
+            if (upgradeSystem != null)
+            {
+                upgradeSystem.UpgradeApplied -= OnUpgradeApplied;
+            }
+        }
+
+        void Update()
+        {
+            if (upgradeText != null && upgradeText.gameObject.activeSelf && Time.time >= _upgradeTextHideTime)
+            {
+                upgradeText.gameObject.SetActive(false);
             }
         }
 
@@ -84,5 +111,34 @@ namespace RealRail
                 victoryText.gameObject.SetActive(true);
             }
         }
+
+        void OnUpgradeApplied(UpgradeApplication application)
+        {
+            if (upgradeText == null)
+            {
+                return;
+            }
+
+            upgradeText.text = $"{DisplayName(application.Upgrade)} {ToRoman(application.Level)}";
+            upgradeText.gameObject.SetActive(true);
+            _upgradeTextHideTime = Time.time + 2.5f;
+        }
+
+        static string DisplayName(UpgradeId upgrade) => upgrade switch
+        {
+            UpgradeId.DoubleShot => "Double Shot",
+            UpgradeId.RapidFire => "Rapid Fire",
+            UpgradeId.PiercingShot => "Piercing Shot",
+            UpgradeId.PowerShot => "Power Shot",
+            _ => upgrade.ToString()
+        };
+
+        static string ToRoman(int level) => level switch
+        {
+            1 => "I",
+            2 => "II",
+            3 => "III",
+            _ => level.ToString()
+        };
     }
 }

@@ -8,7 +8,7 @@ A 3D action game in which the player character automatically fires forward while
 
 1. Enemies spawn ahead of the player.
 2. Enemies advance toward the player along one of two lanes.
-3. The player automatically attacks approaching enemies.
+3. The player automatically attacks approaching enemies and can destroy optional Upgrade Targets for temporary run upgrades.
 4. Enemies take damage and can be defeated.
 5. The player loses if the fail condition is reached.
 

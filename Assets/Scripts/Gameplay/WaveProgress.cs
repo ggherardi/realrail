@@ -13,7 +13,7 @@ namespace RealRail
         public bool KillGoalReached => KillCount >= KillGoal;
         public bool IsComplete => KillGoalReached && ActiveEnemyCount == 0;
 
-        bool _upgradeTriggerConsumed;
+        readonly System.Collections.Generic.HashSet<int> _consumedUpgradeTriggers = new System.Collections.Generic.HashSet<int>();
 
         public void RegisterSpawned()
         {
@@ -36,12 +36,11 @@ namespace RealRail
 
         public bool TryConsumeUpgradeTrigger(int triggerKillCount)
         {
-            if (_upgradeTriggerConsumed || triggerKillCount <= 0 || KillCount < triggerKillCount)
+            if (triggerKillCount <= 0 || KillCount < triggerKillCount || !_consumedUpgradeTriggers.Add(triggerKillCount))
             {
                 return false;
             }
 
-            _upgradeTriggerConsumed = true;
             return true;
         }
     }

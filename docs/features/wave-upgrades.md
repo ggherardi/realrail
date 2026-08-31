@@ -1,13 +1,13 @@
-# Wave System and First Weapon Upgrade
+# Wave System and Upgrade System V2
 
 ## Goal
 
-The run consists of three escalating enemy waves. The first two waves also create a parallel, optional weapon-upgrade objective during the active horde.
+The run has three escalating enemy waves and five optional Upgrade Target opportunities. Targets remain independent of normal enemies and wave progression.
 
 ## Wave structure
 
 - The run contains exactly three waves.
-- Each wave has a `KillGoal`, `SpawnInterval`, Grunt `MoveSpeed`, explicit `HeavySpawnChance`, and optional `UpgradeTriggerKillCount`.
+- Each wave has a `KillGoal`, `SpawnInterval`, Grunt `MoveSpeed`, explicit `HeavySpawnChance`, and zero or more upgrade trigger kill counts.
 - `EnemySpawner` continues spawning Grunts and configured Heavy variants at the configured interval until that wave's `KillGoal` has been reached.
 - Only enemies killed by player projectile damage count toward `KillGoal`. Enemies that cross the Defense Line are resolved but do not count as kills.
 - Once `KillGoal` is reached, enemy spawning stops immediately. Existing enemies remain until killed or removed at the Defense Line.
@@ -17,7 +17,7 @@ The run consists of three escalating enemy waves. The first two waves also creat
 
 ## Upgrade Targets
 
-- Wave 1 triggers one target on KillCount `8` of `20`; Wave 2 triggers one on KillCount `16` of `40`; Wave 3 has no target.
+- Wave 1 triggers one target on KillCount `8` of `20`; Wave 2 triggers targets on `14` and `28` of `40`; Wave 3 triggers targets on `21` and `46` of `70`.
 - Trigger points are configured as integer kill counts. A configured trigger is consumed exactly once after the required player kill is registered.
 - The target spawns in a randomly selected one of the two lanes, centered on that lane's X coordinate.
 - Normal enemies continue spawning and advancing without interruption while a target is present.
@@ -26,22 +26,28 @@ The run consists of three escalating enemy waves. The first two waves also creat
 - A target is missed only when it reaches or passes the player; it does not damage the player.
 - Player loss and Victory stop gameplay through `GameSession`; target callbacks ignore non-playing sessions safely.
 
-## Double Shot
+## Upgrade System V2
 
-Destroying an Upgrade Target grants Double Shot:
+Destroying an Upgrade Target temporarily selects one eligible reward at random and applies one level. Runtime upgrade state, reward generation, automatic selection, and application are separate: targets do not contain upgrade-effect logic. This preserves a clean seam for the planned 1-of-3 selection UI.
 
-- Before the upgrade, each auto-fire cycle creates one projectile.
-- After it, each cycle creates two straight, parallel projectiles with a small horizontal separation.
-- Double Shot lasts for the rest of the run.
-- It is idempotent and non-stackable. Collecting another target after obtaining it leaves firing at two projectiles per cycle.
+| Upgrade | Cap | Level behavior |
+| --- | ---: | --- |
+| Double Shot | 1 | Level 0 fires one projectile; Level 1 fires exactly two parallel projectiles. |
+| Rapid Fire | 3 | Fire interval: 0.35s, 0.30s, 0.25s, 0.20s. |
+| Piercing Shot | 2 | A projectile damages 1, 2, then 3 distinct valid targets. Duplicate callbacks cannot damage a target twice. |
+| Power Shot | 2 | Projectile damage is 1, 2, then 3. Enemy Health remains authoritative. |
+
+All effects derive from one acquired-upgrade state. At each firing cycle it produces projectile count, future fire interval, damage, and distinct-hit capacity. Projectiles receive immutable damage and capacity when fired, so later rewards do not change a shot already in flight. Capped upgrades are excluded from candidates; if all upgrades are capped, the target resolves safely with no reward. Successful rewards show brief compact HUD feedback.
+
+Automatic random selection is temporary V2 behavior. A future roguelite milestone can generate up to three eligible candidates, show a player choice, and apply the selected one without rewriting upgrade application or weapon effects.
 
 ## Initial balance
 
-| Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance | Upgrade trigger |
-| --- | ---: | ---: | ---: | ---: | ---: |
+| Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance | Upgrade triggers |
+| --- | ---: | ---: | ---: | ---: | --- |
 | 1 | 20 | 0.35s | 3.6 | 0% | 8 |
-| 2 | 40 | 0.22s | 4.0 | 10% | 16 |
-| 3 | 70 | 0.14s | 4.4 | 15% | none |
+| 2 | 40 | 0.22s | 4.0 | 10% | 14, 28 |
+| 3 | 70 | 0.14s | 4.4 | 15% | 21, 46 |
 
 ## Victory and Game Over
 
@@ -51,5 +57,5 @@ Destroying an Upgrade Target grants Double Shot:
 
 ## Out of scope
 
-- Additional upgrade types, selection UI, rarity, and stacking beyond Double Shot.
+- Selection UI, cards, rarity, rerolls, and permanent/meta progression.
 - Permanent/meta progression, currencies, inventory, shops, bosses, save/load, and procedural level generation.

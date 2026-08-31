@@ -128,6 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9852104}
+  - component: {fileID: 9852105}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -154,6 +155,18 @@ Transform:
   - {fileID: 611306638}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9852105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9852103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 364874746168648509257b20c81f90e8, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: RealRail::RealRail.UpgradeSystem
 --- !u!1 &26610029
 GameObject:
   m_ObjectHideFlags: 0
@@ -1556,23 +1569,23 @@ MonoBehaviour:
     SpawnInterval: 0.35
     MoveSpeed: 3.6
     HeavySpawnChance: 0
-    UpgradeTriggerKillCount: 8
+    UpgradeTriggerKillCounts: 08000000
   - KillGoal: 40
     SpawnInterval: 0.22
     MoveSpeed: 4
     HeavySpawnChance: 0.1
-    UpgradeTriggerKillCount: 16
+    UpgradeTriggerKillCounts: 0e0000001c000000
   - KillGoal: 70
     SpawnInterval: 0.14
     MoveSpeed: 4.4
     HeavySpawnChance: 0.15
-    UpgradeTriggerKillCount: 0
+    UpgradeTriggerKillCounts: 150000002e000000
   upgradeTargetPrefab: {fileID: 7239206535507173236, guid: 1ea7925369c644ed0b7e5a92d75f8f3f, type: 3}
   upgradeTargetSpeed: 4
   session: {fileID: 1495662729}
   spawner: {fileID: 263408989}
   lanes: {fileID: 1432545498}
-  autoFire: {fileID: 1513487248}
+  upgradeSystem: {fileID: 9852105}
 --- !u!1 &636279334
 GameObject:
   m_ObjectHideFlags: 0
@@ -2261,6 +2274,8 @@ MonoBehaviour:
   victoryText: {fileID: 2099930200}
   playerHealth: {fileID: 1513487250}
   session: {fileID: 1495662729}
+  upgradeText: {fileID: 1441358025}
+  upgradeSystem: {fileID: 9852105}
 --- !u!114 &1200853624
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2340,6 +2355,7 @@ RectTransform:
   - {fileID: 1341752964}
   - {fileID: 228557774}
   - {fileID: 2099930202}
+  - {fileID: 1441358027}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3020,6 +3036,85 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1440425788}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1441358024
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1441358027}
+  - component: {fileID: 1441358026}
+  - component: {fileID: 1441358025}
+  m_Layer: 0
+  m_Name: UpgradeFeedback
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1441358025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1441358024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.98, g: 0.86, b: 0.35, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 30
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text:
+--- !u!222 &1441358026
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1441358024}
+  m_CullTransparentMesh: 1
+--- !u!224 &1441358027
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1441358024}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1200853627}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -120}
+  m_SizeDelta: {x: 620, y: 52}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1495662728
 GameObject:
   m_ObjectHideFlags: 0
@@ -3193,6 +3288,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 2660549303404436689, guid: 4de092068aed544cc9a6a14b8f448bae, type: 3}
   fireInterval: 0.35
   doubleShotSeparation: 0.45
+  upgradeSystem: {fileID: 9852105}
 --- !u!4 &1513487249
 Transform:
   m_ObjectHideFlags: 0

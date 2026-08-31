@@ -28,6 +28,7 @@ namespace RealRail.Tests
             Assert.AreEqual(1, systems.GetComponentsInChildren<WaveDirector>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<EnemySpawner>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<LaneLayout>(true).Length);
+            Assert.AreEqual(1, systems.GetComponentsInChildren<UpgradeSystem>(true).Length);
 
             var session = systems.GetComponentInChildren<GameSession>(true);
             var director = systems.GetComponentInChildren<WaveDirector>(true);
@@ -36,7 +37,7 @@ namespace RealRail.Tests
             AssertAssigned(director, "session");
             AssertAssigned(director, "spawner");
             AssertAssigned(director, "lanes");
-            AssertAssigned(director, "autoFire");
+            AssertAssigned(director, "upgradeSystem");
             AssertAssigned(director, "upgradeTargetPrefab");
             AssertAssigned(spawner, "session");
             AssertAssigned(spawner, "lanes");
@@ -65,6 +66,7 @@ namespace RealRail.Tests
             AssertAssigned(autoFire, "session");
             AssertAssigned(autoFire, "muzzle");
             AssertAssigned(autoFire, "projectilePrefab");
+            AssertAssigned(autoFire, "upgradeSystem");
             Assert.AreEqual(0.35f, Property(autoFire, "fireInterval").floatValue);
             Assert.AreEqual(0.45f, Property(autoFire, "doubleShotSeparation").floatValue);
             Assert.AreEqual(3, Property(player.GetComponent<Health>(), "maxHealth").intValue);
@@ -195,6 +197,9 @@ namespace RealRail.Tests
             Assert.AreEqual(0f, waves.GetArrayElementAtIndex(0).FindPropertyRelative("HeavySpawnChance").floatValue);
             Assert.AreEqual(0.10f, waves.GetArrayElementAtIndex(1).FindPropertyRelative("HeavySpawnChance").floatValue);
             Assert.AreEqual(0.15f, waves.GetArrayElementAtIndex(2).FindPropertyRelative("HeavySpawnChance").floatValue);
+            CollectionAssert.AreEqual(new[] { 8 }, IntArray(waves.GetArrayElementAtIndex(0), "UpgradeTriggerKillCounts"));
+            CollectionAssert.AreEqual(new[] { 14, 28 }, IntArray(waves.GetArrayElementAtIndex(1), "UpgradeTriggerKillCounts"));
+            CollectionAssert.AreEqual(new[] { 21, 46 }, IntArray(waves.GetArrayElementAtIndex(2), "UpgradeTriggerKillCounts"));
         }
 
         [Test]
@@ -251,6 +256,14 @@ namespace RealRail.Tests
             Assert.AreEqual(new Vector3(expectedX, 0f, 19.5f), lane.position);
             Assert.AreEqual(new Vector3(5.5f, 0.35f, 39f), lane.localScale);
             Assert.NotNull(lane.GetComponent<MeshRenderer>());
+        }
+
+        static int[] IntArray(SerializedProperty parent, string name)
+        {
+            var property = parent.FindPropertyRelative(name);
+            var values = new int[property.arraySize];
+            for (var index = 0; index < values.Length; index++) values[index] = property.GetArrayElementAtIndex(index).intValue;
+            return values;
         }
 
         static void AssertVisualChild(GameObject prefab)

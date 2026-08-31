@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace RealRail
 {
@@ -11,11 +12,27 @@ namespace RealRail
         [SerializeField] LayerMask dividerLayers;
 
         GameSession _session;
-        bool _consumed;
+        readonly HashSet<Health> _hitTargets = new HashSet<Health>();
+        int _configuredDamage = 1;
+        int _distinctHitCapacity = 1;
+        bool _resolved;
+
+        public int DistinctHitCount => _hitTargets.Count;
+        public bool IsResolved => _resolved;
 
         public void Initialize(GameSession session)
         {
             _session = session;
+            Initialize(session, damage, 1);
+        }
+
+        public void Initialize(GameSession session, int configuredDamage, int distinctHitCapacity)
+        {
+            _session = session;
+            _configuredDamage = Mathf.Max(1, configuredDamage);
+            _distinctHitCapacity = Mathf.Max(1, distinctHitCapacity);
+            _hitTargets.Clear();
+            _resolved = false;
         }
 
         void Update()
@@ -37,14 +54,14 @@ namespace RealRail
 
         void OnTriggerEnter(Collider other)
         {
-            if (_consumed || _session == null || !_session.IsPlaying)
+            if (_resolved || _session == null || !_session.IsPlaying)
             {
                 return;
             }
 
             if (IsInLayerMask(other.gameObject.layer, dividerLayers))
             {
-                _consumed = true;
+                _resolved = true;
                 Destroy(gameObject);
                 return;
             }
@@ -60,9 +77,23 @@ namespace RealRail
                 return;
             }
 
-            _consumed = true;
-            health.TakeDamage(damage);
-            Destroy(gameObject);
+            TryApplyHit(health);
+        }
+
+        public bool TryApplyHit(Health health)
+        {
+            if (_resolved || health == null || !_hitTargets.Add(health))
+            {
+                return false;
+            }
+
+            health.TakeDamage(_configuredDamage);
+            if (_hitTargets.Count >= _distinctHitCapacity)
+            {
+                _resolved = true;
+                Destroy(gameObject);
+            }
+            return true;
         }
 
         static bool IsInLayerMask(int layer, LayerMask mask)
