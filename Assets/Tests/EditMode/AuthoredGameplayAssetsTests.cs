@@ -159,16 +159,10 @@ namespace RealRail.Tests
             var frozen = visualEnvironment.transform.Find("Frozen");
 
             Assert.NotNull(frozen);
-            Assert.NotNull(frozen.Find("FrozenApproach"));
-            Assert.NotNull(frozen.Find("ToonSkyline"));
-            Assert.NotNull(frozen.Find("ToonMidgroundRocks"));
-            Assert.NotNull(frozen.Find("ToonSparseVegetation"));
-            Assert.NotNull(frozen.Find("ToonSkyline/HeroCliff_SnowOverlay"));
-            Assert.NotNull(frozen.Find("ToonSkyline/SecondaryCliff_Right"));
-            Assert.Greater(
-                frozen.Find("ToonSkyline/HeroCliff_SnowOverlay").GetComponentInChildren<Renderer>().bounds.size.y,
-                10f,
-                "The hero cliff should create a meaningful skyline.");
+            Assert.NotNull(frozen.Find("GroundContinuation"));
+            Assert.IsNull(frozen.Find("ToonSkyline"));
+            Assert.IsNull(frozen.Find("ToonMidgroundRocks"));
+            Assert.IsNull(frozen.Find("ToonSparseVegetation"));
             Assert.IsEmpty(frozen.GetComponentsInChildren<Collider>(true));
         }
 

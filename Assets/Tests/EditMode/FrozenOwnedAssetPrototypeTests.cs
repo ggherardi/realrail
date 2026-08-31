@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,17 +11,39 @@ namespace RealRail.Tests
         const string ScenePath = "Assets/Scenes/SampleScene.unity";
 
         [Test]
-        public void FrozenPrototype_UsesOwnedToonSkylineWithoutDecorativeColliders()
+        public void FrozenBaseline_RemovesRejectedSkylineAndPrototypeSnowOverlay()
         {
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var frozen = FindRoot(scene, "VisualEnvironment").transform.Find("Frozen");
 
             Assert.NotNull(frozen);
-            Assert.NotNull(frozen.Find("ToonSkyline/HeroCliff_SnowOverlay"));
-            Assert.NotNull(frozen.Find("ToonSkyline/SecondaryCliff_Right"));
-            Assert.NotNull(frozen.Find("ToonSparseVegetation/Pine_Left"));
+            Assert.NotNull(frozen.Find("GroundContinuation/SnowApproach"));
+            Assert.NotNull(frozen.Find("GroundContinuation/IceRiver"));
+            Assert.IsNull(frozen.Find("ToonSkyline"));
+            Assert.IsNull(frozen.Find("ToonMidgroundRocks"));
+            Assert.IsNull(frozen.Find("ToonSparseVegetation"));
             Assert.IsNull(frozen.Find("DistantMountains"));
+            Assert.IsNull(FindDescendant(frozen, "HeroCliff_SnowOverlay"));
+            Assert.IsNull(FindDescendant(frozen, "SecondaryCliff_Right"));
+            Assert.IsNull(FindDescendant(frozen, "MountainLarge_Single"));
+            Assert.IsNull(FindDescendant(frozen, "Mountain_Group_1"));
+            Assert.IsNull(FindDescendant(frozen, "Mountain_Group_2"));
+            Assert.IsNull(FindDescendant(frozen, "SnowOverlay"));
+            Assert.IsNull(AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/FrozenHeroSnowOverlay.mat"));
             Assert.Zero(frozen.GetComponentsInChildren<Collider>(true).Length);
+        }
+
+        static Transform FindDescendant(Transform parent, string name)
+        {
+            foreach (var child in parent.GetComponentsInChildren<Transform>(true))
+            {
+                if (child.name == name)
+                {
+                    return child;
+                }
+            }
+
+            return null;
         }
 
         static GameObject FindRoot(Scene scene, string name)
