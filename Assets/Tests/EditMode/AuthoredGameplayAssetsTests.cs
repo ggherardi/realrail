@@ -160,38 +160,34 @@ namespace RealRail.Tests
 
             Assert.NotNull(frozen);
             Assert.NotNull(frozen.Find("FrozenApproach"));
-            Assert.NotNull(frozen.Find("DistantMountains"));
-            Assert.NotNull(frozen.Find("MidgroundRocks"));
-            Assert.NotNull(frozen.Find("SnowVegetation"));
-            Assert.NotNull(frozen.Find("DistantMountains/MountainGroup_Main"));
-            Assert.NotNull(frozen.Find("DistantMountains/MountainLarge_Left"));
-            Assert.NotNull(frozen.Find("DistantMountains/MountainGroup_Right"));
+            Assert.NotNull(frozen.Find("ToonSkyline"));
+            Assert.NotNull(frozen.Find("ToonMidgroundRocks"));
+            Assert.NotNull(frozen.Find("ToonSparseVegetation"));
+            Assert.NotNull(frozen.Find("ToonSkyline/HeroCliff_SnowOverlay"));
+            Assert.NotNull(frozen.Find("ToonSkyline/SecondaryCliff_Right"));
             Assert.Greater(
-                frozen.Find("DistantMountains/MountainGroup_Main").GetComponentInChildren<Renderer>().bounds.size.y,
+                frozen.Find("ToonSkyline/HeroCliff_SnowOverlay").GetComponentInChildren<Renderer>().bounds.size.y,
                 10f,
-                "The main mountain should retain the imported FBX scale and create a meaningful skyline.");
+                "The hero cliff should create a meaningful skyline.");
             Assert.IsEmpty(frozen.GetComponentsInChildren<Collider>(true));
         }
 
         [Test]
-        public void FrozenTheme_UsesOnlyTheApprovedImportedQuaterniusEnvironmentAssets()
+        public void FrozenTheme_UsesOnlyTheApprovedImportedToonEnvironmentAssets()
         {
-            const string modelsPath = "Assets/ThirdParty/Quaternius/FrozenEnvironment/Models/";
+            const string toonPath = "Assets/ThirdParty/ToonFantasyNature/";
             var approvedAssets = new[]
             {
-                "MountainLarge_Single",
-                "Mountain_Group_1",
-                "Mountain_Group_2",
-                "Rock_Snow_1",
-                "Rock_Snow_4",
-                "Rock_Snow_6",
-                "PineTree_Snow_1",
-                "PineTree_Snow_3"
+                "Prefabs/Rocks/TFF_Rock_Large_06A.prefab",
+                "Prefabs/Rocks/TFF_Rock_Large_05A.prefab",
+                "Prefabs/Rocks/TFF_Rock_Medium_07A.prefab",
+                "Prefabs/Vegetation/Trees/TFF_Pine_Tree_03A.prefab",
+                "Prefabs/Vegetation/Trees/TFF_Pine_Tree_05A.prefab"
             };
 
-            foreach (var assetName in approvedAssets)
+            foreach (var assetPath in approvedAssets)
             {
-                Assert.NotNull(AssetDatabase.LoadAssetAtPath<GameObject>(modelsPath + assetName + ".fbx"), assetName + " should import as a model prefab.");
+                Assert.NotNull(AssetDatabase.LoadAssetAtPath<GameObject>(toonPath + assetPath), assetPath + " should import as a prefab.");
             }
         }
 

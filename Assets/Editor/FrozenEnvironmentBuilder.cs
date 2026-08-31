@@ -13,7 +13,8 @@ namespace RealRail.Editor
     public static class FrozenEnvironmentBuilder
     {
         const string ScenePath = "Assets/Scenes/SampleScene.unity";
-        const string ModelsPath = "Assets/ThirdParty/Quaternius/FrozenEnvironment/Models/";
+        const string ToonPath = "Assets/ThirdParty/ToonFantasyNature/";
+        const string SnowShaderPath = "Assets/ThirdParty/BruteForce/SnowIce/URP/BF_SnowIceNoTessURP.shader";
 
         [MenuItem("RealRail/Build Frozen Environment V2")]
         public static void Build()
@@ -31,34 +32,33 @@ namespace RealRail.Editor
 
             var snow = LoadOrCreateMaterial("Assets/Materials/FrozenSnow.mat", new Color(0.67f, 0.82f, 0.88f), 0.08f);
             var ice = LoadOrCreateMaterial("Assets/Materials/FrozenIce.mat", new Color(0.30f, 0.72f, 0.82f), 0.42f);
-            var stone = LoadOrCreateMaterial("Assets/Materials/FrozenMountainStone.mat", new Color(0.25f, 0.33f, 0.39f), 0.05f);
-            var dirt = LoadOrCreateMaterial("Assets/Materials/FrozenMountainDirt.mat", new Color(0.31f, 0.37f, 0.38f), 0.03f);
-            var rock = LoadOrCreateMaterial("Assets/Materials/FrozenRock.mat", new Color(0.20f, 0.29f, 0.36f), 0.12f);
-            var pine = LoadOrCreateMaterial("Assets/Materials/FrozenPine.mat", new Color(0.16f, 0.31f, 0.31f), 0.04f);
+            var heroSnow = LoadOrCreateHeroSnowMaterial();
 
             var continuation = CreateGroup("FrozenApproach", frozen);
             CreateCube("SnowApproach", continuation, new Vector3(0f, -0.42f, 50f), new Vector3(30f, 0.55f, 28f), snow);
             CreateCube("IceRiver", continuation, new Vector3(0f, -0.12f, 47f), new Vector3(5.5f, 0.08f, 16f), ice);
 
-            var mountains = CreateGroup("DistantMountains", frozen);
-            CreateAsset("MountainGroup_Main", "Mountain_Group_1", mountains, new Vector3(-3f, 3f, 61f), new Vector3(0f, -8f, 0f), new Vector3(4f, 6.5f, 3.3f), stone, snow, dirt);
-            CreateAsset("MountainLarge_Left", "MountainLarge_Single", mountains, new Vector3(-17f, 2f, 57f), new Vector3(0f, 28f, 0f), new Vector3(3.8f, 10f, 3.2f), stone, snow, dirt);
-            CreateAsset("MountainGroup_Right", "Mountain_Group_2", mountains, new Vector3(16f, 2.5f, 59f), new Vector3(0f, -34f, 0f), new Vector3(3.8f, 6f, 3.3f), stone, snow, dirt);
+            var skyline = CreateGroup("ToonSkyline", frozen);
+            var hero = CreateToonPrefab("HeroCliff_SnowOverlay", "Prefabs/Rocks/TFF_Rock_Large_06A.prefab", skyline,
+                new Vector3(-8.4f, -1.6f, 57f), new Vector3(0f, 13f, 0f), new Vector3(2.15f, 2.15f, 2.15f));
+            CreateHeroSnowOverlay(hero, heroSnow);
+            CreateToonPrefab("SecondaryCliff_Right", "Prefabs/Rocks/TFF_Rock_Large_05A.prefab", skyline,
+                new Vector3(10.5f, -1.4f, 60f), new Vector3(0f, -29f, 0f), new Vector3(2.55f, 2.55f, 2.55f));
 
-            var rocks = CreateGroup("MidgroundRocks", frozen);
-            CreateAsset("Rock_Left_Near", "Rock_Snow_4", rocks, new Vector3(-9.8f, 0.1f, 27f), new Vector3(0f, 142f, 0f), new Vector3(2.6f, 2.4f, 2.6f), rock, snow);
-            CreateAsset("Rock_Left_Far", "Rock_Snow_1", rocks, new Vector3(-12.2f, 0.05f, 37f), new Vector3(0f, 38f, 0f), new Vector3(3.1f, 2.5f, 3.1f), rock, snow);
-            CreateAsset("Rock_Left_Back", "Rock_Snow_6", rocks, new Vector3(-15.8f, 0.05f, 45f), new Vector3(0f, 233f, 0f), new Vector3(2.9f, 2.4f, 2.9f), rock, snow);
-            CreateAsset("Rock_Right_Near", "Rock_Snow_6", rocks, new Vector3(9.8f, 0.05f, 29f), new Vector3(0f, 300f, 0f), new Vector3(2.3f, 2.0f, 2.3f), rock, snow);
-            CreateAsset("Rock_Right_Far", "Rock_Snow_4", rocks, new Vector3(12.6f, 0.05f, 39f), new Vector3(0f, 85f, 0f), new Vector3(3.0f, 2.5f, 3.0f), rock, snow);
-            CreateAsset("Rock_Right_Back", "Rock_Snow_1", rocks, new Vector3(16.5f, 0.05f, 47f), new Vector3(0f, 191f, 0f), new Vector3(3.4f, 2.8f, 3.4f), rock, snow);
+            var rocks = CreateGroup("ToonMidgroundRocks", frozen);
+            CreateToonPrefab("Rock_Left_Midground", "Prefabs/Rocks/TFF_Rock_Medium_07A.prefab", rocks,
+                new Vector3(-10.6f, -0.1f, 32f), new Vector3(0f, 115f, 0f), new Vector3(2.2f, 2.2f, 2.2f));
+            CreateToonPrefab("Rock_Right_Midground", "Prefabs/Rocks/TFF_Rock_Medium_07A.prefab", rocks,
+                new Vector3(10.8f, -0.1f, 40f), new Vector3(0f, -62f, 0f), new Vector3(2.45f, 2.45f, 2.45f));
 
-            var vegetation = CreateGroup("SnowVegetation", frozen);
-            CreateAsset("Pine_Left_Back", "PineTree_Snow_1", vegetation, new Vector3(-11.5f, 0.05f, 34f), new Vector3(0f, 18f, 0f), new Vector3(2.8f, 3.6f, 2.8f), dirt, pine, snow);
-            CreateAsset("Pine_Right_Back", "PineTree_Snow_3", vegetation, new Vector3(11.5f, 0.05f, 36f), new Vector3(0f, 328f, 0f), new Vector3(2.7f, 3.5f, 2.7f), dirt, pine, snow);
-            CreateAsset("Pine_Right_Far", "PineTree_Snow_1", vegetation, new Vector3(16f, 0.05f, 45f), new Vector3(0f, 342f, 0f), new Vector3(2.1f, 2.8f, 2.1f), dirt, pine, snow);
+            var vegetation = CreateGroup("ToonSparseVegetation", frozen);
+            CreateToonPrefab("Pine_Left", "Prefabs/Vegetation/Trees/TFF_Pine_Tree_03A.prefab", vegetation,
+                new Vector3(-12.4f, -0.2f, 37f), new Vector3(0f, 12f, 0f), new Vector3(2.15f, 2.7f, 2.15f));
+            CreateToonPrefab("Pine_Right", "Prefabs/Vegetation/Trees/TFF_Pine_Tree_05A.prefab", vegetation,
+                new Vector3(12.7f, -0.2f, 34f), new Vector3(0f, -18f, 0f), new Vector3(2f, 2.45f, 2f));
 
             ApplyFrozenAtmosphere();
+            RenderSettings.skybox = AssetDatabase.LoadAssetAtPath<Material>(ToonPath + "Skyboxes/TFF_Skybox_Day_01A.mat");
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             AssetDatabase.SaveAssets();
@@ -78,37 +78,106 @@ namespace RealRail.Editor
             RenderSettings.ambientIntensity = 0.9f;
         }
 
-        static void CreateAsset(string name, string assetName, Transform parent, Vector3 position, Vector3 rotation, Vector3 scale, params Material[] materials)
+        static GameObject CreateToonPrefab(string name, string relativePath, Transform parent, Vector3 position, Vector3 rotation, Vector3 scale)
         {
-            var source = AssetDatabase.LoadAssetAtPath<GameObject>(ModelsPath + assetName + ".fbx");
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(ToonPath + relativePath);
             if (source == null)
             {
-                throw new System.InvalidOperationException("Missing approved Quaternius asset: " + assetName);
+                throw new System.InvalidOperationException("Missing approved Toon Fantasy Nature asset: " + relativePath);
             }
 
             var instance = (GameObject)PrefabUtility.InstantiatePrefab(source, parent);
             instance.name = name;
             instance.transform.localPosition = position;
             instance.transform.localEulerAngles = rotation;
-            // Quaternius FBXs use a 100x imported root scale. Preserve that
-            // conversion factor while applying the authored composition scale.
-            instance.transform.localScale = Vector3.Scale(instance.transform.localScale, scale);
+            instance.transform.localScale = scale;
 
             foreach (var collider in instance.GetComponentsInChildren<Collider>(true))
             {
                 Object.DestroyImmediate(collider);
             }
 
-            foreach (var renderer in instance.GetComponentsInChildren<MeshRenderer>(true))
+            foreach (var renderer in instance.GetComponentsInChildren<Renderer>(true))
             {
-                var assigned = new Material[renderer.sharedMaterials.Length];
-                for (var i = 0; i < assigned.Length; i++)
-                {
-                    assigned[i] = materials[Mathf.Min(i, materials.Length - 1)];
-                }
-                renderer.sharedMaterials = assigned;
                 GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccluderStatic);
             }
+
+            return instance;
+        }
+
+        static void CreateHeroSnowOverlay(GameObject hero, Material snowMaterial)
+        {
+            var overlays = new System.Collections.Generic.Dictionary<Renderer, Renderer>();
+            foreach (var source in hero.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                var filter = source.GetComponent<MeshFilter>();
+                if (filter == null || filter.sharedMesh == null)
+                {
+                    continue;
+                }
+
+                var overlay = new GameObject("SnowOverlay");
+                overlay.transform.SetParent(source.transform, false);
+                overlay.AddComponent<MeshFilter>().sharedMesh = filter.sharedMesh;
+                overlay.AddComponent<MeshRenderer>().sharedMaterial = snowMaterial;
+                GameObjectUtility.SetStaticEditorFlags(overlay, StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccluderStatic);
+                overlays[source] = overlay.GetComponent<Renderer>();
+            }
+
+            var lodGroup = hero.GetComponentInChildren<LODGroup>();
+            if (lodGroup == null)
+            {
+                return;
+            }
+
+            var lods = lodGroup.GetLODs();
+            for (var i = 0; i < lods.Length; i++)
+            {
+                var renderers = new System.Collections.Generic.List<Renderer>(lods[i].renderers);
+                foreach (var renderer in lods[i].renderers)
+                {
+                    if (overlays.TryGetValue(renderer, out var overlay))
+                    {
+                        renderers.Add(overlay);
+                    }
+                }
+                lods[i].renderers = renderers.ToArray();
+            }
+            lodGroup.SetLODs(lods);
+        }
+
+        static Material LoadOrCreateHeroSnowMaterial()
+        {
+            const string path = "Assets/Materials/FrozenHeroSnowOverlay.mat";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (material != null)
+            {
+                return material;
+            }
+
+            var shader = AssetDatabase.LoadAssetAtPath<Shader>(SnowShaderPath);
+            if (shader == null)
+            {
+                throw new System.InvalidOperationException("Missing Brute Force no-tessellation URP shader.");
+            }
+
+            material = new Material(shader) { name = "FrozenHeroSnowOverlay", renderQueue = 3000 };
+            material.SetColor("_Color", new Color(0.62f, 0.75f, 0.82f, 0.58f));
+            material.SetColor("_TransitionColor", new Color(0.75f, 0.86f, 0.92f, 0.45f));
+            material.SetFloat("_ISADD", 1f);
+            material.EnableKeyword("IS_ADD");
+            material.SetFloat("_USERT", 0f);
+            material.DisableKeyword("USE_RT");
+            material.SetFloat("_USEFOG", 0f);
+            material.DisableKeyword("USE_FOG");
+            material.SetFloat("_UsePR", 0f);
+            material.SetFloat("_DisplacementStrength", 0f);
+            material.SetFloat("_DisplacementOffset", 0f);
+            material.SetFloat("_AddSnowStrength", 0.45f);
+            material.SetFloat("_RemoveSnowStrength", 0.65f);
+            material.SetFloat("_SnowScale", 0.85f);
+            AssetDatabase.CreateAsset(material, path);
+            return material;
         }
 
         static Transform CreateGroup(string name, Transform parent)
