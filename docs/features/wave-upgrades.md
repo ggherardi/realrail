@@ -41,6 +41,12 @@ All effects derive from one acquired-upgrade state. At each firing cycle it prod
 
 Automatic random selection is temporary V2 behavior. A future roguelite milestone can generate up to three eligible candidates, show a player choice, and apply the selected one without rewriting upgrade application or weapon effects.
 
+## Development and testing tools
+
+Gameplay Debug Tools V1 is development-only tooling, available in the Unity Editor and development builds. `F1` toggles a compact corner debug HUD which displays the effective shot configuration from the same `UpgradeSystem` configuration used by `AutoFire`, the acquired levels, and God Mode status. `F2` toggles God Mode; it intercepts player damage only, so waves, enemies, kills, and Upgrade Targets continue normally.
+
+Keys `1` through `4` apply exactly one level of Double Shot, Rapid Fire, Piercing Shot, and Power Shot respectively through the normal runtime upgrade application API. Caps are respected and reported. `R` resets acquired upgrade levels to baseline without resetting the wave, enemies, player position, health, kill count, or session state. These controls exist to make deterministic gameplay verification possible; they are not player-facing UI.
+
 ## Initial balance
 
 | Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance | Upgrade triggers |

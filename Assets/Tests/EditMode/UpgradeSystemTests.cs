@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace RealRail.Tests
@@ -52,14 +53,14 @@ namespace RealRail.Tests
             state.TryApplyLevel(UpgradeId.RapidFire, out _);
             state.TryApplyLevel(UpgradeId.RapidFire, out _);
             state.TryApplyLevel(UpgradeId.PiercingShot, out _);
-            state.TryApplyLevel(UpgradeId.PowerShot, out _);
+            state.TryApplyLevel(UpgradeId.PiercingShot, out _);
             state.TryApplyLevel(UpgradeId.PowerShot, out _);
 
             var shot = state.DeriveShotConfiguration();
             Assert.AreEqual(2, shot.ProjectileCount);
             Assert.AreEqual(0.25f, shot.FireInterval);
-            Assert.AreEqual(3, shot.Damage);
-            Assert.AreEqual(2, shot.DistinctHitCapacity);
+            Assert.AreEqual(2, shot.Damage);
+            Assert.AreEqual(3, shot.DistinctHitCapacity);
         }
 
         [Test]
@@ -83,6 +84,48 @@ namespace RealRail.Tests
 
             Assert.IsFalse(system.TryApplyAutomaticReward(out _));
             UnityEngine.Object.DestroyImmediate(owner);
+        }
+
+        [Test]
+        public void DebugApplication_UsesAuthoritativeStateAndRespectsCaps()
+        {
+            var owner = new GameObject("Upgrades");
+            var system = owner.AddComponent<UpgradeSystem>();
+
+            foreach (UpgradeId upgrade in System.Enum.GetValues(typeof(UpgradeId)))
+            {
+                Assert.IsTrue(system.TryApplyLevel(upgrade, out var application));
+                Assert.AreEqual(upgrade, application.Upgrade);
+                Assert.AreEqual(1, application.Level);
+                while (system.TryApplyLevel(upgrade, out _)) { }
+                Assert.IsFalse(system.TryApplyLevel(upgrade, out _));
+                Assert.AreEqual(system.State.GetMaxLevel(upgrade), system.State.GetLevel(upgrade));
+            }
+
+            Object.DestroyImmediate(owner);
+        }
+
+        [Test]
+        public void ResetUpgrades_ReturnsMixedBuildAndConfigurationToBaseline()
+        {
+            var owner = new GameObject("Upgrades");
+            var system = owner.AddComponent<UpgradeSystem>();
+            system.TryApplyLevel(UpgradeId.DoubleShot, out _);
+            system.TryApplyLevel(UpgradeId.RapidFire, out _);
+            system.TryApplyLevel(UpgradeId.RapidFire, out _);
+            system.TryApplyLevel(UpgradeId.PiercingShot, out _);
+            system.TryApplyLevel(UpgradeId.PiercingShot, out _);
+            system.TryApplyLevel(UpgradeId.PowerShot, out _);
+
+            system.ResetUpgrades();
+
+            foreach (UpgradeId upgrade in System.Enum.GetValues(typeof(UpgradeId))) Assert.AreEqual(0, system.State.GetLevel(upgrade));
+            var shot = system.GetShotConfiguration();
+            Assert.AreEqual(1, shot.ProjectileCount);
+            Assert.AreEqual(0.35f, shot.FireInterval, 0.0001f);
+            Assert.AreEqual(1, shot.Damage);
+            Assert.AreEqual(1, shot.DistinctHitCapacity);
+            Object.DestroyImmediate(owner);
         }
 
         [Test]

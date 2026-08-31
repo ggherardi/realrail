@@ -81,5 +81,32 @@ namespace RealRail.Tests
 
             Assert.AreEqual(2, _health.Current);
         }
+
+        [Test]
+        public void GodMode_InterceptsOnlyPlayerDamage()
+        {
+            _health.SetMaxHealth(3);
+            var upgrades = _owner.AddComponent<UpgradeSystem>();
+            var progress = new WaveProgress(2);
+            progress.RegisterSpawned();
+            progress.RegisterResolved(WaveEnemyResolution.Killed);
+            var enemy = new GameObject("Enemy").AddComponent<Health>();
+            enemy.SetMaxHealth(4);
+
+            _session.ApplyPlayerDamage(1);
+            Assert.AreEqual(2, _health.Current);
+
+            _session.SetGodMode(true);
+            _session.ApplyPlayerDamage(1);
+            Assert.AreEqual(2, _health.Current);
+            Assert.AreEqual(4, enemy.Current);
+            Assert.AreEqual(0, upgrades.State.GetLevel(UpgradeId.PowerShot));
+            Assert.AreEqual(1, progress.KillCount);
+
+            _session.SetGodMode(false);
+            _session.ApplyPlayerDamage(1);
+            Assert.AreEqual(1, _health.Current);
+            Object.DestroyImmediate(enemy.gameObject);
+        }
     }
 }

@@ -1,5 +1,13 @@
 # Feature Backlog
 
+## Player Build / Weapon Stats Screen
+
+Status: Planned
+
+A future player-facing run screen should show the effective weapon statistics, acquired upgrades, component effects, and eventually synergies, status effects, and elemental properties. The Gameplay Debug HUD is development tooling for deterministic testing and is not this player feature; its final UI/UX remains to be designed.
+
+---
+
 ## Auto Combat / Auto Progression
 Status: Planned
 

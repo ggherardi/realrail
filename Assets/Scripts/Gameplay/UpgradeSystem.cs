@@ -62,6 +62,11 @@ namespace RealRail
             return true;
         }
 
+        public void Reset()
+        {
+            Array.Clear(_levels, 0, _levels.Length);
+        }
+
         public ShotConfiguration DeriveShotConfiguration()
         {
             return new ShotConfiguration(
@@ -118,6 +123,7 @@ namespace RealRail
 
         public UpgradeState State => _state;
         public event Action<UpgradeApplication> UpgradeApplied;
+        public event Action UpgradesChanged;
 
         public ShotConfiguration GetShotConfiguration() => _state.DeriveShotConfiguration();
 
@@ -132,13 +138,40 @@ namespace RealRail
             }
 
             application = new UpgradeApplication(selected, level);
-            UpgradeApplied?.Invoke(application);
+            NotifyApplied(application);
             return true;
+        }
+
+        /// <summary>Applies exactly one level through the same runtime state used by rewards.</summary>
+        public bool TryApplyLevel(UpgradeId upgrade, out UpgradeApplication application)
+        {
+            if (!_state.TryApplyLevel(upgrade, out var level))
+            {
+                application = default;
+                return false;
+            }
+
+            application = new UpgradeApplication(upgrade, level);
+            NotifyApplied(application);
+            return true;
+        }
+
+        /// <summary>Development seam for returning the current run build to its baseline.</summary>
+        public void ResetUpgrades()
+        {
+            _state.Reset();
+            UpgradesChanged?.Invoke();
         }
 
         public void SetRewardRandomForTests(IUpgradeRandom random)
         {
             _random = random ?? new UnityUpgradeRandom();
+        }
+
+        void NotifyApplied(UpgradeApplication application)
+        {
+            UpgradeApplied?.Invoke(application);
+            UpgradesChanged?.Invoke();
         }
     }
 }

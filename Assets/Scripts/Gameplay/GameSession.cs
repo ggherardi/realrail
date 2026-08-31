@@ -16,9 +16,11 @@ namespace RealRail
 
         public SessionState State { get; private set; } = SessionState.Playing;
         public bool IsPlaying => State == SessionState.Playing;
+        public bool GodMode { get; private set; }
 
         public event Action Lost;
         public event Action Victory;
+        public event Action<bool> GodModeChanged;
 
         void Awake()
         {
@@ -71,12 +73,23 @@ namespace RealRail
 
         public void ApplyPlayerDamage(int amount)
         {
-            if (!IsPlaying || playerHealth == null || amount <= 0)
+            if (!IsPlaying || playerHealth == null || amount <= 0 || GodMode)
             {
                 return;
             }
 
             playerHealth.TakeDamage(amount);
+        }
+
+        public void SetGodMode(bool enabled)
+        {
+            if (GodMode == enabled)
+            {
+                return;
+            }
+
+            GodMode = enabled;
+            GodModeChanged?.Invoke(GodMode);
         }
     }
 }
