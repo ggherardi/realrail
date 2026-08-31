@@ -159,7 +159,7 @@ namespace RealRail.Tests
             var frozen = visualEnvironment.transform.Find("Frozen");
 
             Assert.NotNull(frozen);
-            Assert.NotNull(frozen.Find("GroundContinuation"));
+            Assert.IsNull(frozen.Find("GroundContinuation"));
             Assert.IsNull(frozen.Find("ToonSkyline"));
             Assert.IsNull(frozen.Find("ToonMidgroundRocks"));
             Assert.IsNull(frozen.Find("ToonSparseVegetation"));

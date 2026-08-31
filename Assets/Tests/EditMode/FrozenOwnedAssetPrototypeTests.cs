@@ -17,8 +17,9 @@ namespace RealRail.Tests
             var frozen = FindRoot(scene, "VisualEnvironment").transform.Find("Frozen");
 
             Assert.NotNull(frozen);
-            Assert.NotNull(frozen.Find("GroundContinuation/SnowApproach"));
-            Assert.NotNull(frozen.Find("GroundContinuation/IceRiver"));
+            Assert.IsNull(frozen.Find("GroundContinuation"));
+            Assert.IsNull(FindDescendant(frozen, "SnowApproach"));
+            Assert.IsNull(FindDescendant(frozen, "IceRiver"));
             Assert.IsNull(frozen.Find("ToonSkyline"));
             Assert.IsNull(frozen.Find("ToonMidgroundRocks"));
             Assert.IsNull(frozen.Find("ToonSparseVegetation"));
@@ -31,6 +32,7 @@ namespace RealRail.Tests
             Assert.IsNull(FindDescendant(frozen, "SnowOverlay"));
             Assert.IsNull(AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/FrozenHeroSnowOverlay.mat"));
             Assert.Zero(frozen.GetComponentsInChildren<Collider>(true).Length);
+            Assert.IsEmpty(frozen.GetComponentsInChildren<Renderer>(true));
         }
 
         static Transform FindDescendant(Transform parent, string name)
