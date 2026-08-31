@@ -166,6 +166,10 @@ namespace RealRail.Tests
             Assert.NotNull(frozen.Find("DistantMountains/MountainGroup_Main"));
             Assert.NotNull(frozen.Find("DistantMountains/MountainLarge_Left"));
             Assert.NotNull(frozen.Find("DistantMountains/MountainGroup_Right"));
+            Assert.Greater(
+                frozen.Find("DistantMountains/MountainGroup_Main").GetComponentInChildren<Renderer>().bounds.size.y,
+                10f,
+                "The main mountain should retain the imported FBX scale and create a meaningful skyline.");
             Assert.IsEmpty(frozen.GetComponentsInChildren<Collider>(true));
         }
 

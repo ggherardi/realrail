@@ -41,22 +41,22 @@ namespace RealRail.Editor
             CreateCube("IceRiver", continuation, new Vector3(0f, -0.12f, 53f), new Vector3(6.5f, 0.08f, 25f), ice);
 
             var mountains = CreateGroup("DistantMountains", frozen);
-            CreateAsset("MountainGroup_Main", "Mountain_Group_1", mountains, new Vector3(-2.5f, -0.1f, 73f), new Vector3(0f, -14f, 0f), new Vector3(1.85f, 1.55f, 1.35f), stone, dirt, snow);
-            CreateAsset("MountainLarge_Left", "MountainLarge_Single", mountains, new Vector3(-19f, 0f, 64f), new Vector3(0f, 21f, 0f), new Vector3(1.6f, 1.35f, 1.25f), stone, dirt, snow);
-            CreateAsset("MountainGroup_Right", "Mountain_Group_2", mountains, new Vector3(20f, 0.1f, 68f), new Vector3(0f, -28f, 0f), new Vector3(2.05f, 1.5f, 1.45f), stone, dirt, snow);
+            CreateAsset("MountainGroup_Main", "Mountain_Group_1", mountains, new Vector3(-5.5f, -0.4f, 57f), new Vector3(0f, -10f, 0f), new Vector3(3.5f, 3.4f, 2.7f), stone, snow, dirt);
+            CreateAsset("MountainLarge_Left", "MountainLarge_Single", mountains, new Vector3(-17.5f, -0.2f, 49f), new Vector3(0f, 28f, 0f), new Vector3(3.0f, 3.5f, 2.8f), stone, snow, dirt);
+            CreateAsset("MountainGroup_Right", "Mountain_Group_2", mountains, new Vector3(16.5f, -0.3f, 53f), new Vector3(0f, -34f, 0f), new Vector3(3.1f, 3.5f, 2.9f), stone, snow, dirt);
 
             var rocks = CreateGroup("MidgroundRocks", frozen);
-            CreateAsset("Rock_Left_Near", "Rock_Snow_4", rocks, new Vector3(-10.6f, 0.1f, 30f), new Vector3(0f, 142f, 0f), new Vector3(1.25f, 1.25f, 1.25f), rock, snow);
-            CreateAsset("Rock_Left_Far", "Rock_Snow_1", rocks, new Vector3(-13.4f, 0.05f, 43f), new Vector3(0f, 38f, 0f), new Vector3(1.65f, 1.35f, 1.65f), rock, snow);
-            CreateAsset("Rock_Left_Back", "Rock_Snow_6", rocks, new Vector3(-18.3f, 0.05f, 52f), new Vector3(0f, 233f, 0f), new Vector3(1.85f, 1.5f, 1.85f), rock, snow);
-            CreateAsset("Rock_Right_Near", "Rock_Snow_6", rocks, new Vector3(10.8f, 0.05f, 34f), new Vector3(0f, 300f, 0f), new Vector3(1.3f, 1.1f, 1.3f), rock, snow);
-            CreateAsset("Rock_Right_Far", "Rock_Snow_4", rocks, new Vector3(14.4f, 0.05f, 46f), new Vector3(0f, 85f, 0f), new Vector3(1.75f, 1.45f, 1.75f), rock, snow);
-            CreateAsset("Rock_Right_Back", "Rock_Snow_1", rocks, new Vector3(19.2f, 0.05f, 55f), new Vector3(0f, 191f, 0f), new Vector3(2.0f, 1.7f, 2.0f), rock, snow);
+            CreateAsset("Rock_Left_Near", "Rock_Snow_4", rocks, new Vector3(-9.8f, 0.1f, 27f), new Vector3(0f, 142f, 0f), new Vector3(2.6f, 2.4f, 2.6f), rock, snow);
+            CreateAsset("Rock_Left_Far", "Rock_Snow_1", rocks, new Vector3(-12.2f, 0.05f, 37f), new Vector3(0f, 38f, 0f), new Vector3(3.1f, 2.5f, 3.1f), rock, snow);
+            CreateAsset("Rock_Left_Back", "Rock_Snow_6", rocks, new Vector3(-15.8f, 0.05f, 45f), new Vector3(0f, 233f, 0f), new Vector3(2.9f, 2.4f, 2.9f), rock, snow);
+            CreateAsset("Rock_Right_Near", "Rock_Snow_6", rocks, new Vector3(9.8f, 0.05f, 29f), new Vector3(0f, 300f, 0f), new Vector3(2.3f, 2.0f, 2.3f), rock, snow);
+            CreateAsset("Rock_Right_Far", "Rock_Snow_4", rocks, new Vector3(12.6f, 0.05f, 39f), new Vector3(0f, 85f, 0f), new Vector3(3.0f, 2.5f, 3.0f), rock, snow);
+            CreateAsset("Rock_Right_Back", "Rock_Snow_1", rocks, new Vector3(16.5f, 0.05f, 47f), new Vector3(0f, 191f, 0f), new Vector3(3.4f, 2.8f, 3.4f), rock, snow);
 
             var vegetation = CreateGroup("SnowVegetation", frozen);
-            CreateAsset("Pine_Left_Back", "PineTree_Snow_1", vegetation, new Vector3(-17.2f, 0.05f, 47f), new Vector3(0f, 18f, 0f), new Vector3(1.1f, 1.15f, 1.1f), pine, stone, snow);
-            CreateAsset("Pine_Right_Back", "PineTree_Snow_3", vegetation, new Vector3(18.6f, 0.05f, 52f), new Vector3(0f, 328f, 0f), new Vector3(1.0f, 1.05f, 1.0f), pine, stone, snow);
-            CreateAsset("Pine_Right_Far", "PineTree_Snow_1", vegetation, new Vector3(22.5f, 0.05f, 61f), new Vector3(0f, 342f, 0f), new Vector3(0.8f, 0.85f, 0.8f), pine, stone, snow);
+            CreateAsset("Pine_Left_Back", "PineTree_Snow_1", vegetation, new Vector3(-14.8f, 0.05f, 42f), new Vector3(0f, 18f, 0f), new Vector3(2.4f, 2.8f, 2.4f), dirt, pine, snow);
+            CreateAsset("Pine_Right_Back", "PineTree_Snow_3", vegetation, new Vector3(14.7f, 0.05f, 43f), new Vector3(0f, 328f, 0f), new Vector3(2.3f, 2.7f, 2.3f), dirt, pine, snow);
+            CreateAsset("Pine_Right_Far", "PineTree_Snow_1", vegetation, new Vector3(19.5f, 0.05f, 50f), new Vector3(0f, 342f, 0f), new Vector3(1.8f, 2.1f, 1.8f), dirt, pine, snow);
 
             ApplyFrozenAtmosphere();
             EditorSceneManager.MarkSceneDirty(scene);
@@ -90,7 +90,9 @@ namespace RealRail.Editor
             instance.name = name;
             instance.transform.localPosition = position;
             instance.transform.localEulerAngles = rotation;
-            instance.transform.localScale = scale;
+            // Quaternius FBXs use a 100x imported root scale. Preserve that
+            // conversion factor while applying the authored composition scale.
+            instance.transform.localScale = Vector3.Scale(instance.transform.localScale, scale);
 
             foreach (var collider in instance.GetComponentsInChildren<Collider>(true))
             {
