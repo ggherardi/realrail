@@ -3,7 +3,9 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace RealRail.Tests
 {
@@ -60,6 +62,17 @@ namespace RealRail.Tests
             var selectionView = Property(selection, "selectionView").objectReferenceValue as UpgradeSelectionView;
             Assert.NotNull(selectionView);
             Assert.AreEqual(3, Property(selectionView, "choiceButtons").arraySize);
+
+            var eventSystems = Object.FindObjectsByType<EventSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            Assert.AreEqual(1, eventSystems.Length, "The selection buttons require one active scene EventSystem.");
+            Assert.NotNull(eventSystems[0].GetComponent("InputSystemUIInputModule"), "The project uses the new Input System for pointer/touch UI input.");
+            var buttons = selectionView.GetComponentsInChildren<Button>(true);
+            Assert.AreEqual(3, buttons.Length);
+            foreach (var button in buttons)
+            {
+                Assert.IsTrue(button.interactable);
+                Assert.IsTrue(button.targetGraphic.raycastTarget);
+            }
         }
 
         [Test]

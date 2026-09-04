@@ -1,6 +1,8 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -14,6 +16,7 @@ namespace RealRail.Editor
         public static void Configure()
         {
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            FindOrCreateEventSystem();
             var systems = FindRoot(scene, "Systems");
             var canvas = FindRoot(scene, "Canvas");
             var upgrades = systems.GetComponentInChildren<UpgradeSystem>(true);
@@ -28,6 +31,22 @@ namespace RealRail.Editor
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             AssetDatabase.SaveAssets();
+        }
+
+        static void FindOrCreateEventSystem()
+        {
+            var eventSystem = Object.FindAnyObjectByType<EventSystem>(FindObjectsInactive.Include);
+            if (eventSystem == null)
+            {
+                var owner = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+                owner.GetComponent<EventSystem>().sendNavigationEvents = true;
+                return;
+            }
+
+            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
+            {
+                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+            }
         }
 
         static UpgradeSelectionView FindOrCreateSelectionView(Transform canvas)
