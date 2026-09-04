@@ -10,6 +10,7 @@ namespace RealRail
         [Min(0.01f)] public float SpawnInterval;
         [Min(0f)] public float MoveSpeed;
         [Range(0f, 1f)] public float HeavySpawnChance;
+        [Min(0)] public int MaxConcurrentEnemies;
         public int[] UpgradeTriggerKillCounts;
 
         public WaveConfig(
@@ -17,13 +18,15 @@ namespace RealRail
             float spawnInterval,
             float moveSpeed,
             int[] upgradeTriggerKillCounts = null,
-            float heavySpawnChance = 0f)
+            float heavySpawnChance = 0f,
+            int maxConcurrentEnemies = 0)
         {
             KillGoal = killGoal;
             SpawnInterval = spawnInterval;
             MoveSpeed = moveSpeed;
             UpgradeTriggerKillCounts = upgradeTriggerKillCounts ?? Array.Empty<int>();
             HeavySpawnChance = Mathf.Clamp01(heavySpawnChance);
+            MaxConcurrentEnemies = Mathf.Max(0, maxConcurrentEnemies);
         }
 
         public bool ShouldSpawnHeavy(float roll)
@@ -41,6 +44,8 @@ namespace RealRail
 
     public sealed class WaveDirector : MonoBehaviour
     {
+        [SerializeField] RunDefinition authoredRun;
+        // Retained as the scene's default plan and for backward compatibility with existing scenes.
         [SerializeField] WaveConfig[] waves =
         {
             new WaveConfig(20, 0.35f, 3.6f, new[] { 8 }),
@@ -56,11 +61,13 @@ namespace RealRail
         [SerializeField] UpgradeRewardSelection upgradeRewardSelection;
 
         WaveProgress _progress;
+        RunConfiguration _run;
         int _waveIndex = -1;
 
         public WavePhase Phase { get; private set; }
         public int CurrentWaveNumber => _waveIndex + 1;
         public WaveProgress Progress => _progress;
+        public int WaveCount => _run != null ? _run.WaveCount : 0;
 
         void Awake()
         {
@@ -85,20 +92,35 @@ namespace RealRail
 
         public void StartRun()
         {
-            if (session == null || !session.IsPlaying || spawner == null || waves == null || waves.Length != 3)
+            var configuredRun = authoredRun != null
+                ? authoredRun.CreateRuntimeConfiguration()
+                : new RunConfiguration(waves);
+            StartRun(configuredRun);
+        }
+
+        /// <summary>
+        /// Starts an arbitrary runtime plan. This is the execution seam for future directed encounters.
+        /// </summary>
+        public void StartRun(RunConfiguration run)
+        {
+            if (session == null || !session.IsPlaying || spawner == null || run == null || !run.IsValid)
             {
                 return;
             }
 
+            _run = run;
+            _waveIndex = -1;
             StartNextWave();
         }
 
         void StartNextWave()
         {
             _waveIndex++;
-            _progress = new WaveProgress(waves[_waveIndex].KillGoal);
+            var wave = _run.GetWave(_waveIndex);
+            _progress = new WaveProgress(wave.KillGoal);
             Phase = WavePhase.Spawning;
-            spawner.BeginWave(waves[_waveIndex]);
+            spawner.BeginWave(wave);
+            session.ReportWaveStarted(CurrentWaveNumber);
         }
 
         void OnEnemySpawned(WaveEnemy enemy)
@@ -120,8 +142,9 @@ namespace RealRail
                 return;
             }
 
+            session.ReportEnemyResolved(resolution);
             _progress.RegisterResolved(resolution);
-            foreach (var trigger in waves[_waveIndex].UpgradeTriggerKillCounts ?? Array.Empty<int>())
+            foreach (var trigger in _run.GetWave(_waveIndex).UpgradeTriggerKillCounts ?? Array.Empty<int>())
             {
                 if (_progress.TryConsumeUpgradeTrigger(trigger))
                 {
@@ -142,7 +165,7 @@ namespace RealRail
 
         void AdvanceAfterClear()
         {
-            if (_waveIndex == waves.Length - 1)
+            if (_waveIndex == _run.WaveCount - 1)
             {
                 Phase = WavePhase.Complete;
                 session.Win();

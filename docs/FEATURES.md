@@ -1,5 +1,11 @@
 # Feature Backlog
 
+## Wave Director & Difficulty Simulation
+
+Status: Foundation implemented; automated batch simulation and balancing are future work. See [Wave Director and Player-Bot Foundation](features/wave-director-simulation.md).
+
+The gameplay run now has a configurable runtime wave plan usable by both authored definitions and future directed encounters. An optional, default-disabled Player Bot can drive the real player motor and select real V3 rewards; it produces a compact run-result telemetry seam. This is not Auto Combat, an autonomous balance service, or proof of human difficulty.
+
 ## Future Game Modes
 
 Status: Future / Not Implemented

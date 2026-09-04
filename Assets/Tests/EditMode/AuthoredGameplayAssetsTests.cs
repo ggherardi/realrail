@@ -95,6 +95,23 @@ namespace RealRail.Tests
         }
 
         [Test]
+        public void Scene_HasDisabledBotFoundationWithSerializedGameplayReferences()
+        {
+            var player = FindRoot("Player");
+            var bot = player.GetComponent<PlayerBot>();
+            var telemetry = FindRoot("Systems").GetComponentInChildren<RunTelemetry>(true);
+
+            Assert.NotNull(bot);
+            Assert.IsFalse(Property(bot, "botEnabled").boolValue);
+            AssertAssigned(bot, "motor");
+            AssertAssigned(bot, "session");
+            AssertAssigned(bot, "rewardSelection");
+            Assert.NotNull(telemetry);
+            AssertAssigned(telemetry, "session");
+            AssertAssigned(telemetry, "upgradeSystem");
+        }
+
+        [Test]
         public void Prefabs_HaveRequiredCollisionAndGameplayConfiguration()
         {
             var enemy = LoadPrefab("Assets/Prefabs/Enemy.prefab");

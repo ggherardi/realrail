@@ -14,10 +14,13 @@ namespace RealRail
         float _cooldown;
         float _moveSpeed;
         float _gruntBaseSpeed;
+        int _activeEnemyCount;
         WaveConfig _config;
         bool _isSpawning;
 
         public event Action<WaveEnemy> EnemySpawned;
+        public bool IsSpawning => _isSpawning;
+        public int ActiveEnemyCount => _activeEnemyCount;
 
         public void BeginWave(WaveConfig config)
         {
@@ -27,6 +30,7 @@ namespace RealRail
             var gruntMover = enemyPrefab != null ? enemyPrefab.GetComponent<EnemyMover>() : null;
             _gruntBaseSpeed = gruntMover != null ? gruntMover.BaseSpeed : 0f;
             _cooldown = spawnInterval;
+            _activeEnemyCount = 0;
             _isSpawning = true;
         }
 
@@ -37,7 +41,8 @@ namespace RealRail
 
         void Update()
         {
-            if (!_isSpawning || session == null || !session.IsPlaying || lanes == null || enemyPrefab == null)
+            if (!_isSpawning || session == null || !session.IsPlaying || lanes == null || enemyPrefab == null ||
+                (_config.MaxConcurrentEnemies > 0 && _activeEnemyCount >= _config.MaxConcurrentEnemies))
             {
                 return;
             }
@@ -69,7 +74,24 @@ namespace RealRail
             var defenseLine = instance.GetComponent<EnemyDefenseLine>();
             defenseLine.Initialize(session);
 
-            EnemySpawned?.Invoke(instance.GetComponent<WaveEnemy>());
+            var waveEnemy = instance.GetComponent<WaveEnemy>();
+            if (waveEnemy != null)
+            {
+                _activeEnemyCount++;
+                waveEnemy.Resolved += OnEnemyResolved;
+            }
+
+            EnemySpawned?.Invoke(waveEnemy);
+        }
+
+        void OnEnemyResolved(WaveEnemy enemy, WaveEnemyResolution resolution)
+        {
+            if (enemy != null)
+            {
+                enemy.Resolved -= OnEnemyResolved;
+            }
+
+            _activeEnemyCount = Mathf.Max(0, _activeEnemyCount - 1);
         }
     }
 }

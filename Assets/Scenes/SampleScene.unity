@@ -1989,21 +1989,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98edfae95c964070be7210134c60baf8, type: 3}
   m_Name:
   m_EditorClassIdentifier: RealRail::RealRail.WaveDirector
+  authoredRun: {fileID: 0}
   waves:
   - KillGoal: 20
     SpawnInterval: 0.35
     MoveSpeed: 3.6
     HeavySpawnChance: 0
+    MaxConcurrentEnemies: 0
     UpgradeTriggerKillCounts: 08000000
   - KillGoal: 40
     SpawnInterval: 0.22
     MoveSpeed: 4
     HeavySpawnChance: 0.1
+    MaxConcurrentEnemies: 0
     UpgradeTriggerKillCounts: 0e0000001c000000
   - KillGoal: 70
     SpawnInterval: 0.14
     MoveSpeed: 4.4
     HeavySpawnChance: 0.15
+    MaxConcurrentEnemies: 0
     UpgradeTriggerKillCounts: 150000002e000000
   upgradeTargetPrefab: {fileID: 7239206535507173236, guid: 1ea7925369c644ed0b7e5a92d75f8f3f, type: 3}
   upgradeTargetSpeed: 4
@@ -3948,6 +3952,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1495662730}
   - component: {fileID: 1495662729}
+  - component: {fileID: 1495662731}
   m_Layer: 0
   m_Name: GameSession
   m_TagString: Untagged
@@ -3983,6 +3988,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9852104}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1495662731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495662728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f009a733907de4230ab7a44979d9debe, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: RealRail::RealRail.RunTelemetry
+  session: {fileID: 1495662729}
+  upgradeSystem: {fileID: 9852105}
 --- !u!1 &1497743352
 GameObject:
   m_ObjectHideFlags: 0
@@ -4087,6 +4106,7 @@ GameObject:
   - component: {fileID: 1513487250}
   - component: {fileID: 1513487251}
   - component: {fileID: 1513487248}
+  - component: {fileID: 1513487254}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -4207,6 +4227,23 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1513487254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1513487247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3308f06eaa454b20805de62ba8c9178, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: RealRail::RealRail.PlayerBot
+  botEnabled: 0
+  targetDeadZone: 0.1
+  motor: {fileID: 1513487251}
+  session: {fileID: 1495662729}
+  rewardSelection: {fileID: 9852107}
 --- !u!1 &1544496697
 GameObject:
   m_ObjectHideFlags: 0

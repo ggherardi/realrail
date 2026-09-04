@@ -63,6 +63,26 @@ namespace RealRail.Tests
             Object.DestroyImmediate(spawned.gameObject);
         }
 
+        [Test]
+        public void SpawnedEnemy_IsTrackedUntilItResolvesForConcurrencyLimits()
+        {
+            WaveEnemy spawned = null;
+            _spawner.EnemySpawned += enemy => spawned = enemy;
+            _spawner.BeginWave(new WaveConfig(1, 1f, 4f, maxConcurrentEnemies: 1));
+
+            typeof(EnemySpawner)
+                .GetMethod("Spawn", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(_spawner, null);
+
+            Assert.NotNull(spawned);
+            Assert.AreEqual(1, _spawner.ActiveEnemyCount);
+
+            spawned.ResolveRemoved();
+
+            Assert.AreEqual(0, _spawner.ActiveEnemyCount);
+            Object.DestroyImmediate(spawned.gameObject);
+        }
+
         static GameObject LoadPrefab(string path)
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
