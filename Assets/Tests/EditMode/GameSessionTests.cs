@@ -108,5 +108,19 @@ namespace RealRail.Tests
             Assert.AreEqual(1, _health.Current);
             Object.DestroyImmediate(enemy.gameObject);
         }
+
+        [Test]
+        public void ResetRun_RestoresPlayableSessionHealthAndElapsedTime()
+        {
+            _health.SetMaxHealth(3);
+            _session.ApplyPlayerDamage(2);
+            _session.Win();
+
+            _session.ResetRun();
+
+            Assert.AreEqual(SessionState.Playing, _session.State);
+            Assert.AreEqual(3, _health.Current);
+            Assert.AreEqual(0f, _session.ElapsedRunSeconds);
+        }
     }
 }

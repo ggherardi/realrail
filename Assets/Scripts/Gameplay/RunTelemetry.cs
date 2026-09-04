@@ -17,6 +17,15 @@ namespace RealRail
 
         public RunResult CurrentResult => BuildResult();
 
+        /// <summary>Clears collected facts so the component can observe a fresh session run.</summary>
+        public void ResetRun()
+        {
+            _finalWaveReached = 0;
+            _enemiesKilled = 0;
+            _enemiesLeaked = 0;
+            _playerDamageTaken = 0;
+        }
+
         void Awake()
         {
             session ??= FindFirstObjectByType<GameSession>();

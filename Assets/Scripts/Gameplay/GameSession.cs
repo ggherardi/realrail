@@ -130,6 +130,20 @@ namespace RealRail
             GodModeChanged?.Invoke(GodMode);
         }
 
+        /// <summary>
+        /// Returns the session to its initial playable state. Runtime owners are responsible for
+        /// clearing transient actors before calling this method.
+        /// </summary>
+        public void ResetRun()
+        {
+            State = SessionState.Playing;
+            ElapsedRunSeconds = 0f;
+            if (playerHealth != null)
+            {
+                playerHealth.SetMaxHealth(playerHealth.Max);
+            }
+        }
+
         /// <summary>Records a gameplay wave boundary without coupling the session to any wave implementation.</summary>
         public void ReportWaveStarted(int waveNumber)
         {

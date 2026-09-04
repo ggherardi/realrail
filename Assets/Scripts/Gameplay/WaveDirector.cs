@@ -113,6 +113,19 @@ namespace RealRail
             StartNextWave();
         }
 
+        /// <summary>
+        /// Stops the current plan before a run owner removes transient actors. This intentionally
+        /// does not reset the session: the owner can still capture its completed result first.
+        /// </summary>
+        public void ResetRun()
+        {
+            Phase = WavePhase.None;
+            _progress = null;
+            _run = null;
+            _waveIndex = -1;
+            spawner?.ResetSpawnerState();
+        }
+
         void StartNextWave()
         {
             _waveIndex++;

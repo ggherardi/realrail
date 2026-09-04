@@ -2,9 +2,9 @@
 
 ## Wave Director & Difficulty Simulation
 
-Status: Foundation implemented; automated batch simulation and balancing are future work. See [Wave Director and Player-Bot Foundation](features/wave-director-simulation.md).
+Status: Configurable waves, algorithmic bot profiles, and opt-in batch simulation are implemented; automated balancing is future work. See [Wave Director and Player-Bot Foundation](features/wave-director-simulation.md).
 
-The gameplay run now has a configurable runtime wave plan usable by both authored definitions and future directed encounters. An optional, default-disabled Player Bot can drive the real player motor and select real V3 rewards; it produces a compact run-result telemetry seam. This is not Auto Combat, an autonomous balance service, or proof of human difficulty.
+The gameplay run has a configurable runtime wave plan usable by both authored definitions and future directed encounters. An optional, default-disabled Player Bot has Average, Strong, and Perfect-ish decision profiles, drives the real player motor, and selects real V3 rewards. The opt-in Simulation Runner accelerates and resets sequential real-gameplay runs, retaining structured aggregate statistics. This is not Auto Combat, an autonomous balance service, a headless/parallel runner, or proof of human difficulty.
 
 ## Future Game Modes
 

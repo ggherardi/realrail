@@ -252,6 +252,7 @@ GameObject:
   - component: {fileID: 9852105}
   - component: {fileID: 9852106}
   - component: {fileID: 9852107}
+  - component: {fileID: 9852108}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -320,6 +321,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: RealRail::RealRail.UpgradeRewardSelection
   upgradeSystem: {fileID: 9852105}
   selectionView: {fileID: 530549969}
+--- !u!114 &9852108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9852103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac70403b0152e4ccfae0a1670688646b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: RealRail::RealRail.SimulationRunner
+  simulationEnabled: 0
+  simulationSpeed: 4
+  maximumRuns: 10
+  session: {fileID: 1495662729}
+  waveDirector: {fileID: 611306639}
+  telemetry: {fileID: 1495662731}
+  upgradeSystem: {fileID: 9852105}
+  rewardSelection: {fileID: 9852107}
+  playerBot: {fileID: 1513487254}
 --- !u!1 &26610029
 GameObject:
   m_ObjectHideFlags: 0
@@ -4244,6 +4266,8 @@ MonoBehaviour:
   motor: {fileID: 1513487251}
   session: {fileID: 1495662729}
   rewardSelection: {fileID: 9852107}
+  upgradeSystem: {fileID: 9852105}
+  profileId: 0
 --- !u!1 &1544496697
 GameObject:
   m_ObjectHideFlags: 0

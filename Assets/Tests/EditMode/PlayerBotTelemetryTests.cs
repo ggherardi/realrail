@@ -69,6 +69,26 @@ namespace RealRail.Tests
         }
 
         [Test]
+        public void Bot_ProfilesOnlyChangeDecisionPolicyAndUseOfferedUpgradeChoices()
+        {
+            var owner = Track(new GameObject("Bot"));
+            var bot = owner.AddComponent<PlayerBot>();
+            var choices = new[] { UpgradeId.PiercingShot, UpgradeId.RapidFire, UpgradeId.PowerShot };
+
+            bot.SetProfile(BotProfileId.Average);
+            Assert.AreEqual("Average", bot.Profile.Label);
+            Assert.AreEqual(UpgradeId.RapidFire, bot.ChooseUpgradeForCurrentProfile(choices));
+
+            bot.SetProfile(BotProfileId.Strong);
+            Assert.Less(bot.Profile.ReactionIntervalSeconds, BotProfile.FromId(BotProfileId.Average).ReactionIntervalSeconds);
+            Assert.AreEqual(UpgradeId.PowerShot, bot.ChooseUpgradeForCurrentProfile(choices));
+
+            bot.SetProfile(BotProfileId.PerfectIsh);
+            Assert.Less(bot.Profile.ReactionIntervalSeconds, BotProfile.FromId(BotProfileId.Strong).ReactionIntervalSeconds);
+            CollectionAssert.Contains(choices, bot.ChooseUpgradeForCurrentProfile(choices));
+        }
+
+        [Test]
         public void Telemetry_RecordsSessionFactsAndAuthoritativeUpgradeBuild()
         {
             var session = CreateSession();

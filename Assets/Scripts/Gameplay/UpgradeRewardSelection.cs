@@ -61,6 +61,21 @@ namespace RealRail
             upgradeSystem = system;
         }
 
+        /// <summary>Cancels an in-progress reward UI and restores the time scale it paused.</summary>
+        public void ResetSelection()
+        {
+            var hadSelection = IsSelecting;
+            _pendingRewards.Clear();
+            _activeChoices = null;
+            selectionView?.Hide();
+            if (_pausedGameplay)
+            {
+                Time.timeScale = _timeScaleBeforeSelection;
+                _pausedGameplay = false;
+            }
+            if (hadSelection) SelectionEnded?.Invoke();
+        }
+
         void TryPresentNext()
         {
             if (IsSelecting || _pendingRewards.Count == 0) return;

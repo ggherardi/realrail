@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RealRail
@@ -17,6 +18,7 @@ namespace RealRail
         int _activeEnemyCount;
         WaveConfig _config;
         bool _isSpawning;
+        readonly HashSet<WaveEnemy> _activeEnemies = new HashSet<WaveEnemy>();
 
         public event Action<WaveEnemy> EnemySpawned;
         public bool IsSpawning => _isSpawning;
@@ -24,19 +26,32 @@ namespace RealRail
 
         public void BeginWave(WaveConfig config)
         {
+            ResetSpawnerState();
             _config = config;
             spawnInterval = config.SpawnInterval;
             _moveSpeed = config.MoveSpeed;
             var gruntMover = enemyPrefab != null ? enemyPrefab.GetComponent<EnemyMover>() : null;
             _gruntBaseSpeed = gruntMover != null ? gruntMover.BaseSpeed : 0f;
             _cooldown = spawnInterval;
-            _activeEnemyCount = 0;
             _isSpawning = true;
         }
 
         public void StopSpawning()
         {
             _isSpawning = false;
+        }
+
+        /// <summary>Stops the current plan and forgets actors that a run owner is about to remove.</summary>
+        public void ResetSpawnerState()
+        {
+            _isSpawning = false;
+            _cooldown = 0f;
+            _activeEnemyCount = 0;
+            foreach (var enemy in _activeEnemies)
+            {
+                if (enemy != null) enemy.Resolved -= OnEnemyResolved;
+            }
+            _activeEnemies.Clear();
         }
 
         void Update()
@@ -78,6 +93,7 @@ namespace RealRail
             if (waveEnemy != null)
             {
                 _activeEnemyCount++;
+                _activeEnemies.Add(waveEnemy);
                 waveEnemy.Resolved += OnEnemyResolved;
             }
 
@@ -92,6 +108,7 @@ namespace RealRail
             }
 
             _activeEnemyCount = Mathf.Max(0, _activeEnemyCount - 1);
+            _activeEnemies.Remove(enemy);
         }
     }
 }
