@@ -29,6 +29,7 @@ namespace RealRail.Tests
             Assert.AreEqual(1, systems.GetComponentsInChildren<EnemySpawner>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<LaneLayout>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<UpgradeSystem>(true).Length);
+            Assert.AreEqual(1, systems.GetComponentsInChildren<UpgradeRewardSelection>(true).Length);
 
             var session = systems.GetComponentInChildren<GameSession>(true);
             var director = systems.GetComponentInChildren<WaveDirector>(true);
@@ -38,6 +39,7 @@ namespace RealRail.Tests
             AssertAssigned(director, "spawner");
             AssertAssigned(director, "lanes");
             AssertAssigned(director, "upgradeSystem");
+            AssertAssigned(director, "upgradeRewardSelection");
             AssertAssigned(director, "upgradeTargetPrefab");
             AssertAssigned(spawner, "session");
             AssertAssigned(spawner, "lanes");
@@ -51,6 +53,13 @@ namespace RealRail.Tests
             Assert.AreSame(
                 LoadPrefab("Assets/Prefabs/Enemy_Heavy.prefab"),
                 heavyReference);
+
+            var selection = systems.GetComponentInChildren<UpgradeRewardSelection>(true);
+            AssertAssigned(selection, "upgradeSystem");
+            AssertAssigned(selection, "selectionView");
+            var selectionView = Property(selection, "selectionView").objectReferenceValue as UpgradeSelectionView;
+            Assert.NotNull(selectionView);
+            Assert.AreEqual(3, Property(selectionView, "choiceButtons").arraySize);
         }
 
         [Test]

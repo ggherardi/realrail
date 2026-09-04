@@ -26,9 +26,15 @@ The run has three escalating enemy waves and five optional Upgrade Target opport
 - A target is missed only when it reaches or passes the player; it does not damage the player.
 - Player loss and Victory stop gameplay through `GameSession`; target callbacks ignore non-playing sessions safely.
 
-## Upgrade System V2
+## Upgrade System V3
 
-Destroying an Upgrade Target temporarily selects one eligible reward at random and applies one level. Runtime upgrade state, reward generation, automatic selection, and application are separate: targets do not contain upgrade-effect logic. This preserves a clean seam for the planned 1-of-3 selection UI.
+Each run now has an explicit **Run Upgrade Pool**: the identities allowed to appear as rewards for that run. The current gameplay mode initializes it with Double Shot, Rapid Fire, Piercing Shot, and Power Shot. Eligibility is derived from that immutable pool and the acquired runtime state, so capped upgrades are excluded without removing them from the pool.
+
+Destroying an Upgrade Target asks the reward coordinator to generate up to three distinct eligible choices from the Run Upgrade Pool. The player selects one through the centered overlay; gameplay pauses while the choice is open, and the existing authoritative `UpgradeSystem` applies exactly one level before the run resumes. Two or one eligible upgrade produces that many buttons. Zero eligible upgrades resolves cleanly with no overlay or reward.
+
+Only one selection is displayed at a time. If multiple targets resolve in the same frame, later valid rewards are queued and offered after the active choice completes. Targets still contain no reward-effect or UI logic.
+
+The V2 automatic random application has been replaced by this player choice. The same minimal pool seam can later be populated by Story, Draft, Challenge, or Automatic mode rules without making those modes part of the current implementation.
 
 | Upgrade | Cap | Level behavior |
 | --- | ---: | --- |
@@ -39,7 +45,7 @@ Destroying an Upgrade Target temporarily selects one eligible reward at random a
 
 All effects derive from one acquired-upgrade state. At each firing cycle it produces projectile count, future fire interval, damage, and distinct-hit capacity. Projectiles receive immutable damage and capacity when fired, so later rewards do not change a shot already in flight. Capped upgrades are excluded from candidates; if all upgrades are capped, the target resolves safely with no reward. Successful rewards show brief compact HUD feedback.
 
-Automatic random selection is temporary V2 behavior. A future roguelite milestone can generate up to three eligible candidates, show a player choice, and apply the selected one without rewriting upgrade application or weapon effects.
+Candidate sampling remains random, with an injectable random source for deterministic tests.
 
 ## Development and testing tools
 
@@ -63,5 +69,5 @@ Keys `1` through `4` apply exactly one level of Double Shot, Rapid Fire, Piercin
 
 ## Out of scope
 
-- Selection UI, cards, rarity, rerolls, and permanent/meta progression.
+- Rarity, rerolls, and permanent/meta progression.
 - Permanent/meta progression, currencies, inventory, shops, bosses, save/load, and procedural level generation.

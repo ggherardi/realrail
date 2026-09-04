@@ -10,6 +10,7 @@ namespace RealRail
         [SerializeField] GameSession session;
         [SerializeField] UpgradeSystem upgradeSystem;
         [SerializeField] GameplayDebugHud debugHud;
+        [SerializeField] UpgradeRewardSelection upgradeRewardSelection;
 
         public event Action<string> Feedback;
 
@@ -29,6 +30,7 @@ namespace RealRail
 
             if (keyboard.f1Key.wasPressedThisFrame) ToggleHud();
             if (keyboard.f2Key.wasPressedThisFrame) ToggleGodMode();
+            if (upgradeRewardSelection != null && upgradeRewardSelection.IsSelecting) return;
             if (keyboard.digit1Key.wasPressedThisFrame) GrantUpgrade(UpgradeId.DoubleShot);
             if (keyboard.digit2Key.wasPressedThisFrame) GrantUpgrade(UpgradeId.RapidFire);
             if (keyboard.digit3Key.wasPressedThisFrame) GrantUpgrade(UpgradeId.PiercingShot);

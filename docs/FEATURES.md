@@ -1,5 +1,27 @@
 # Feature Backlog
 
+## Future Game Modes
+
+Status: Future / Not Implemented
+
+All future modes can configure the Run Upgrade Pool, the explicit list of upgrades allowed to appear during a run. They do not imply an implemented mode-selection flow, backend, or leaderboard.
+
+### Story
+
+Progression may move through eras, with era-dependent weapons, upgrades, or other content. The relationship between base-weapon identity and run upgrades remains deliberately TBD.
+
+### Draft
+
+Before a run, the player may configure its Run Upgrade Pool. There is intentionally no minimum pool size, allowing deliberate small-pool build experimentation as well as broad pools.
+
+### Challenge
+
+A system-defined pool and rules can provide fair shared conditions. Scoring, leaderboards, networking, and possible deterministic seeds are future work.
+
+### Automatic
+
+Automated combat can use configured/unlocked loadouts and upgrades to determine progression, with rewards based on level or wave reached. This is related to the planned AFK-style Auto Combat feature, but is not a manual-gameplay simulation and is not implemented here.
+
 ## Player Build / Weapon Stats Screen
 
 Status: Planned

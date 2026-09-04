@@ -87,12 +87,41 @@ namespace RealRail
         public int Next(int exclusiveMax) => UnityEngine.Random.Range(0, exclusiveMax);
     }
 
+    /// <summary>Identities that are allowed to appear as rewards during one run.</summary>
+    public sealed class RunUpgradePool
+    {
+        readonly List<UpgradeId> _upgrades;
+
+        public RunUpgradePool(IEnumerable<UpgradeId> upgrades)
+        {
+            _upgrades = new List<UpgradeId>();
+            if (upgrades == null) return;
+
+            foreach (var upgrade in upgrades)
+            {
+                if (!_upgrades.Contains(upgrade)) _upgrades.Add(upgrade);
+            }
+        }
+
+        public IReadOnlyList<UpgradeId> Upgrades => _upgrades;
+
+        public static RunUpgradePool CreateCurrentGameplayPool() => new RunUpgradePool(new[]
+        {
+            UpgradeId.DoubleShot,
+            UpgradeId.RapidFire,
+            UpgradeId.PiercingShot,
+            UpgradeId.PowerShot
+        });
+    }
+
     public static class UpgradeRewardGenerator
     {
-        public static List<UpgradeId> GetEligible(UpgradeState state)
+        public static List<UpgradeId> GetEligible(RunUpgradePool pool, UpgradeState state)
         {
             var eligible = new List<UpgradeId>();
-            foreach (UpgradeId upgrade in Enum.GetValues(typeof(UpgradeId)))
+            if (pool == null || state == null) return eligible;
+
+            foreach (var upgrade in pool.Upgrades)
             {
                 if (state.CanBeOffered(upgrade))
                 {
@@ -100,6 +129,23 @@ namespace RealRail
                 }
             }
             return eligible;
+        }
+
+        public static List<UpgradeId> GetEligible(UpgradeState state) => GetEligible(RunUpgradePool.CreateCurrentGameplayPool(), state);
+
+        public static List<UpgradeId> GenerateCandidates(RunUpgradePool pool, UpgradeState state, IUpgradeRandom random, int maximumChoices = 3)
+        {
+            var candidates = GetEligible(pool, state);
+            if (random == null || maximumChoices <= 0) return new List<UpgradeId>();
+
+            var count = Mathf.Min(maximumChoices, candidates.Count);
+            for (var index = 0; index < count; index++)
+            {
+                var selectedIndex = index + random.Next(candidates.Count - index);
+                (candidates[index], candidates[selectedIndex]) = (candidates[selectedIndex], candidates[index]);
+            }
+            if (candidates.Count > count) candidates.RemoveRange(count, candidates.Count - count);
+            return candidates;
         }
 
         public static bool TrySelectAutomatic(IReadOnlyList<UpgradeId> eligible, IUpgradeRandom random, out UpgradeId selected)
@@ -120,8 +166,10 @@ namespace RealRail
     {
         readonly UpgradeState _state = new UpgradeState();
         IUpgradeRandom _random = new UnityUpgradeRandom();
+        RunUpgradePool _runPool;
 
         public UpgradeState State => _state;
+        public RunUpgradePool RunPool => _runPool ??= RunUpgradePool.CreateCurrentGameplayPool();
         public event Action<UpgradeApplication> UpgradeApplied;
         public event Action UpgradesChanged;
 
@@ -129,7 +177,7 @@ namespace RealRail
 
         public bool TryApplyAutomaticReward(out UpgradeApplication application)
         {
-            var eligible = UpgradeRewardGenerator.GetEligible(_state);
+            var eligible = UpgradeRewardGenerator.GetEligible(RunPool, _state);
             if (!UpgradeRewardGenerator.TrySelectAutomatic(eligible, _random, out var selected) ||
                 !_state.TryApplyLevel(selected, out var level))
             {
@@ -166,6 +214,16 @@ namespace RealRail
         public void SetRewardRandomForTests(IUpgradeRandom random)
         {
             _random = random ?? new UnityUpgradeRandom();
+        }
+
+        public void SetRunPoolForTests(RunUpgradePool pool)
+        {
+            _runPool = pool ?? new RunUpgradePool(Array.Empty<UpgradeId>());
+        }
+
+        public List<UpgradeId> GenerateRewardCandidates(int maximumChoices = 3)
+        {
+            return UpgradeRewardGenerator.GenerateCandidates(RunPool, _state, _random, maximumChoices);
         }
 
         void NotifyApplied(UpgradeApplication application)

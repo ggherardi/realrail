@@ -53,6 +53,7 @@ namespace RealRail
         [SerializeField] EnemySpawner spawner;
         [SerializeField] LaneLayout lanes;
         [SerializeField] UpgradeSystem upgradeSystem;
+        [SerializeField] UpgradeRewardSelection upgradeRewardSelection;
 
         WaveProgress _progress;
         int _waveIndex = -1;
@@ -181,7 +182,7 @@ namespace RealRail
                 return;
             }
 
-            upgradeSystem?.TryApplyAutomaticReward(out _);
+            upgradeRewardSelection?.RequestReward();
         }
 
         bool IsActiveWave()

@@ -75,6 +75,73 @@ namespace RealRail.Tests
         }
 
         [Test]
+        public void RunPool_DefaultsToCurrentFourAndNeverMutatesWhenAnUpgradeCaps()
+        {
+            var pool = RunUpgradePool.CreateCurrentGameplayPool();
+            CollectionAssert.AreEquivalent(new[] { UpgradeId.DoubleShot, UpgradeId.RapidFire, UpgradeId.PiercingShot, UpgradeId.PowerShot }, pool.Upgrades);
+            var state = new UpgradeState();
+            while (state.TryApplyLevel(UpgradeId.DoubleShot, out _)) { }
+
+            CollectionAssert.DoesNotContain(UpgradeRewardGenerator.GetEligible(pool, state), UpgradeId.DoubleShot);
+            CollectionAssert.Contains(pool.Upgrades, UpgradeId.DoubleShot);
+        }
+
+        [Test]
+        public void CandidateGeneration_UsesPoolMembershipCountsAndDistinctRandomChoices()
+        {
+            var pool = RunUpgradePool.CreateCurrentGameplayPool();
+            var state = new UpgradeState();
+            var four = UpgradeRewardGenerator.GenerateCandidates(pool, state, new FixedRandom(0));
+            Assert.AreEqual(3, four.Count);
+            Assert.AreEqual(3, new HashSet<UpgradeId>(four).Count);
+            CollectionAssert.IsSubsetOf(four, pool.Upgrades);
+
+            state.TryApplyLevel(UpgradeId.DoubleShot, out _);
+            Assert.AreEqual(3, UpgradeRewardGenerator.GenerateCandidates(pool, state, new FixedRandom(0)).Count);
+            while (state.TryApplyLevel(UpgradeId.RapidFire, out _)) { }
+            Assert.AreEqual(2, UpgradeRewardGenerator.GenerateCandidates(pool, state, new FixedRandom(0)).Count);
+            while (state.TryApplyLevel(UpgradeId.PiercingShot, out _)) { }
+            Assert.AreEqual(1, UpgradeRewardGenerator.GenerateCandidates(pool, state, new FixedRandom(0)).Count);
+            while (state.TryApplyLevel(UpgradeId.PowerShot, out _)) { }
+            Assert.AreEqual(0, UpgradeRewardGenerator.GenerateCandidates(pool, state, new FixedRandom(0)).Count);
+        }
+
+        [Test]
+        public void CandidateGeneration_CanUseReducedFutureDraftLikePool()
+        {
+            var pool = new RunUpgradePool(new[] { UpgradeId.DoubleShot, UpgradeId.PiercingShot, UpgradeId.PiercingShot });
+            var choices = UpgradeRewardGenerator.GenerateCandidates(pool, new UpgradeState(), new FixedRandom(0));
+            CollectionAssert.AreEquivalent(new[] { UpgradeId.DoubleShot, UpgradeId.PiercingShot }, choices);
+        }
+
+        [Test]
+        public void Selection_AppliesOnceQueuesSimultaneousRewardsAndSkipsZeroEligible()
+        {
+            var owner = new GameObject("Upgrade reward selection");
+            var system = owner.AddComponent<UpgradeSystem>();
+            system.SetRewardRandomForTests(new FixedRandom(0));
+            var selection = owner.AddComponent<UpgradeRewardSelection>();
+            selection.ConfigureForTests(system);
+
+            selection.RequestReward();
+            selection.RequestReward();
+            Assert.IsTrue(selection.IsSelecting);
+            Assert.AreEqual(1, selection.PendingRewardCount);
+            Assert.IsTrue(selection.Select(UpgradeId.DoubleShot));
+            Assert.AreEqual(1, system.State.GetLevel(UpgradeId.DoubleShot));
+            Assert.IsFalse(selection.Select(UpgradeId.DoubleShot));
+            Assert.IsTrue(selection.IsSelecting, "The queued reward opens only after the first has resolved.");
+
+            foreach (UpgradeId upgrade in System.Enum.GetValues(typeof(UpgradeId))) while (system.State.TryApplyLevel(upgrade, out _)) { }
+            selection.Select(UpgradeId.RapidFire);
+            Assert.IsFalse(selection.IsSelecting);
+            selection.RequestReward();
+            Assert.IsFalse(selection.IsSelecting);
+            Assert.AreEqual(0, selection.PendingRewardCount);
+            Object.DestroyImmediate(owner);
+        }
+
+        [Test]
         public void RewardSystem_AllCappedIsSafeAndDoesNotEmitReward()
         {
             var owner = new UnityEngine.GameObject("Upgrades");
