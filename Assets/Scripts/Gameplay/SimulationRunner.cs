@@ -36,11 +36,6 @@ namespace RealRail
         public event Action<RunResult> RunCompleted;
         public event Action<RunStatistics> BatchCompleted;
 
-        void Awake()
-        {
-            FindDependencies();
-        }
-
         void OnEnable()
         {
             Subscribe();
@@ -66,7 +61,6 @@ namespace RealRail
         {
             if (IsRunningBatch) return;
 
-            FindDependencies();
             if (session == null || waveDirector == null) return;
 
             simulationEnabled = true;
@@ -105,6 +99,20 @@ namespace RealRail
             {
                 Time.timeScale = simulationSpeed;
             }
+        }
+
+        /// <summary>Sets the finite batch size used by development tooling. Values below one mean unlimited.</summary>
+        public void SetMaximumRuns(int runCount)
+        {
+            maximumRuns = Mathf.Max(0, runCount);
+        }
+
+        /// <summary>Configures and starts a finite development batch through the ordinary gameplay lifecycle.</summary>
+        public void StartSimulation(int runCount, float speed)
+        {
+            SetMaximumRuns(runCount);
+            SetSimulationSpeed(speed);
+            StartSimulation();
         }
 
         public void ConfigureForTests(GameSession gameSession, WaveDirector director, RunTelemetry runTelemetry,
@@ -190,20 +198,11 @@ namespace RealRail
 
         static void AddActors<T>(ISet<GameObject> actors) where T : Component
         {
-            foreach (var actor in UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var actor in UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Include))
             {
                 actors.Add(actor.gameObject);
             }
         }
 
-        void FindDependencies()
-        {
-            session ??= FindFirstObjectByType<GameSession>();
-            waveDirector ??= FindFirstObjectByType<WaveDirector>();
-            telemetry ??= FindFirstObjectByType<RunTelemetry>();
-            upgradeSystem ??= FindFirstObjectByType<UpgradeSystem>();
-            rewardSelection ??= FindFirstObjectByType<UpgradeRewardSelection>();
-            playerBot ??= FindFirstObjectByType<PlayerBot>();
-        }
     }
 }

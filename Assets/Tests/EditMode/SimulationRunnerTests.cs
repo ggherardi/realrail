@@ -80,6 +80,29 @@ namespace RealRail.Tests
             Assert.AreEqual(5f, Time.timeScale);
         }
 
+        [UnityTest]
+        public IEnumerator ConfiguredBatch_UsesRequestedCountSpeedAndPlayerBotProfile()
+        {
+            var session = CreateSession();
+            var telemetryOwner = Track(new GameObject("Telemetry"));
+            var telemetry = telemetryOwner.AddComponent<RunTelemetry>();
+            telemetry.ConfigureForTests(session, null);
+            var player = Track(new GameObject("Bot Player"));
+            var bot = player.AddComponent<PlayerBot>();
+            bot.SetProfile(BotProfileId.PerfectIsh);
+            var runner = Track(new GameObject("Runner")).AddComponent<SimulationRunner>();
+            var director = Track(new GameObject("Director")).AddComponent<WaveDirector>();
+            runner.ConfigureForTests(session, director, telemetry, bot: bot);
+
+            runner.StartSimulation(2, 4f);
+            yield return null;
+
+            Assert.IsTrue(runner.IsRunningBatch);
+            Assert.AreEqual(4f, runner.SimulationSpeed);
+            Assert.AreEqual("Perfect-ish", bot.Profile.Label);
+            runner.StopSimulation();
+        }
+
         GameSession CreateSession()
         {
             var sessionOwner = Track(new GameObject("Session"));

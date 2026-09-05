@@ -26,7 +26,7 @@ Before a fresh run the runner resets the session health/state/time, telemetry, u
 
 Finite batches retain all `RunResult` instances and produce a `RunStatistics` summary with profile, run count, wins/losses, win rate, mean/median duration and wave, average kills/leaks/damage, defeat/wave distributions, and aggregate upgrade/build distributions. `ToReport()` is a compact human-readable rendering; its properties are the programmatic interface for later tooling.
 
-To run a small batch in the Unity editor, open `SampleScene`, select **Systems**, set `Simulation Runner`'s `maximumRuns`, `simulationSpeed`, and the Player's `PlayerBot` profile, then enable **Simulation Enabled** and enter Play Mode. Inspect `Results`/`LatestStatistics` from a debugger or subscribe to `BatchCompleted`; automation can also call `StartSimulation()` explicitly. The `Tools/RealRail/Configure Batch Simulation` command repairs or adds the serialized development setup without enabling it.
+For the normal development workflow, open `SampleScene`, then **RealRail > Simulation Lab**. Choose a profile, run count, and speed, then click **Run Batch**. The Lab enters Play Mode when needed, configures the actual `PlayerBot` and `SimulationRunner`, and renders the runner's completed `RunStatistics` directly. A second batch with another profile can start in the same Play Mode session after the first completes. **Stop Batch** returns control and restores normal time/input. The `Tools/RealRail/Configure Batch Simulation` command repairs or adds the serialized development setup without enabling it.
 
 ## Determinism and next steps
 
