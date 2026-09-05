@@ -22,15 +22,19 @@ namespace RealRail
         [SerializeField] UpgradeSystem upgradeSystem;
         [SerializeField] UpgradeRewardSelection rewardSelection;
         [SerializeField] PlayerBot playerBot;
+        [SerializeField] int simulationSeed = 12345;
 
         Coroutine _restartRoutine;
         float _timeScaleBeforeSimulation = 1f;
         bool _ownsTimeScale;
         readonly List<RunResult> _results = new List<RunResult>();
+        RunConfiguration _requestedRun;
 
         public bool IsRunningBatch { get; private set; }
         public int CompletedRunCount { get; private set; }
         public float SimulationSpeed => simulationSpeed;
+        public int SimulationSeed => simulationSeed;
+        public int CurrentRunSeed => RunRandomContext.SeedForRun(simulationSeed, CompletedRunCount);
         public IReadOnlyList<RunResult> Results => _results;
         public RunStatistics LatestStatistics { get; private set; }
         public event Action<RunResult> RunCompleted;
@@ -107,12 +111,26 @@ namespace RealRail
             maximumRuns = Mathf.Max(0, runCount);
         }
 
+        /// <summary>Sets the deterministic seed for the next batch; each run derives a stable unique seed.</summary>
+        public void SetSimulationSeed(int seed)
+        {
+            simulationSeed = seed;
+        }
+
         /// <summary>Configures and starts a finite development batch through the ordinary gameplay lifecycle.</summary>
         public void StartSimulation(int runCount, float speed)
         {
+            _requestedRun = null;
             SetMaximumRuns(runCount);
             SetSimulationSpeed(speed);
             StartSimulation();
+        }
+
+        /// <summary>Starts a batch using an isolated configuration copy so callers may safely reuse theirs.</summary>
+        public void StartSimulation(int runCount, float speed, RunConfiguration run)
+        {
+            _requestedRun = run != null ? new RunConfiguration(run.Waves) : null;
+            StartSimulation(runCount, speed);
         }
 
         public void ConfigureForTests(GameSession gameSession, WaveDirector director, RunTelemetry runTelemetry,
@@ -149,7 +167,8 @@ namespace RealRail
             if (!IsRunningBatch || _restartRoutine != null) return;
 
             var result = telemetry != null ? telemetry.CurrentResult : new RunResult(
-                session.State, session.ElapsedRunSeconds, 0, 0, 0, 0, Array.Empty<AcquiredUpgrade>());
+                session.State, session.ElapsedRunSeconds, 0, 0, 0, 0, Array.Empty<AcquiredUpgrade>(),
+                RunRandomContext.SeedForRun(simulationSeed, CompletedRunCount));
             _results.Add(result);
             RunCompleted?.Invoke(result);
             CompletedRunCount++;
@@ -166,12 +185,24 @@ namespace RealRail
 
         void BeginFreshRun()
         {
+            var random = new RunRandomContext(RunRandomContext.SeedForRun(simulationSeed, CompletedRunCount));
+            ConfigureRunRandom(random);
             rewardSelection?.ResetSelection();
             upgradeSystem?.ResetUpgrades();
             telemetry?.ResetRun();
+            telemetry?.SetRunSeed(random.Seed);
             session.ResetRun();
             Time.timeScale = simulationSpeed;
-            waveDirector.StartRun();
+            if (_requestedRun != null) waveDirector.StartRun(new RunConfiguration(_requestedRun.Waves));
+            else waveDirector.StartRun();
+        }
+
+        void ConfigureRunRandom(RunRandomContext random)
+        {
+            // The director owns the spawner reference, so lookup is intentionally avoided here.
+            // It exposes a routing method to keep the runner's scene contract small.
+            waveDirector?.SetRunRandomContext(random);
+            upgradeSystem?.SetRewardRandom(random.CreateStream("upgrade-rewards"));
         }
 
         IEnumerator PrepareFreshRun()

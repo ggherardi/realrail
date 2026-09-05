@@ -1,37 +1,33 @@
-# Wave Director and Player-Bot Foundation
+# Wave Director, Simulation, and Balance Search
 
 ## Status
 
-Wave Director, bot skill profiles, and opt-in batch simulation are implemented. Headless/parallel execution, deterministic replay, automated balance search, and procedural encounter generation remain future work.
+Wave Director, bot profiles, seeded real-gameplay simulation, and a bounded balance-search foundation are implemented. The authored three-wave SampleScene configuration remains the protected control; no experiment writes it back.
 
-## Run and wave execution
+## Authoritative runs and deterministic seeds
 
-`WaveDirector` executes a `RunConfiguration`: a defensive runtime plan containing an arbitrary number of `WaveConfig` entries. The current authored scene retains the accepted three-wave configuration as its baseline fallback. An authored `RunDefinition` asset can create the same runtime plan, while a future directed encounter generator can construct a `RunConfiguration` directly and call `StartRun`.
+`SimulationRunner` accepts a base seed and derives one stable seed per run. `RunResult.RunSeed` records it. `RunRandomContext` creates independent deterministic streams for enemy lane/position/composition, upgrade-target lane/position, and reward offers; changing reward draws therefore does not perturb enemy draws. Normal human gameplay continues to use Unity's automatic randomness.
 
-Wave execution remains authoritative and unchanged in its important semantics: only projectile kills advance a kill goal; Defense Line removals do not; spawning stops as soon as the goal is reached; and a wave completes only after its spawned enemies have resolved. Upgrade Targets remain independent from this accounting. `MaxConcurrentEnemies` is an optional per-wave cap (`0` means unlimited), providing a small extension seam without treating enemy count as the sole difficulty dimension.
+The promise is scoped: same configuration, bot profile, seed, Unity version, platform, scene state, and accelerated main-thread execution route the same gameplay RNG decisions identically. Physics stepping, frame timing, and floating-point behavior mean this is not a cross-platform/network replay guarantee. Bot targeting uses scene-object discovery and can also be affected by externally introduced actors. Seeds are recorded so a divergent run can be investigated rather than hidden.
 
-Difficulty is deliberately multidimensional. Composition, durability, movement speed, spawn timing, concurrency, lane distribution, and future enemy behavior may all vary independently. This foundation does not add a fixed difficulty curve or a procedural generator.
+## Execution, workers, and throughput
 
-## Simulation and batch runs
+Every `SimulationJob` has an ID, seed, execution mode, timeout, lifecycle state, result/failure, and wall-clock measurement. `SimulationJobScheduler` runs Unity scene work on the main thread and detects failure, cancellation, and timeouts. It records a requested worker count through `SimulationWorkerPlan`, but honestly reports one in-process worker: Unity GameObjects are not thread-safe. More than one worker requires isolated Unity batch/headless processes, each with a separate scene and result file; M3 does not fake that by putting multiple scene runs on threads.
 
-`PlayerBot` observes normal scene gameplay actors (`UpgradeTarget` and `EnemyMover`), drives the normal `PlayerMotor`, and chooses rewards through `UpgradeRewardSelection.Select`, the same authoritative path used by the human UI. It has no reference to `WaveDirector`, `RunConfiguration`, or wave parameters. It is disabled by default, so human input and selection UI remain the normal experience.
+The reliable fast path is accelerated, non-rendered batchmode execution of the same WaveDirector, movement, combat, projectiles, PlayerBot, upgrades, GameSession, and telemetry. Batchmode removes presentation from the automation path but remains real Unity simulation, not an abstract combat model. `SimulationJobExecution.WallClockMilliseconds` and `BalanceExperimentJsonReport` expose job count and wall-clock duration; tooling can calculate runs-per-second or simulated-time-per-wall-second. Measurements are machine/environment specific.
 
-The bot exposes three algorithmic decision profiles: `Average` observes less often and uses simple nearby-target/upgrades preferences; `Strong` reacts faster, prioritizes imminent threats, and avoids repeatedly developing the same offered upgrade; and `Perfect-ish` reacts fastest with the strongest currently visible-choice heuristic. These profiles never change player health, weapon damage, fire rate, enemy stats, waves, or upgrade caps. They model bot decision quality only, not human difficulty.
+`SimulationJsonReport.Serialize` returns compact job JSON and `BalanceExperimentJsonReport.Serialize` returns formatted experiment JSON (baseline, ranked candidates, profile aggregates, scores, jobs, and wall-clock milliseconds). Tooling may persist these strings under an ignored development-results directory; the game does not automatically add result dumps to source control.
 
-`GameSession` reports generic gameplay facts to `RunTelemetry`, which builds a compact `RunResult`: outcome, duration, highest wave started, kills, leaks, player damage, and acquired upgrades. Telemetry records normal session facts rather than exposing Wave Director internals to the bot or analytics consumer.
+## Balance experiments
 
-`SimulationRunner` is opt-in development tooling on the scene's `Systems` root. It runs one real gameplay session at a time at a configurable `Time.timeScale` multiplier (default `4x`), records one result per terminal session, and restarts automatically. It deliberately uses the normal `Update`/scaled-time gameplay paths rather than a mathematical combat replacement. Reward selection retains its existing pause behavior: the selection restores the prior simulation scale when the bot selects through the normal authoritative path.
+`BalanceObjective` contains separate `BalanceProfileObjective` ranges for each bot profile. It scores win-rate and average-duration range deviations independently per profile before summing weighted components; reports retain each profile's statistics. Average, Strong, and Perfect-ish are never reduced to one opaque survivor metric. Bot performance is not human difficulty, and Play Mode acceptance remains necessary.
 
-Before a fresh run the runner resets the session health/state/time, telemetry, upgrades, reward selection, wave/spawner state, bot input, and removes transient enemies, projectiles, and upgrade targets. This is an explicit lifecycle seam rather than scene reload. Normal gameplay is unaffected because the runner and bot are disabled by default.
+`BalanceCandidateGenerator` produces copied, constrained `RunConfiguration` instances. Current legitimate dimensions are kill goal, spawn interval, speed, Heavy probability, and concurrent-enemy cap. Values are clamped to explicit bounds; upgrade trigger arrays are copied. Authored Story content is not rewritten: it may be tested as the baseline, while generated/directed configurations stay transient.
 
-Finite batches retain all `RunResult` instances and produce a `RunStatistics` summary with profile, run count, wins/losses, win rate, mean/median duration and wave, average kills/leaks/damage, defeat/wave distributions, and aggregate upgrade/build distributions. `ToReport()` is a compact human-readable rendering; its properties are the programmatic interface for later tooling.
+`BalanceSearch` is a bounded, deterministic guided-mutation loop: evaluate the baseline, generate only the requested candidate count × iteration count, retain the better in-memory source, rank stable ties by candidate ID, and stop. It requires explicit seeds, candidate count, iterations, constraints, and objective. It never touches a `RunDefinition` asset or SampleScene wave array.
 
-For the normal development workflow, open `SampleScene`, then **RealRail > Simulation Lab**. Choose a profile, run count, and speed, then click **Run Batch**. The Lab enters Play Mode when needed, configures the actual `PlayerBot` and `SimulationRunner`, and renders the runner's completed `RunStatistics` directly. A second batch with another profile can start in the same Play Mode session after the first completes. **Stop Batch** returns control and restores normal time/input. The `Tools/RealRail/Configure Batch Simulation` command repairs or adds the serialized development setup without enabling it.
-
-## Determinism and next steps
-
-Current enemy lanes/heavy selection, upgrade offers, and upgrade-target lanes use `UnityEngine.Random`; M2 does not seed or replay this shared source. The batch APIs avoid hiding that limitation, so M3 can introduce a narrow seeded-random seam without replacing real gameplay. M3 can also add headless/parallel workers and autonomous candidate-wave search; none are implemented here.
+In **RealRail > Simulation Lab**, the existing simple batch workflow remains. Set a base seed and run the same batch twice to inspect recorded seeds/results. The **Bounded Balance Experiment** section runs a deliberately small set of copied baseline/candidate configurations through all three profiles and its explicit seed set, displays baseline/candidate per-profile aggregates and scores, and keeps production waves unchanged. Its default broad objective is intentionally exploratory; choose approved targets before interpreting any winner as a design recommendation.
 
 ## Future work
 
-Future work is headless/parallel execution, deterministic seeds/replay, and candidate-wave search/tuning. Bot results must not be presented as proof of human difficulty.
+Process-launching batch workers, a guarded worker-pool/result-file protocol, real-machine throughput benchmarks across one and multiple processes, additional encounter dimensions, and human-approved production tuning remain future work. No LLM controls individual gameplay frames, and no generated result establishes fun or replaces human playtesting.

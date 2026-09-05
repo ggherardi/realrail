@@ -14,6 +14,7 @@ namespace RealRail
         int _enemiesKilled;
         int _enemiesLeaked;
         int _playerDamageTaken;
+        int? _runSeed;
 
         public RunResult CurrentResult => BuildResult();
 
@@ -24,12 +25,15 @@ namespace RealRail
             _enemiesKilled = 0;
             _enemiesLeaked = 0;
             _playerDamageTaken = 0;
+            _runSeed = null;
         }
+
+        public void SetRunSeed(int? seed) => _runSeed = seed;
 
         void Awake()
         {
-            session ??= FindFirstObjectByType<GameSession>();
-            upgradeSystem ??= FindFirstObjectByType<UpgradeSystem>();
+            session ??= FindAnyObjectByType<GameSession>();
+            upgradeSystem ??= FindAnyObjectByType<UpgradeSystem>();
         }
 
         void OnEnable()
@@ -69,7 +73,7 @@ namespace RealRail
                 _enemiesKilled,
                 _enemiesLeaked,
                 _playerDamageTaken,
-                upgrades);
+                upgrades, _runSeed);
         }
 
         void OnSessionTelemetry(SessionTelemetryEvent telemetryEvent)

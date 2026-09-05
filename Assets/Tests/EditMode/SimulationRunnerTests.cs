@@ -67,6 +67,7 @@ namespace RealRail.Tests
         {
             var owner = Track(new GameObject("Upgrades"));
             var upgrades = owner.AddComponent<UpgradeSystem>();
+            upgrades.SetRunPoolForTests(new RunUpgradePool(new[] { UpgradeId.PowerShot }));
             var selection = owner.AddComponent<UpgradeRewardSelection>();
             selection.ConfigureForTests(upgrades);
 

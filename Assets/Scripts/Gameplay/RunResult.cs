@@ -19,7 +19,7 @@ namespace RealRail
     /// <summary>Compact immutable summary of one completed or in-progress gameplay run.</summary>
     public sealed class RunResult
     {
-        public RunResult(SessionState outcome, float durationSeconds, int finalWaveReached, int enemiesKilled, int enemiesLeaked, int playerDamageTaken, IReadOnlyList<AcquiredUpgrade> upgrades)
+        public RunResult(SessionState outcome, float durationSeconds, int finalWaveReached, int enemiesKilled, int enemiesLeaked, int playerDamageTaken, IReadOnlyList<AcquiredUpgrade> upgrades, int? runSeed = null)
         {
             Outcome = outcome;
             DurationSeconds = durationSeconds;
@@ -28,6 +28,7 @@ namespace RealRail
             EnemiesLeaked = enemiesLeaked;
             PlayerDamageTaken = playerDamageTaken;
             Upgrades = upgrades ?? Array.Empty<AcquiredUpgrade>();
+            RunSeed = runSeed;
         }
 
         public SessionState Outcome { get; }
@@ -39,5 +40,7 @@ namespace RealRail
         public int EnemiesLeaked { get; }
         public int PlayerDamageTaken { get; }
         public IReadOnlyList<AcquiredUpgrade> Upgrades { get; }
+        /// <summary>Seed used for this run, when it was executed through deterministic simulation.</summary>
+        public int? RunSeed { get; }
     }
 }

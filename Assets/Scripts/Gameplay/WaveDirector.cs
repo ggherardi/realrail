@@ -63,11 +63,37 @@ namespace RealRail
         WaveProgress _progress;
         RunConfiguration _run;
         int _waveIndex = -1;
+        IRunRandom _upgradeTargetRandom = UnityRunRandom.Shared;
 
         public WavePhase Phase { get; private set; }
         public int CurrentWaveNumber => _waveIndex + 1;
         public WaveProgress Progress => _progress;
         public int WaveCount => _run != null ? _run.WaveCount : 0;
+
+        /// <summary>Returns a defensive copy of the authored baseline for experimental comparison.</summary>
+        public RunConfiguration CreateBaselineConfiguration()
+        {
+            return authoredRun != null ? authoredRun.CreateRuntimeConfiguration() : new RunConfiguration(waves);
+        }
+
+        /// <summary>Sets the isolated stream used only for target lane and position selection.</summary>
+        public void SetUpgradeTargetRandom(IRunRandom random)
+        {
+            _upgradeTargetRandom = random ?? UnityRunRandom.Shared;
+        }
+
+        /// <summary>Routes independent deterministic streams to the systems owned by this director.</summary>
+        public void SetRunRandomContext(RunRandomContext context)
+        {
+            if (context == null)
+            {
+                spawner?.SetRunRandom(null);
+                SetUpgradeTargetRandom(null);
+                return;
+            }
+            spawner?.SetRunRandom(context.CreateStream("enemy-spawn"));
+            SetUpgradeTargetRandom(context.CreateStream("upgrade-target"));
+        }
 
         void Awake()
         {
@@ -92,10 +118,7 @@ namespace RealRail
 
         public void StartRun()
         {
-            var configuredRun = authoredRun != null
-                ? authoredRun.CreateRuntimeConfiguration()
-                : new RunConfiguration(waves);
-            StartRun(configuredRun);
+            StartRun(CreateBaselineConfiguration());
         }
 
         /// <summary>
@@ -195,8 +218,8 @@ namespace RealRail
                 return;
             }
 
-            var laneIndex = UnityEngine.Random.Range(0, lanes.LaneCount);
-            var instance = Instantiate(upgradeTargetPrefab, lanes.GetSpawnPosition(laneIndex), Quaternion.identity);
+            var laneIndex = _upgradeTargetRandom.Next(lanes.LaneCount);
+            var instance = Instantiate(upgradeTargetPrefab, lanes.GetSpawnPosition(laneIndex, _upgradeTargetRandom), Quaternion.identity);
             instance.SetActive(true);
             var target = instance.GetComponent<UpgradeTarget>();
             if (target == null)

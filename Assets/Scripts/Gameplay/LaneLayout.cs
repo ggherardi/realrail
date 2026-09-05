@@ -28,9 +28,15 @@ namespace RealRail
 
         public Vector3 GetSpawnPosition(int laneIndex)
         {
+            return GetSpawnPosition(laneIndex, UnityRunRandom.Shared);
+        }
+
+        /// <summary>Uses the caller's run stream when a deterministic run is active.</summary>
+        public Vector3 GetSpawnPosition(int laneIndex, IRunRandom random)
+        {
             var minX = GetLaneX(laneIndex) - laneWidth * 0.5f + spawnEdgeInset;
             var maxX = GetLaneX(laneIndex) + laneWidth * 0.5f - spawnEdgeInset;
-            return new Vector3(Random.Range(minX, maxX), actorY, spawnZ);
+            return new Vector3((random ?? UnityRunRandom.Shared).NextFloat(minX, maxX), actorY, spawnZ);
         }
 
         public float ClampStrafe(float x)

@@ -28,9 +28,9 @@ namespace RealRail
         void Awake()
         {
             motor ??= GetComponent<PlayerMotor>();
-            session ??= FindFirstObjectByType<GameSession>();
-            rewardSelection ??= FindFirstObjectByType<UpgradeRewardSelection>();
-            upgradeSystem ??= FindFirstObjectByType<UpgradeSystem>();
+            session ??= FindAnyObjectByType<GameSession>();
+            rewardSelection ??= FindAnyObjectByType<UpgradeRewardSelection>();
+            upgradeSystem ??= FindAnyObjectByType<UpgradeSystem>();
         }
 
         void OnEnable()
@@ -110,14 +110,14 @@ namespace RealRail
         Transform FindPriorityTarget()
         {
             // Upgrade targets are time-sensitive rewards, so they take priority over normal threats.
-            var upgradeTargets = FindObjectsByType<UpgradeTarget>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var upgradeTargets = FindObjectsByType<UpgradeTarget>(FindObjectsInactive.Exclude);
             if (Profile.PrioritizesUpgradeTargets)
             {
                 var priority = FindTarget(upgradeTargets, target => target.transform);
                 if (priority != null) return priority;
             }
 
-            var movers = FindObjectsByType<EnemyMover>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var movers = FindObjectsByType<EnemyMover>(FindObjectsInactive.Exclude);
             return FindTarget(movers, mover => mover.GetComponent<UpgradeTarget>() == null ? mover.transform : null);
         }
 

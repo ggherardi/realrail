@@ -18,11 +18,17 @@ namespace RealRail
         int _activeEnemyCount;
         WaveConfig _config;
         bool _isSpawning;
+        IRunRandom _random = UnityRunRandom.Shared;
         readonly HashSet<WaveEnemy> _activeEnemies = new HashSet<WaveEnemy>();
 
         public event Action<WaveEnemy> EnemySpawned;
         public bool IsSpawning => _isSpawning;
         public int ActiveEnemyCount => _activeEnemyCount;
+
+        public void SetRunRandom(IRunRandom random)
+        {
+            _random = random ?? UnityRunRandom.Shared;
+        }
 
         public void BeginWave(WaveConfig config)
         {
@@ -74,9 +80,9 @@ namespace RealRail
 
         void Spawn()
         {
-            var laneIndex = UnityEngine.Random.Range(0, lanes.LaneCount);
-            var position = lanes.GetSpawnPosition(laneIndex);
-            var prefab = _config.ShouldSpawnHeavy(UnityEngine.Random.value) && heavyEnemyPrefab != null
+            var laneIndex = _random.Next(lanes.LaneCount);
+            var position = lanes.GetSpawnPosition(laneIndex, _random);
+            var prefab = _config.ShouldSpawnHeavy(_random.NextFloat(0f, 1f)) && heavyEnemyPrefab != null
                 ? heavyEnemyPrefab
                 : enemyPrefab;
             var instance = Instantiate(prefab, position, Quaternion.identity);

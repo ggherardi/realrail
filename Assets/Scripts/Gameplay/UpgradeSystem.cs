@@ -216,6 +216,12 @@ namespace RealRail
             _random = random ?? new UnityUpgradeRandom();
         }
 
+        /// <summary>Injects the per-run reward stream; retained test method remains compatible.</summary>
+        public void SetRewardRandom(IUpgradeRandom random)
+        {
+            _random = random ?? new UnityUpgradeRandom();
+        }
+
         public void SetRunPoolForTests(RunUpgradePool pool)
         {
             _runPool = pool ?? new RunUpgradePool(Array.Empty<UpgradeId>());

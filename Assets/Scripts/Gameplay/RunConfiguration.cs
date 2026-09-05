@@ -27,6 +27,16 @@ namespace RealRail
         }
 
         public int WaveCount => _waves.Length;
+        /// <summary>A defensive copy for simulation requests; callers cannot mutate the active plan.</summary>
+        public WaveConfig[] Waves
+        {
+            get
+            {
+                var copy = new WaveConfig[_waves.Length];
+                for (var index = 0; index < _waves.Length; index++) copy[index] = CopyWave(_waves[index]);
+                return copy;
+            }
+        }
 
         public bool IsValid => WaveCount > 0;
 
