@@ -44,6 +44,12 @@ namespace RealRail
             return upgradeSystem != null ? upgradeSystem.GetShotConfiguration() : new ShotConfiguration(1, fireInterval, 1, 1);
         }
 
+        /// <summary>Clears the previous run's firing cadence without changing weapon configuration.</summary>
+        public void ResetFireCycle()
+        {
+            _cooldown = 0f;
+        }
+
         void FireProjectile(Vector3 position, ShotConfiguration shot)
         {
             var instance = Instantiate(projectilePrefab, position, Quaternion.identity);

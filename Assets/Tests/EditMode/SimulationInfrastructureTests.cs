@@ -32,6 +32,39 @@ namespace RealRail.Tests
         }
 
         [Test]
+        public void BatchSeedDerivation_IsStableForEveryRepeatedBatchRun()
+        {
+            CollectionAssert.AreEqual(new[] { 12345, -1640519182, 1013916587, -626614940, 2027820829 }, new[]
+            {
+                RunRandomContext.SeedForRun(12345, 0),
+                RunRandomContext.SeedForRun(12345, 1),
+                RunRandomContext.SeedForRun(12345, 2),
+                RunRandomContext.SeedForRun(12345, 3),
+                RunRandomContext.SeedForRun(12345, 4)
+            });
+        }
+
+        [Test]
+        public void Telemetry_RecordsOrderedUpgradeOffersAndAuthoritativeSelections()
+        {
+            _owner = new GameObject("Telemetry");
+            var upgrades = _owner.AddComponent<UpgradeSystem>();
+            upgrades.SetRunPoolForTests(new RunUpgradePool(new[] { UpgradeId.PowerShot }));
+            var selection = _owner.AddComponent<UpgradeRewardSelection>();
+            selection.ConfigureForTests(upgrades);
+            var telemetry = _owner.AddComponent<RunTelemetry>();
+            telemetry.ConfigureForTests(null, upgrades);
+            telemetry.ConfigureRewardSelectionForTests(selection);
+
+            selection.RequestReward();
+            Assert.IsTrue(selection.Select(UpgradeId.PowerShot));
+            var result = telemetry.BuildResult();
+
+            CollectionAssert.AreEqual(new[] { "PowerShot" }, result.UpgradeOffers);
+            CollectionAssert.AreEqual(new[] { UpgradeId.PowerShot }, result.UpgradeSelections);
+        }
+
+        [Test]
         public void Scheduler_RunsOnlyOneUniqueJobAtATimeAndMapsResultSeed()
         {
             var scheduler = CreateScheduler();

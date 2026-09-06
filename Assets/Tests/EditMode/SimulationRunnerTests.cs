@@ -81,6 +81,23 @@ namespace RealRail.Tests
             Assert.AreEqual(5f, Time.timeScale);
         }
 
+        [Test]
+        public void ResetForSimulationRun_RestoresScenePlayerPosition()
+        {
+            var player = Track(new GameObject("Bot Player"));
+            player.transform.position = new Vector3(1f, 1f, 0f);
+            var motor = player.AddComponent<PlayerMotor>();
+            motor.ConfigureForTests(null, null);
+            var bot = player.AddComponent<PlayerBot>();
+            bot.ConfigureForTests(motor, null);
+            player.transform.position = new Vector3(4f, 1f, 0f);
+
+            bot.ResetForSimulationRun();
+
+            Assert.AreEqual(new Vector3(1f, 1f, 0f), player.transform.position);
+            Assert.IsFalse(motor.HasAutomatedInput);
+        }
+
         [UnityTest]
         public IEnumerator ConfiguredBatch_UsesRequestedCountSpeedAndPlayerBotProfile()
         {

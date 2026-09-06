@@ -90,6 +90,16 @@ namespace RealRail
             if (!enabled) motor?.ClearAutomatedInput();
         }
 
+        /// <summary>Clears run-local bot and player state while preserving the selected profile.</summary>
+        public void ResetForSimulationRun()
+        {
+            _hasDecision = false;
+            _nextDecisionTime = 0f;
+            motor?.ClearAutomatedInput();
+            motor?.ResetToInitialPosition();
+            GetComponent<AutoFire>()?.ResetFireCycle();
+        }
+
         /// <summary>Changes decision quality only; it does not alter any combat or session statistic.</summary>
         public void SetProfile(BotProfileId profile)
         {

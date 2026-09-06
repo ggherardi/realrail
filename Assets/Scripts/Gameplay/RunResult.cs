@@ -19,7 +19,7 @@ namespace RealRail
     /// <summary>Compact immutable summary of one completed or in-progress gameplay run.</summary>
     public sealed class RunResult
     {
-        public RunResult(SessionState outcome, float durationSeconds, int finalWaveReached, int enemiesKilled, int enemiesLeaked, int playerDamageTaken, IReadOnlyList<AcquiredUpgrade> upgrades, int? runSeed = null)
+        public RunResult(SessionState outcome, float durationSeconds, int finalWaveReached, int enemiesKilled, int enemiesLeaked, int playerDamageTaken, IReadOnlyList<AcquiredUpgrade> upgrades, int? runSeed = null, IReadOnlyList<string> upgradeOffers = null, IReadOnlyList<UpgradeId> upgradeSelections = null)
         {
             Outcome = outcome;
             DurationSeconds = durationSeconds;
@@ -29,6 +29,8 @@ namespace RealRail
             PlayerDamageTaken = playerDamageTaken;
             Upgrades = upgrades ?? Array.Empty<AcquiredUpgrade>();
             RunSeed = runSeed;
+            UpgradeOffers = upgradeOffers ?? Array.Empty<string>();
+            UpgradeSelections = upgradeSelections ?? Array.Empty<UpgradeId>();
         }
 
         public SessionState Outcome { get; }
@@ -42,5 +44,9 @@ namespace RealRail
         public IReadOnlyList<AcquiredUpgrade> Upgrades { get; }
         /// <summary>Seed used for this run, when it was executed through deterministic simulation.</summary>
         public int? RunSeed { get; }
+        /// <summary>Ordered offer sets observed during a simulation run, encoded as stable upgrade labels.</summary>
+        public IReadOnlyList<string> UpgradeOffers { get; }
+        /// <summary>Ordered authoritative reward applications observed during a simulation run.</summary>
+        public IReadOnlyList<UpgradeId> UpgradeSelections { get; }
     }
 }

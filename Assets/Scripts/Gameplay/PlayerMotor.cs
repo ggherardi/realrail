@@ -12,6 +12,7 @@ namespace RealRail
         InputAction _move;
         Vector2 _automatedInput;
         bool _hasAutomatedInput;
+        Vector3 _initialPosition;
 
         /// <summary>True while an automated controller owns movement input.</summary>
         public bool HasAutomatedInput => _hasAutomatedInput;
@@ -26,6 +27,11 @@ namespace RealRail
 
             _move = InputSystem.actions.FindAction("Move");
             _move?.Enable();
+        }
+
+        void Awake()
+        {
+            _initialPosition = transform.position;
         }
 
         void OnDisable()
@@ -63,6 +69,12 @@ namespace RealRail
             _hasAutomatedInput = false;
         }
 
+        /// <summary>Restores the scene-authored player position before an isolated simulation run.</summary>
+        public void ResetToInitialPosition()
+        {
+            transform.position = _initialPosition;
+        }
+
         public void Move(Vector2 input, float deltaTime)
         {
             if (session != null && !session.IsPlaying)
@@ -88,6 +100,7 @@ namespace RealRail
             lanes = laneLayout;
             session = gameSession;
             speed = movementSpeed;
+            _initialPosition = transform.position;
         }
     }
 }

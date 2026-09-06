@@ -191,6 +191,7 @@ namespace RealRail
             upgradeSystem?.ResetUpgrades();
             telemetry?.ResetRun();
             telemetry?.SetRunSeed(random.Seed);
+            playerBot?.ResetForSimulationRun();
             session.ResetRun();
             Time.timeScale = simulationSpeed;
             if (_requestedRun != null) waveDirector.StartRun(new RunConfiguration(_requestedRun.Waves));

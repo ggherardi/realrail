@@ -134,6 +134,7 @@ namespace RealRail
         {
             public string id; public int seed; public string state; public double wallClockMilliseconds; public string failure;
             public float durationSeconds; public int finalWave; public bool victory;
+            public string[] upgradeOffers; public string[] upgradeSelections;
         }
 
         public static string Serialize(SimulationJobExecution execution)
@@ -146,8 +147,26 @@ namespace RealRail
                 wallClockMilliseconds = execution.WallClockMilliseconds, failure = execution.Failure,
                 durationSeconds = result != null ? result.DurationSeconds : 0f,
                 finalWave = result != null ? result.FinalWaveReached : 0,
-                victory = result != null && result.IsVictory
+                victory = result != null && result.IsVictory,
+                upgradeOffers = result != null ? ToArray(result.UpgradeOffers) : Array.Empty<string>(),
+                upgradeSelections = result != null ? ToNames(result.UpgradeSelections) : Array.Empty<string>()
             });
+        }
+
+        static string[] ToArray(IReadOnlyList<string> values)
+        {
+            if (values == null) return Array.Empty<string>();
+            var copy = new string[values.Count];
+            for (var index = 0; index < copy.Length; index++) copy[index] = values[index];
+            return copy;
+        }
+
+        static string[] ToNames(IReadOnlyList<UpgradeId> values)
+        {
+            if (values == null) return Array.Empty<string>();
+            var copy = new string[values.Count];
+            for (var index = 0; index < copy.Length; index++) copy[index] = values[index].ToString();
+            return copy;
         }
     }
 }

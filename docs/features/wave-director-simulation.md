@@ -6,9 +6,9 @@ Wave Director, bot profiles, seeded real-gameplay simulation, and a bounded bala
 
 ## Authoritative runs and deterministic seeds
 
-`SimulationRunner` accepts a base seed and derives one stable seed per run. `RunResult.RunSeed` records it. `RunRandomContext` creates independent deterministic streams for enemy lane/position/composition, upgrade-target lane/position, and reward offers; changing reward draws therefore does not perturb enemy draws. Normal human gameplay continues to use Unity's automatic randomness.
+`SimulationRunner` accepts a base seed and derives one stable seed per run. `RunResult.RunSeed` records it. `RunRandomContext` creates independent deterministic streams for enemy lane/position/composition, upgrade-target lane/position, and reward offers; changing reward draws therefore does not perturb enemy draws. Before each simulated run the runner resets the player to its scene-authored position, bot decision state, weapon firing cadence, transient actors, selection, upgrades, telemetry, session, and wave/spawner state. Normal human gameplay continues to use Unity's automatic randomness.
 
-The promise is scoped: same configuration, bot profile, seed, Unity version, platform, scene state, and accelerated main-thread execution route the same gameplay RNG decisions identically. Physics stepping, frame timing, and floating-point behavior mean this is not a cross-platform/network replay guarantee. Bot targeting uses scene-object discovery and can also be affected by externally introduced actors. Seeds are recorded so a divergent run can be investigated rather than hidden.
+The promise is scoped: same configuration, bot profile, seed, Unity version, platform, scene state, and accelerated main-thread execution route the same gameplay RNG decisions identically. `RunResult` also records ordered upgrade offer sets, authoritative selections, and final build to diagnose a divergence. Physics stepping, frame timing, and floating-point behavior mean this is not a cross-platform/network replay guarantee. Bot targeting uses scene-object discovery and can also be affected by externally introduced actors. Seeds are recorded so a divergent run can be investigated rather than hidden.
 
 ## Execution, workers, and throughput
 
