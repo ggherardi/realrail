@@ -25,6 +25,12 @@ namespace RealRail
         public double WallClockMilliseconds => _wallClock != null ? _wallClock.Elapsed.TotalMilliseconds : 0d;
         public BalanceSearchResult LatestResult { get; private set; }
         public string LatestJson { get; private set; }
+        public string LatestResultPath { get; private set; }
+        public int CompletedJobCount => _results.Count;
+        public float TotalSimulatedSeconds { get; private set; }
+        public int WorkerCount => 1;
+        public SimulationExecutionMode ExecutionMode => SimulationExecutionMode.AuthoredSceneMainThreadAccelerated;
+        public double RunsPerMinute => WallClockMilliseconds <= 0d ? 0d : CompletedJobCount * 60000d / WallClockMilliseconds;
         public string Failure { get; private set; }
         public event Action<BalanceSearchResult> ExperimentCompleted;
 
@@ -41,6 +47,8 @@ namespace RealRail
 
             LatestResult = null;
             LatestJson = null;
+            LatestResultPath = null;
+            TotalSimulatedSeconds = 0f;
             Failure = null;
             _jobs.Clear();
             _results.Clear();
@@ -90,6 +98,7 @@ namespace RealRail
                     yield break;
                 }
                 _results[Key(job.Candidate.Id, job.Profile, job.Seed)] = simulationRunner.Results[0];
+                TotalSimulatedSeconds += simulationRunner.Results[0].DurationSeconds;
             }
 
             _wallClock.Stop();
@@ -105,7 +114,9 @@ namespace RealRail
             }
             ranked.Sort((left, right) => left.Score != right.Score ? left.Score.CompareTo(right.Score) : string.CompareOrdinal(left.Candidate.Id, right.Candidate.Id));
             LatestResult = new BalanceSearchResult(search.EvaluateCandidate(baseline, definition.Objective, definition.Seeds, evaluator), ranked);
-            LatestJson = BalanceExperimentJsonReport.Serialize(LatestResult, _jobs.Count, WallClockMilliseconds);
+            LatestJson = BalanceExperimentJsonReport.Serialize(definition, LatestResult, _jobs.Count, WallClockMilliseconds, TotalSimulatedSeconds, speed, ExecutionMode, WorkerCount);
+            try { LatestResultPath = ExperimentResultStorage.Save(LatestJson, "balance-experiment"); }
+            catch (Exception exception) { Failure = "Could not save experiment JSON: " + exception.Message; }
             _routine = null;
             ExperimentCompleted?.Invoke(LatestResult);
         }
@@ -136,16 +147,21 @@ namespace RealRail
     /// <summary>Stable, dependency-free JSON for an entire completed balance experiment.</summary>
     public static class BalanceExperimentJsonReport
     {
-        [Serializable] sealed class ProfileDto { public string profile; public int runs; public float winRate; public float averageDurationSeconds; public float score; }
-        [Serializable] sealed class CandidateDto { public string id; public float score; public ProfileDto[] profiles; }
-        [Serializable] sealed class ExperimentDto { public int jobs; public double wallClockMilliseconds; public CandidateDto baseline; public CandidateDto[] candidates; }
+        [Serializable] sealed class ProfileDto { public string profile; public int runs; public float winRate; public float averageDurationSeconds; public float winRatePenalty; public float durationPenalty; public float score; }
+        [Serializable] sealed class WaveDto { public int killGoal; public float spawnInterval; public float moveSpeed; public float heavySpawnChance; public int maxConcurrentEnemies; }
+        [Serializable] sealed class CandidateDto { public string id; public float score; public WaveDto[] waves; public ProfileDto[] profiles; }
+        [Serializable] sealed class ObjectiveProfileDto { public string profile; public float minimumWinRate; public float maximumWinRate; public float minimumDurationSeconds; public float maximumDurationSeconds; public float weight; }
+        [Serializable] sealed class ExperimentDto { public string experimentId; public string createdUtc; public int[] seeds; public int candidateCount; public int iterations; public float simulationSpeed; public string executionMode; public int workerCount; public int jobs; public double wallClockMilliseconds; public float totalSimulatedSeconds; public double runsPerMinute; public ObjectiveProfileDto[] objective; public CandidateDto baseline; public CandidateDto[] candidates; }
 
-        public static string Serialize(BalanceSearchResult result, int jobs, double wallClockMilliseconds)
+        public static string Serialize(BalanceExperimentDefinition definition, BalanceSearchResult result, int jobs, double wallClockMilliseconds, float totalSimulatedSeconds, float speed, SimulationExecutionMode mode, int workers)
         {
-            if (result == null) throw new ArgumentNullException(nameof(result));
+            if (definition == null || result == null) throw new ArgumentNullException(definition == null ? nameof(definition) : nameof(result));
             var candidates = new CandidateDto[result.RankedCandidates.Count];
             for (var index = 0; index < candidates.Length; index++) candidates[index] = Convert(result.RankedCandidates[index]);
-            return JsonUtility.ToJson(new ExperimentDto { jobs = jobs, wallClockMilliseconds = wallClockMilliseconds, baseline = Convert(result.Baseline), candidates = candidates }, true);
+            var objective = new ObjectiveProfileDto[definition.Objective.Profiles.Count];
+            for (var index = 0; index < objective.Length; index++) { var p = definition.Objective.Profiles[index]; objective[index] = new ObjectiveProfileDto { profile = p.Profile.ToString(), minimumWinRate = p.MinimumWinRate, maximumWinRate = p.MaximumWinRate, minimumDurationSeconds = p.MinimumAverageDurationSeconds, maximumDurationSeconds = p.MaximumAverageDurationSeconds, weight = p.Weight }; }
+            var seeds = new int[definition.Seeds.Count]; for (var index = 0; index < seeds.Length; index++) seeds[index] = definition.Seeds[index];
+            return JsonUtility.ToJson(new ExperimentDto { experimentId = "balance-experiment", createdUtc = DateTime.UtcNow.ToString("O"), seeds = seeds, candidateCount = definition.CandidateCount, iterations = definition.Iterations, simulationSpeed = speed, executionMode = mode.ToString(), workerCount = workers, jobs = jobs, wallClockMilliseconds = wallClockMilliseconds, totalSimulatedSeconds = totalSimulatedSeconds, runsPerMinute = wallClockMilliseconds <= 0d ? 0d : jobs * 60000d / wallClockMilliseconds, objective = objective, baseline = Convert(result.Baseline), candidates = candidates }, true);
         }
 
         static CandidateDto Convert(BalanceCandidateEvaluation evaluation)
@@ -154,9 +170,11 @@ namespace RealRail
             for (var index = 0; index < profiles.Length; index++)
             {
                 var profile = evaluation.Profiles[index];
-                profiles[index] = new ProfileDto { profile = profile.Profile.ToString(), runs = profile.Statistics.RunCount, winRate = profile.Statistics.WinRate, averageDurationSeconds = profile.Statistics.AverageDurationSeconds, score = profile.WeightedScore };
+                profiles[index] = new ProfileDto { profile = profile.Profile.ToString(), runs = profile.Statistics.RunCount, winRate = profile.Statistics.WinRate, averageDurationSeconds = profile.Statistics.AverageDurationSeconds, winRatePenalty = profile.WinRatePenalty, durationPenalty = profile.DurationPenalty, score = profile.WeightedScore };
             }
-            return new CandidateDto { id = evaluation.Candidate.Id, score = evaluation.Score, profiles = profiles };
+            var waves = new WaveDto[evaluation.Candidate.Configuration.WaveCount];
+            for (var index = 0; index < waves.Length; index++) { var wave = evaluation.Candidate.Configuration.GetWave(index); waves[index] = new WaveDto { killGoal = wave.KillGoal, spawnInterval = wave.SpawnInterval, moveSpeed = wave.MoveSpeed, heavySpawnChance = wave.HeavySpawnChance, maxConcurrentEnemies = wave.MaxConcurrentEnemies }; }
+            return new CandidateDto { id = evaluation.Candidate.Id, score = evaluation.Score, waves = waves, profiles = profiles };
         }
     }
 }

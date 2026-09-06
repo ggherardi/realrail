@@ -15,6 +15,10 @@ namespace RealRail.Editor
         int _experimentCandidates = 2;
         int _experimentIterations = 1;
         int _experimentSeedCount = 2;
+        float _averageMinWinRate = .15f, _averageMaxWinRate = .45f;
+        float _strongMinWinRate = .35f, _strongMaxWinRate = .65f;
+        float _perfectMinWinRate = .55f, _perfectMaxWinRate = .85f;
+        float _minimumDurationSeconds = 20f, _maximumDurationSeconds = 45f;
         string _status = "Idle";
         SimulationRunner _runner;
         SimulationExperimentRunner _experimentRunner;
@@ -85,6 +89,11 @@ namespace RealRail.Editor
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Bounded Balance Experiment", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Development experiment targets only — not approved production balance.", MessageType.Info);
+            DrawRange("Average win rate", ref _averageMinWinRate, ref _averageMaxWinRate, 0f, 1f);
+            DrawRange("Strong win rate", ref _strongMinWinRate, ref _strongMaxWinRate, 0f, 1f);
+            DrawRange("Perfect-ish win rate", ref _perfectMinWinRate, ref _perfectMaxWinRate, 0f, 1f);
+            DrawRange("Run duration (seconds)", ref _minimumDurationSeconds, ref _maximumDurationSeconds, 0f, 3600f);
             _experimentCandidates = EditorGUILayout.IntField("Candidates per Iteration", _experimentCandidates);
             _experimentIterations = EditorGUILayout.IntField("Iterations", _experimentIterations);
             _experimentSeedCount = EditorGUILayout.IntField("Seeds per Profile", _experimentSeedCount);
@@ -105,6 +114,7 @@ namespace RealRail.Editor
                 _status = "Experiment stopped";
             }
             if (_latestExperiment != null) DrawExperiment(_latestExperiment);
+            if (_experimentRunner != null && _latestExperiment != null) DrawThroughput(_experimentRunner);
 
             if (EditorApplication.isPlaying) Repaint();
         }
@@ -160,9 +170,9 @@ namespace RealRail.Editor
             for (var index = 0; index < seeds.Length; index++) seeds[index] = RunRandomContext.SeedForRun(_seed, index);
             var objective = new BalanceObjective(new[]
             {
-                new BalanceProfileObjective(BotProfileId.Average, 0f, 1f),
-                new BalanceProfileObjective(BotProfileId.Strong, 0f, 1f),
-                new BalanceProfileObjective(BotProfileId.PerfectIsh, 0f, 1f)
+                new BalanceProfileObjective(BotProfileId.Average, _averageMinWinRate, _averageMaxWinRate, _minimumDurationSeconds, _maximumDurationSeconds),
+                new BalanceProfileObjective(BotProfileId.Strong, _strongMinWinRate, _strongMaxWinRate, _minimumDurationSeconds, _maximumDurationSeconds),
+                new BalanceProfileObjective(BotProfileId.PerfectIsh, _perfectMinWinRate, _perfectMaxWinRate, _minimumDurationSeconds, _maximumDurationSeconds)
             });
             var director = Object.FindAnyObjectByType<WaveDirector>();
             if (director == null)
@@ -224,6 +234,28 @@ namespace RealRail.Editor
             EditorGUILayout.LabelField(label + " — score", candidate.Score.ToString("0.###"));
             foreach (var profile in candidate.Profiles)
                 EditorGUILayout.LabelField("  " + BotProfile.FromId(profile.Profile).Label, profile.Statistics.WinRate.ToString("P1") + ", " + profile.Statistics.AverageDurationSeconds.ToString("0.##") + "s, " + profile.Statistics.RunCount + " runs");
+        }
+
+        static void DrawRange(string label, ref float minimum, ref float maximum, float lower, float upper)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(label);
+            minimum = Mathf.Clamp(EditorGUILayout.FloatField(minimum), lower, upper);
+            maximum = Mathf.Clamp(EditorGUILayout.FloatField(maximum), lower, upper);
+            if (maximum < minimum) maximum = minimum;
+            EditorGUILayout.EndHorizontal();
+        }
+
+        static void DrawThroughput(SimulationExperimentRunner runner)
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Measured Execution", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Completed jobs", runner.CompletedJobCount.ToString());
+            EditorGUILayout.LabelField("Wall-clock duration", (runner.WallClockMilliseconds / 1000d).ToString("0.###") + "s");
+            EditorGUILayout.LabelField("Throughput", runner.RunsPerMinute.ToString("0.##") + " runs/min");
+            EditorGUILayout.LabelField("Simulated game time", runner.TotalSimulatedSeconds.ToString("0.##") + "s");
+            EditorGUILayout.LabelField("Workers / mode", runner.WorkerCount + " / " + runner.ExecutionMode);
+            EditorGUILayout.LabelField("Saved JSON", string.IsNullOrEmpty(runner.LatestResultPath) ? (runner.Failure ?? "not saved") : runner.LatestResultPath);
         }
     }
 }
