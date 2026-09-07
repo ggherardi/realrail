@@ -53,6 +53,23 @@ namespace RealRail.Tests
             Assert.IsFalse(Directory.Exists(Path.Combine(copy, "Library")));
         }
 
+        [Test]
+        public void WorkerProtocol_DeepCopiesWaveTriggersAndRunDiagnostics()
+        {
+            var source = new RunConfiguration(new[] { new WaveConfig(7, .25f, 3.5f, new[] { 2, 5 }, .2f, 3) });
+            var request = new SimulationBatchRequest("job", 99, BotProfileId.PerfectIsh, 4f, 30f, source, "experiment", "candidate");
+            var restored = SimulationBatchRequest.FromJson(request.ToJson());
+            Assert.IsTrue(restored.IsValid(out var failure), failure);
+            CollectionAssert.AreEqual(new[] { 2, 5 }, restored.CreateConfiguration().GetWave(0).UpgradeTriggerKillCounts);
+
+            var run = new RunResult(SessionState.Victory, 2f, 1, 3, 0, 1, new[] { new AcquiredUpgrade(UpgradeId.PowerShot, 2) }, 99, new[] { "PowerShot" }, new[] { UpgradeId.PowerShot });
+            var result = SimulationBatchResult.Succeeded("job", 99, run, 15d);
+            result.experimentId = "experiment"; result.candidateId = "candidate";
+            var resultJson = result.ToJson();
+            StringAssert.Contains("\"upgradeOffers\":[\"PowerShot\"]", resultJson);
+            StringAssert.Contains("\"finalBuild\":[{\"upgrade\":\"PowerShot\",\"level\":2}]", resultJson);
+        }
+
         SimulationBatchProcessCoordinator Create(int workers, Clock clock, Factory factory) => new SimulationBatchProcessCoordinator(workers, Root(), index => "worker-" + index, job => new UnityBatchWorkerCommand { FileName = "Unity", ExecuteMethod = "RealRail.Editor.SimulationBatchWorker.Execute", LogPath = Path.Combine(Root(), job.Request.jobId + ".log") }, factory, () => clock.Utc);
         SimulationBatchProcessExecution Enqueue(SimulationBatchProcessCoordinator coordinator, string id, int seed, float timeout = 0f) => coordinator.Enqueue(new SimulationBatchRequest(id, seed, BotProfileId.Strong, 4f, timeout, new RunConfiguration(new[] { new WaveConfig(2, .2f, 3f) }), "experiment", "candidate"), Path.Combine(Root(), id + ".json"));
         void WriteSuccess(SimulationBatchProcessExecution execution) { var result = SimulationBatchResult.Succeeded(execution.Request.jobId, execution.Request.seed, new RunResult(SessionState.Victory, 1f, 1, 1, 0, 0, Array.Empty<AcquiredUpgrade>(), execution.Request.seed), 1d); result.experimentId = execution.Request.experimentId; result.candidateId = execution.Request.candidateId; File.WriteAllText(execution.ResultPath, result.ToJson()); }
