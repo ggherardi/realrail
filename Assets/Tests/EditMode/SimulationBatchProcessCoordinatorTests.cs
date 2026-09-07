@@ -23,6 +23,7 @@ namespace RealRail.Tests
             clock.Advance(1); factory.Processes[0].Exit(0); WriteSuccess(first); coordinator.Tick();
             Assert.AreEqual(SimulationBatchProcessState.Succeeded, first.State);
             Assert.AreEqual(3, factory.Processes.Count);
+            clock.Advance(1); factory.Processes[1].Exit(0); WriteSuccess(coordinator.Executions[1]); coordinator.Tick();
             Assert.IsTrue(coordinator.ObservedOverlap);
             Assert.Greater(first.ProcessId, 0);
         }
@@ -72,7 +73,7 @@ namespace RealRail.Tests
 
         SimulationBatchProcessCoordinator Create(int workers, Clock clock, Factory factory) => new SimulationBatchProcessCoordinator(workers, Root(), index => "worker-" + index, job => new UnityBatchWorkerCommand { FileName = "Unity", ExecuteMethod = "RealRail.Editor.SimulationBatchWorker.Execute", LogPath = Path.Combine(Root(), job.Request.jobId + ".log") }, factory, () => clock.Utc);
         SimulationBatchProcessExecution Enqueue(SimulationBatchProcessCoordinator coordinator, string id, int seed, float timeout = 0f) => coordinator.Enqueue(new SimulationBatchRequest(id, seed, BotProfileId.Strong, 4f, timeout, new RunConfiguration(new[] { new WaveConfig(2, .2f, 3f) }), "experiment", "candidate"), Path.Combine(Root(), id + ".json"));
-        void WriteSuccess(SimulationBatchProcessExecution execution) { var result = SimulationBatchResult.Succeeded(execution.Request.jobId, execution.Request.seed, new RunResult(SessionState.Victory, 1f, 1, 1, 0, 0, Array.Empty<AcquiredUpgrade>(), execution.Request.seed), 1d); result.experimentId = execution.Request.experimentId; result.candidateId = execution.Request.candidateId; File.WriteAllText(execution.ResultPath, result.ToJson()); }
+        void WriteSuccess(SimulationBatchProcessExecution execution) { var result = SimulationBatchResult.Succeeded(execution.Request.jobId, execution.Request.seed, new RunResult(SessionState.Victory, 1f, 1, 1, 0, 0, Array.Empty<AcquiredUpgrade>(), execution.Request.seed), 1d); result.experimentId = execution.Request.experimentId; result.candidateId = execution.Request.candidateId; result.profile = execution.Request.profile; File.WriteAllText(execution.ResultPath, result.ToJson()); }
         string Root() { if (_root == null) { _root = Path.Combine(Path.GetTempPath(), "RealRail-Coordinator-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(_root); } return _root; }
 
         sealed class Clock { public DateTime Utc { get; private set; } = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc); public void Advance(double seconds) => Utc = Utc.AddSeconds(seconds); }

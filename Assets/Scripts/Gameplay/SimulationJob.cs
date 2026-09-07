@@ -6,7 +6,11 @@ using UnityEngine;
 namespace RealRail
 {
     public enum SimulationJobState { Queued, Running, Succeeded, Failed, Cancelled, TimedOut }
-    public enum SimulationExecutionMode { AuthoredSceneMainThreadAccelerated }
+    public enum SimulationExecutionMode
+    {
+        AuthoredSceneMainThreadAccelerated,
+        ExternalBatchHeadless
+    }
 
     /// <summary>Describes process-level fan-out. A worker never shares a Unity scene with another worker.</summary>
     public sealed class SimulationWorkerPlan

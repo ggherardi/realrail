@@ -73,7 +73,7 @@ namespace RealRail
     [Serializable]
     public sealed class SimulationBatchResult
     {
-        public string jobId; public string experimentId; public string candidateId; public int seed; public string state; public string failure;
+        public string jobId; public string experimentId; public string candidateId; public BotProfileId profile; public int seed; public string state; public string failure;
         public int workerProcessId; public string startedUtc; public string completedUtc; public double wallClockMilliseconds;
         public float durationSeconds; public int finalWaveReached; public bool victory; public int enemiesKilled; public int enemiesLeaked; public int playerDamageTaken;
         public string[] upgradeOffers; public string[] upgradeSelections; public SimulationBatchUpgrade[] finalBuild;

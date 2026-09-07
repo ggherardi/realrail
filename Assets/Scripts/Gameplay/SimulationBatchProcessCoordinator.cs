@@ -163,7 +163,11 @@ namespace RealRail
                 if (string.IsNullOrWhiteSpace(execution.ResultPath) || !File.Exists(execution.ResultPath)) { Fail(execution, "Worker exited successfully but did not write its result file."); return; }
                 var result = SimulationBatchResult.FromJson(File.ReadAllText(execution.ResultPath));
                 if (result == null || result.state != SimulationJobState.Succeeded.ToString()) { Fail(execution, result != null ? result.failure : "Malformed worker result JSON."); return; }
-                if (result.experimentId != execution.Request.experimentId || result.jobId != execution.Request.jobId || result.candidateId != execution.Request.candidateId || result.seed != execution.Request.seed) { Fail(execution, "Worker result does not match its immutable request."); return; }
+                if (result.experimentId != execution.Request.experimentId || result.jobId != execution.Request.jobId || result.candidateId != execution.Request.candidateId || result.profile != execution.Request.profile || result.seed != execution.Request.seed)
+                {
+                    Fail(execution, "Worker result does not match its immutable request.");
+                    return;
+                }
                 execution.Result = result; execution.State = SimulationBatchProcessState.Succeeded; execution.EndedUtc = _utcNow();
             }
             catch (Exception exception) { Fail(execution, "Could not read worker result: " + exception.Message); }

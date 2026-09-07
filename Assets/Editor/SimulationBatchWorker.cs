@@ -43,6 +43,11 @@ namespace RealRail.Editor
                 _startedUtc = DateTime.UtcNow.ToString("O");
                 _stopwatch = Stopwatch.StartNew();
                 EditorSceneManager.OpenScene(GameplayScenePath, OpenSceneMode.Single);
+                // This disposable worker project enters Play Mode to exercise the authored runtime. Retain
+                // the immutable request and editor callbacks across that transition; production settings
+                // are never touched because workers use isolated project copies.
+                EditorSettings.enterPlayModeOptionsEnabled = true;
+                EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.DisableDomainReload;
                 EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
                 EditorApplication.update += Tick;
                 EditorApplication.isPlaying = true;
@@ -129,6 +134,7 @@ namespace RealRail.Editor
             _stopwatch?.Stop();
             result.experimentId = _request != null ? _request.experimentId : null;
             result.candidateId = _request != null ? _request.candidateId : null;
+            result.profile = _request != null ? _request.profile : BotProfileId.Average;
             result.workerProcessId = System.Diagnostics.Process.GetCurrentProcess().Id;
             result.startedUtc = _startedUtc;
             result.completedUtc = DateTime.UtcNow.ToString("O");

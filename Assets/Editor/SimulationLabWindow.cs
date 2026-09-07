@@ -15,6 +15,8 @@ namespace RealRail.Editor
         int _experimentCandidates = 2;
         int _experimentIterations = 1;
         int _experimentSeedCount = 2;
+        SimulationLabExecutionMode _experimentMode = SimulationLabExecutionMode.DebugVisiblePlayMode;
+        int _batchWorkerCount = 1;
         float _averageMinWinRate = .15f, _averageMaxWinRate = .45f;
         float _strongMinWinRate = .35f, _strongMaxWinRate = .65f;
         float _perfectMinWinRate = .55f, _perfectMaxWinRate = .85f;
@@ -22,6 +24,7 @@ namespace RealRail.Editor
         string _status = "Idle";
         SimulationRunner _runner;
         SimulationExperimentRunner _experimentRunner;
+        HeadlessSimulationExperiment _headlessExperiment;
         RunStatistics _latestStatistics;
         BalanceSearchResult _latestExperiment;
 
@@ -97,14 +100,20 @@ namespace RealRail.Editor
             _experimentCandidates = EditorGUILayout.IntField("Candidates per Iteration", _experimentCandidates);
             _experimentIterations = EditorGUILayout.IntField("Iterations", _experimentIterations);
             _experimentSeedCount = EditorGUILayout.IntField("Seeds per Profile", _experimentSeedCount);
-            EditorGUILayout.HelpBox("Runs copied candidate configurations through the real scene for Average, Strong, and Perfect-ish. Candidate results never modify the authored baseline. Worker counts above one require separate Unity processes; this Lab session stays safely single-process.", MessageType.Info);
+            _experimentMode = (SimulationLabExecutionMode)EditorGUILayout.EnumPopup("Execution Mode", _experimentMode);
+            if (_experimentMode == SimulationLabExecutionMode.BatchHeadlessWorkers)
+                _batchWorkerCount = Mathf.Clamp(EditorGUILayout.IntField("Worker Count", _batchWorkerCount), 1, 8);
+            EditorGUILayout.HelpBox(_experimentMode == SimulationLabExecutionMode.DebugVisiblePlayMode
+                ? "Debug mode runs copied candidate configurations through the real visible SampleScene. Candidate results never modify the authored baseline."
+                : "Batch mode runs the same authored SampleScene in separate Unity -batchmode -nographics worker processes. Worker projects isolate Assets, Packages, and ProjectSettings; Libraries are never shared.", MessageType.Info);
             var canExperiment = _experimentCandidates > 0 && _experimentIterations > 0 && _experimentSeedCount > 0 && _simulationSpeed > 0f &&
-                (!EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isPlaying) && (_runner == null || !_runner.IsRunningBatch) && (_experimentRunner == null || !_experimentRunner.IsRunning);
+                (_experimentMode == SimulationLabExecutionMode.BatchHeadlessWorkers || (!EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isPlaying)) && (_runner == null || !_runner.IsRunningBatch) && (_experimentRunner == null || !_experimentRunner.IsRunning) && (_headlessExperiment == null || !_headlessExperiment.IsRunning);
             using (new EditorGUI.DisabledScope(!canExperiment))
             {
                 if (GUILayout.Button("Run Experiment"))
                 {
-                    if (EditorApplication.isPlaying) StartExperiment();
+                    if (_experimentMode == SimulationLabExecutionMode.BatchHeadlessWorkers) StartHeadlessExperiment();
+                    else if (EditorApplication.isPlaying) StartExperiment();
                     else { _status = "Starting Play Mode for experiment"; EditorApplication.isPlaying = true; }
                 }
             }
@@ -113,8 +122,14 @@ namespace RealRail.Editor
                 _experimentRunner.StopExperiment();
                 _status = "Experiment stopped";
             }
+            if (_headlessExperiment != null && _headlessExperiment.IsRunning && GUILayout.Button("Stop Experiment"))
+            {
+                _headlessExperiment.Cancel();
+                _status = "Batch experiment cancelled";
+            }
             if (_latestExperiment != null) DrawExperiment(_latestExperiment);
             if (_experimentRunner != null && _latestExperiment != null) DrawThroughput(_experimentRunner);
+            if (_headlessExperiment != null && (_latestExperiment != null || _headlessExperiment.IsRunning)) DrawThroughput(_headlessExperiment);
 
             if (EditorApplication.isPlaying) Repaint();
         }
@@ -166,6 +181,34 @@ namespace RealRail.Editor
             _experimentRunner.ConfigureForTests(_runner, bot);
             _experimentRunner.ExperimentCompleted -= OnExperimentCompleted;
             _experimentRunner.ExperimentCompleted += OnExperimentCompleted;
+            var director = Object.FindAnyObjectByType<WaveDirector>();
+            if (director == null)
+            {
+                _status = "Failed: SimulationRunner is missing WaveDirector";
+                return;
+            }
+            var definition = CreateExperimentDefinition(director.CreateBaselineConfiguration());
+            _latestExperiment = null;
+            _status = _experimentRunner.StartExperiment(definition, _simulationSpeed) ? "Experiment running" : "Failed to start experiment";
+        }
+
+        void StartHeadlessExperiment()
+        {
+            try
+            {
+                var director = Object.FindAnyObjectByType<WaveDirector>();
+                if (director == null) { _status = "Failed: open SampleScene so its WaveDirector baseline can be read"; return; }
+                _latestExperiment = null;
+                _headlessExperiment = new HeadlessSimulationExperiment(CreateExperimentDefinition(director.CreateBaselineConfiguration()), _simulationSpeed, _batchWorkerCount);
+                _headlessExperiment.Completed += OnHeadlessExperimentCompleted;
+                _headlessExperiment.Failed += OnHeadlessExperimentFailed;
+                _status = "Batch experiment preparing " + _batchWorkerCount + " headless worker project(s)";
+            }
+            catch (System.Exception exception) { _status = "Failed to prepare batch experiment: " + exception.Message; }
+        }
+
+        BalanceExperimentDefinition CreateExperimentDefinition(RunConfiguration baseline)
+        {
             var seeds = new int[_experimentSeedCount];
             for (var index = 0; index < seeds.Length; index++) seeds[index] = RunRandomContext.SeedForRun(_seed, index);
             var objective = new BalanceObjective(new[]
@@ -174,17 +217,17 @@ namespace RealRail.Editor
                 new BalanceProfileObjective(BotProfileId.Strong, _strongMinWinRate, _strongMaxWinRate, _minimumDurationSeconds, _maximumDurationSeconds),
                 new BalanceProfileObjective(BotProfileId.PerfectIsh, _perfectMinWinRate, _perfectMaxWinRate, _minimumDurationSeconds, _maximumDurationSeconds)
             });
-            var director = Object.FindAnyObjectByType<WaveDirector>();
-            if (director == null)
-            {
-                _status = "Failed: SimulationRunner is missing WaveDirector";
-                return;
-            }
-            var definition = new BalanceExperimentDefinition(director.CreateBaselineConfiguration(), objective,
-                new BalanceCandidateConstraints(), seeds, _experimentCandidates, _experimentIterations, _seed);
-            _latestExperiment = null;
-            _status = _experimentRunner.StartExperiment(definition, _simulationSpeed) ? "Experiment running" : "Failed to start experiment";
+            return new BalanceExperimentDefinition(baseline, objective, new BalanceCandidateConstraints(), seeds, _experimentCandidates, _experimentIterations, _seed);
         }
+
+        void OnHeadlessExperimentCompleted(BalanceSearchResult result, string path)
+        {
+            _latestExperiment = result;
+            _status = "Batch experiment completed; JSON: " + path;
+            Repaint();
+        }
+
+        void OnHeadlessExperimentFailed(string failure) { _status = "Batch experiment failed: " + failure; Repaint(); }
 
         void OnExperimentCompleted(BalanceSearchResult result)
         {
@@ -204,6 +247,7 @@ namespace RealRail.Editor
         {
             if (_runner != null) _runner.BatchCompleted -= OnBatchCompleted;
             if (_experimentRunner != null) _experimentRunner.ExperimentCompleted -= OnExperimentCompleted;
+            if (_headlessExperiment != null) { _headlessExperiment.Completed -= OnHeadlessExperimentCompleted; _headlessExperiment.Failed -= OnHeadlessExperimentFailed; }
             _runner = null;
             _experimentRunner = null;
         }
@@ -257,5 +301,19 @@ namespace RealRail.Editor
             EditorGUILayout.LabelField("Workers / mode", runner.WorkerCount + " / " + runner.ExecutionMode);
             EditorGUILayout.LabelField("Saved JSON", string.IsNullOrEmpty(runner.LatestResultPath) ? (runner.Failure ?? "not saved") : runner.LatestResultPath);
         }
+
+        static void DrawThroughput(HeadlessSimulationExperiment experiment)
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Measured Batch Execution", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Completed jobs", experiment.SucceededJobs + " / " + experiment.CompletedJobs);
+            EditorGUILayout.LabelField("Wall-clock duration", (experiment.WallClockMilliseconds / 1000d).ToString("0.###") + "s");
+            EditorGUILayout.LabelField("Throughput", experiment.RunsPerMinute.ToString("0.##") + " runs/min");
+            EditorGUILayout.LabelField("Simulated game time", experiment.TotalSimulatedSeconds.ToString("0.##") + "s");
+            EditorGUILayout.LabelField("Workers / mode", experiment.WorkerCount + " / " + SimulationExecutionMode.ExternalBatchHeadless);
+            EditorGUILayout.LabelField("Observed process overlap", experiment.ObservedOverlap ? "YES" : "not yet observed");
+        }
+
+        enum SimulationLabExecutionMode { DebugVisiblePlayMode, BatchHeadlessWorkers }
     }
 }
