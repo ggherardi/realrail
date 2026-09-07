@@ -63,7 +63,7 @@ namespace RealRail.Tests
             Assert.NotNull(selectionView);
             Assert.AreEqual(3, Property(selectionView, "choiceButtons").arraySize);
 
-            var eventSystems = Object.FindObjectsByType<EventSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var eventSystems = Object.FindObjectsByType<EventSystem>(FindObjectsInactive.Include);
             Assert.AreEqual(1, eventSystems.Length, "The selection buttons require one active scene EventSystem.");
             Assert.NotNull(eventSystems[0].GetComponent("InputSystemUIInputModule"), "The project uses the new Input System for pointer/touch UI input.");
             var buttons = selectionView.GetComponentsInChildren<Button>(true);
