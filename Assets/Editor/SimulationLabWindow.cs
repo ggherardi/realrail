@@ -84,8 +84,13 @@ namespace RealRail.Editor
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Status", _status);
-            var completed = _runner != null ? _runner.CompletedRunCount : 0;
-            EditorGUILayout.LabelField("Completed Runs", completed + " / " + _requestedRuns);
+            if (_experimentMode == SimulationLabExecutionMode.BatchHeadlessWorkers && _headlessExperiment != null)
+                EditorGUILayout.LabelField("Experiment Jobs", _headlessExperiment.TerminalJobs + " / " + _headlessExperiment.TotalJobs);
+            else
+            {
+                var completed = _runner != null ? _runner.CompletedRunCount : 0;
+                EditorGUILayout.LabelField("Completed Runs", completed + " / " + _requestedRuns);
+            }
             EditorGUILayout.LabelField("Selected Profile", BotProfile.FromId(_profile).Label);
 
             if (_latestStatistics != null)
@@ -138,7 +143,7 @@ namespace RealRail.Editor
             if (_latestExperiment != null) DrawExperiment(_latestExperiment);
             if (_experimentRunner != null && _latestExperiment != null) DrawThroughput(_experimentRunner);
             if (_headlessExperiment != null && (_latestExperiment != null || _headlessExperiment.IsRunning)) DrawThroughput(_headlessExperiment);
-            if (_batchStartPending || (_headlessExperiment != null && _headlessExperiment.IsRunning)) DrawHeadlessProgress();
+            if (_batchStartPending || _headlessExperiment != null) DrawHeadlessProgress();
             if (_status.StartsWith("Batch experiment failed:", System.StringComparison.Ordinal))
                 EditorGUILayout.TextArea(_status, GUILayout.MinHeight(54f));
 
@@ -351,7 +356,7 @@ namespace RealRail.Editor
             EditorGUILayout.LabelField("Batch Worker Progress", EditorStyles.boldLabel);
             if (_batchStartPending) { EditorGUILayout.LabelField("Status", "Preparing isolated worker projects"); return; }
             if (_headlessExperiment == null) return;
-            EditorGUILayout.LabelField("Status", "Running");
+            EditorGUILayout.LabelField("Status", _headlessExperiment.IsRunning ? "Running" : (_headlessExperiment.FailureCount > 0 ? "Failed" : "Completed"));
             EditorGUILayout.LabelField("Experiment ID", _headlessExperiment.ExperimentId);
             EditorGUILayout.LabelField("Completed jobs", _headlessExperiment.TerminalJobs + " / " + _headlessExperiment.TotalJobs);
             EditorGUILayout.LabelField("Active workers", _headlessExperiment.ActiveWorkers + " / " + _headlessExperiment.WorkerCount);

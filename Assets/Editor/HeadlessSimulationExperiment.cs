@@ -55,7 +55,7 @@ namespace RealRail.Editor
             _coordinator.Tick();
             if (!_coordinator.IsComplete) return;
             var failures = new List<string>(); foreach (var e in _coordinator.Executions) if (e.State != SimulationBatchProcessState.Succeeded) failures.Add(e.Failure);
-            if (failures.Count > 0) { FinishFailure(string.Join("\n", failures)); return; }
+            if (failures.Count > 0) { FinishFailure(failures[0] + (failures.Count > 1 ? "\nAdditional failed jobs: " + (failures.Count - 1) : string.Empty)); return; }
             try { FinishSuccess(); } catch (Exception e) { FinishFailure(e.Message); }
         }
         void BuildAndEnqueue()

@@ -19,10 +19,13 @@ namespace RealRail.Tests
             var first = Enqueue(coordinator, "one", 1); Enqueue(coordinator, "two", 2); var queued = Enqueue(coordinator, "three", 3);
             coordinator.Tick();
             Assert.AreEqual(2, coordinator.ActiveCount);
+            Assert.AreEqual(0, first.WorkerSlot);
+            Assert.AreEqual(1, coordinator.Executions[1].WorkerSlot);
             Assert.AreEqual(SimulationBatchProcessState.Queued, queued.State);
             clock.Advance(1); factory.Processes[0].Exit(0); WriteSuccess(first); coordinator.Tick();
             Assert.AreEqual(SimulationBatchProcessState.Succeeded, first.State);
             Assert.AreEqual(3, factory.Processes.Count);
+            Assert.AreEqual(0, queued.WorkerSlot, "A freed worker-0 project must be reused; active worker-1 remains reserved.");
             clock.Advance(1); factory.Processes[1].Exit(0); WriteSuccess(coordinator.Executions[1]); coordinator.Tick();
             Assert.IsTrue(coordinator.ObservedOverlap);
             Assert.Greater(first.ProcessId, 0);

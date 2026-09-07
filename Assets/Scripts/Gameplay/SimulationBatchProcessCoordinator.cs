@@ -92,6 +92,8 @@ namespace RealRail
         public SimulationBatchResult Result { get; internal set; }
         public string Failure { get; internal set; }
         public int ProcessId { get; internal set; }
+        public int WorkerSlot { get; internal set; } = -1;
+        public string LogPath { get; internal set; }
         public DateTime StartedUtc { get; internal set; }
         public DateTime EndedUtc { get; internal set; }
         internal IUnityBatchProcess Process { get; set; }
@@ -129,7 +131,7 @@ namespace RealRail
         public void Tick()
         {
             foreach (var execution in _all) if (execution.State == SimulationBatchProcessState.Running) Inspect(execution);
-            while (!_cancelled && ActiveCount < WorkerCount && _pending.Count > 0) Launch(_pending.Dequeue(), ActiveCount);
+            while (!_cancelled && ActiveCount < WorkerCount && _pending.Count > 0) Launch(_pending.Dequeue(), AvailableSlot());
         }
 
         public void Cancel()
@@ -147,6 +149,7 @@ namespace RealRail
                 var requestPath = Path.Combine(_requestsRoot, execution.Request.jobId + ".request.json");
                 File.WriteAllText(requestPath, execution.Request.ToJson(true));
                 var command = _commandFor(execution); command.ProjectPath = _projectForSlot(slot); command.RequestPath = requestPath; command.ResultPath = execution.ResultPath;
+                execution.WorkerSlot = slot; execution.LogPath = command.LogPath;
                 execution.Process = _factory.Start(command); execution.ProcessId = execution.Process.Id; execution.StartedUtc = _utcNow(); execution.State = SimulationBatchProcessState.Running;
             }
             catch (Exception exception) { Fail(execution, "Could not launch worker: " + exception.Message); }
@@ -157,12 +160,12 @@ namespace RealRail
             var timeout = execution.Request.timeoutSeconds;
             if (timeout > 0f && (_utcNow() - execution.StartedUtc).TotalSeconds > timeout) { execution.Process.Kill(); execution.State = SimulationBatchProcessState.TimedOut; execution.Failure = "Worker exceeded timeout of " + timeout + " seconds."; execution.EndedUtc = _utcNow(); return; }
             if (!execution.Process.HasExited) return;
-            if (execution.Process.ExitCode != 0) { Fail(execution, "Worker exited with code " + execution.Process.ExitCode + "."); return; }
+            if (execution.Process.ExitCode != 0) { Fail(execution, "Worker " + execution.ProcessId + " / job " + execution.Request.jobId + " exited with code " + execution.Process.ExitCode + ". Log: " + execution.LogPath); return; }
             try
             {
-                if (string.IsNullOrWhiteSpace(execution.ResultPath) || !File.Exists(execution.ResultPath)) { Fail(execution, "Worker exited successfully but did not write its result file."); return; }
+                if (string.IsNullOrWhiteSpace(execution.ResultPath) || !File.Exists(execution.ResultPath)) { Fail(execution, "Worker " + execution.ProcessId + " / job " + execution.Request.jobId + " exited successfully but did not write its result file. Log: " + execution.LogPath); return; }
                 var result = SimulationBatchResult.FromJson(File.ReadAllText(execution.ResultPath));
-                if (result == null || result.state != SimulationJobState.Succeeded.ToString()) { Fail(execution, result != null ? result.failure : "Malformed worker result JSON."); return; }
+                if (result == null || result.state != SimulationJobState.Succeeded.ToString()) { Fail(execution, "Worker " + execution.ProcessId + " / job " + execution.Request.jobId + " failed: " + (result != null ? result.failure : "Malformed worker result JSON.") + " Log: " + execution.LogPath); return; }
                 if (result.experimentId != execution.Request.experimentId || result.jobId != execution.Request.jobId || result.candidateId != execution.Request.candidateId || result.profile != execution.Request.profile || result.seed != execution.Request.seed)
                 {
                     Fail(execution, "Worker result does not match its immutable request.");
@@ -174,5 +177,16 @@ namespace RealRail
         }
 
         void Fail(SimulationBatchProcessExecution execution, string failure) { execution.State = SimulationBatchProcessState.Failed; execution.Failure = failure ?? "Unknown coordinator failure."; execution.EndedUtc = _utcNow(); }
+        int AvailableSlot()
+        {
+            for (var slot = 0; slot < WorkerCount; slot++)
+            {
+                var occupied = false;
+                foreach (var execution in _all)
+                    if (execution.State == SimulationBatchProcessState.Running && execution.WorkerSlot == slot) { occupied = true; break; }
+                if (!occupied) return slot;
+            }
+            throw new InvalidOperationException("No free worker project slot is available.");
+        }
     }
 }
