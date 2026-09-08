@@ -15,6 +15,7 @@ namespace RealRail
         readonly HashSet<Health> _hitTargets = new HashSet<Health>();
         int _configuredDamage = 1;
         int _distinctHitCapacity = 1;
+        float _configuredSpeed;
         bool _resolved;
         bool _isRailgunPrototype;
         Vector3 _normalVisualScale;
@@ -23,6 +24,7 @@ namespace RealRail
         public int DistinctHitCount => _hitTargets.Count;
         public bool IsResolved => _resolved;
         public bool IsRailgunPrototype => _isRailgunPrototype;
+        public float ConfiguredSpeed => _configuredSpeed;
 
         public void Initialize(GameSession session)
         {
@@ -35,11 +37,12 @@ namespace RealRail
             Initialize(session, configuredDamage, distinctHitCapacity, false);
         }
 
-        public void Initialize(GameSession session, int configuredDamage, int distinctHitCapacity, bool isRailgunPrototype)
+        public void Initialize(GameSession session, int configuredDamage, int distinctHitCapacity, bool isRailgunPrototype, float projectileSpeed = 0f)
         {
             _session = session;
             _configuredDamage = Mathf.Max(1, configuredDamage);
             _distinctHitCapacity = Mathf.Max(1, distinctHitCapacity);
+            _configuredSpeed = projectileSpeed > 0f ? projectileSpeed : speed;
             _isRailgunPrototype = isRailgunPrototype;
             _hitTargets.Clear();
             _resolved = false;
@@ -54,7 +57,7 @@ namespace RealRail
             }
 
             var position = transform.position;
-            position.z += speed * Time.deltaTime;
+            position.z += _configuredSpeed * Time.deltaTime;
             transform.position = position;
 
             if (position.z >= maxZ)
@@ -133,6 +136,7 @@ namespace RealRail
             block.SetColor("_Color", color);
             block.SetColor("_EmissionColor", color * 2f);
             _visualRenderer.SetPropertyBlock(block);
+            RailgunTracer.Create(transform.position, maxZ, _visualRenderer.sharedMaterial, color);
         }
 
         static bool IsInLayerMask(int layer, LayerMask mask)

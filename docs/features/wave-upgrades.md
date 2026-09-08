@@ -65,7 +65,7 @@ Keys `1` through `4` apply exactly one level of Double Shot, Rapid Fire, Piercin
 
 **EXPERIMENTAL / VISUAL NOT VALIDATED:** `F3` toggles the Railgun prototype; while enabled, one normal auto-fire event becomes a Railgun every 3 seconds. `F4` immediately fires one Railgun for rapid visual evaluation. `F5` injects an 18-enemy dense-horde burst through the current wave's normal spawn and accounting path. The compact debug HUD reports `RAILGUN PROTOTYPE: ON/OFF`.
 
-The prototype Railgun is deliberately not a reward, rarity, or Fusion-acquisition implementation. Its temporary tuning is 6 damage and 24 distinct enemy hits, enough to kill current 1-HP Grunts and 4-HP Heavies while leaving existing projectile kill, enemy death, Defense Line, and Wave behavior authoritative. Its simple cyan elongated projectile is a greybox trajectory cue, not final art. Future Fusion eligibility, persistence, UI, balance, VFX, and the remaining Fusion concepts are outside this milestone.
+The prototype Railgun is deliberately not a reward, rarity, or Fusion-acquisition implementation. Its temporary tuning is 6 damage and 24 distinct enemy hits, enough to kill current 1-HP Grunts and 4-HP Heavies while leaving existing projectile kill, enemy death, Defense Line, and Wave behavior authoritative. The Railgun travels at 80 units/second (about 3.6× normal projectile speed) and leaves a thin 0.14-second cyan tracer; this is a greybox trajectory cue, not final art. Future Fusion eligibility, persistence, UI, balance, VFX, and the remaining Fusion concepts are outside this milestone.
 
 ## Initial balance
 

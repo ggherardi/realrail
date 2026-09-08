@@ -14,13 +14,14 @@ namespace RealRail
 
     public readonly struct ShotConfiguration
     {
-        public ShotConfiguration(int projectileCount, float fireInterval, int damage, int distinctHitCapacity, bool isRailgunPrototype = false)
+        public ShotConfiguration(int projectileCount, float fireInterval, int damage, int distinctHitCapacity, bool isRailgunPrototype = false, float projectileSpeed = 0f)
         {
             ProjectileCount = projectileCount;
             FireInterval = fireInterval;
             Damage = damage;
             DistinctHitCapacity = distinctHitCapacity;
             IsRailgunPrototype = isRailgunPrototype;
+            ProjectileSpeed = projectileSpeed;
         }
 
         public int ProjectileCount { get; }
@@ -28,6 +29,8 @@ namespace RealRail
         public int Damage { get; }
         public int DistinctHitCapacity { get; }
         public bool IsRailgunPrototype { get; }
+        /// <summary>Optional per-shot override; zero preserves the projectile prefab's authored speed.</summary>
+        public float ProjectileSpeed { get; }
     }
 
     public readonly struct UpgradeApplication

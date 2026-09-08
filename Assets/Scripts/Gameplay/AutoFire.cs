@@ -71,7 +71,7 @@ namespace RealRail
             var instance = Instantiate(projectilePrefab, position, Quaternion.identity);
             instance.SetActive(true);
             var projectile = instance.GetComponent<Projectile>();
-            projectile.Initialize(session, shot.Damage, shot.DistinctHitCapacity, shot.IsRailgunPrototype);
+            projectile.Initialize(session, shot.Damage, shot.DistinctHitCapacity, shot.IsRailgunPrototype, shot.ProjectileSpeed);
         }
     }
 }

@@ -248,7 +248,7 @@ namespace RealRail.Tests
         {
             var owner = new GameObject("Railgun prototype");
             var prototype = owner.AddComponent<RailgunPrototype>();
-            prototype.ConfigureForTests(2.5f, 6, 24);
+            prototype.ConfigureForTests(2.5f, 6, 24, 80f);
             var upgrades = new UpgradeState();
 
             prototype.SetEnabled(true);
@@ -260,6 +260,7 @@ namespace RealRail.Tests
             Assert.IsTrue(shot.IsRailgunPrototype);
             Assert.AreEqual(6, shot.Damage);
             Assert.AreEqual(24, shot.DistinctHitCapacity);
+            Assert.AreEqual(80f, shot.ProjectileSpeed);
             Assert.AreEqual(0, upgrades.GetLevel(UpgradeId.PowerShot));
             Assert.AreEqual(0, upgrades.GetLevel(UpgradeId.PiercingShot));
             Object.DestroyImmediate(owner);
@@ -281,6 +282,7 @@ namespace RealRail.Tests
             second.SetMaxHealth(4);
 
             Assert.IsTrue(projectile.IsRailgunPrototype);
+            Assert.AreEqual(22f, projectile.ConfiguredSpeed, "No override must preserve the prefab-authored speed.");
             Assert.IsTrue(projectile.TryApplyHit(first));
             Assert.IsFalse(projectile.TryApplyHit(first));
             Assert.IsTrue(projectile.TryApplyHit(second));
@@ -291,6 +293,21 @@ namespace RealRail.Tests
 
             Object.DestroyImmediate(secondOwner);
             Object.DestroyImmediate(firstOwner);
+            Object.DestroyImmediate(projectileOwner);
+            Object.DestroyImmediate(sessionOwner);
+        }
+
+        [Test]
+        public void RailgunProjectile_UsesPrototypeSpeedOverrideWithoutChangingNormalSpeed()
+        {
+            var sessionOwner = new GameObject("Session");
+            var session = sessionOwner.AddComponent<GameSession>();
+            var projectileOwner = new GameObject("Railgun projectile");
+            var projectile = projectileOwner.AddComponent<Projectile>();
+
+            projectile.Initialize(session, 6, 24, true, 80f);
+
+            Assert.AreEqual(80f, projectile.ConfiguredSpeed);
             Object.DestroyImmediate(projectileOwner);
             Object.DestroyImmediate(sessionOwner);
         }

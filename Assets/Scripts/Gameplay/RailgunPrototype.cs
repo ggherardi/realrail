@@ -13,6 +13,7 @@ namespace RealRail
         [SerializeField, Min(0.25f)] float cadenceSeconds = 3f;
         [SerializeField, Min(1)] int damage = 6;
         [SerializeField, Min(1)] int distinctHitCapacity = 24;
+        [SerializeField, Min(1f)] float projectileSpeed = 80f;
 
         float _nextScheduledShotTime;
 
@@ -20,6 +21,7 @@ namespace RealRail
         public float CadenceSeconds => cadenceSeconds;
         public int Damage => damage;
         public int DistinctHitCapacity => distinctHitCapacity;
+        public float ProjectileSpeed => projectileSpeed;
         public event Action<bool> Changed;
 
         public void SetEnabled(bool enabled)
@@ -38,13 +40,14 @@ namespace RealRail
             return true;
         }
 
-        public ShotConfiguration GetShotConfiguration() => new ShotConfiguration(1, 0f, damage, distinctHitCapacity, true);
+        public ShotConfiguration GetShotConfiguration() => new ShotConfiguration(1, 0f, damage, distinctHitCapacity, true, projectileSpeed);
 
-        public void ConfigureForTests(float cadence, int prototypeDamage, int capacity)
+        public void ConfigureForTests(float cadence, int prototypeDamage, int capacity, float prototypeSpeed = 80f)
         {
             cadenceSeconds = Mathf.Max(0.25f, cadence);
             damage = Mathf.Max(1, prototypeDamage);
             distinctHitCapacity = Mathf.Max(1, capacity);
+            projectileSpeed = Mathf.Max(1f, prototypeSpeed);
         }
     }
 }
