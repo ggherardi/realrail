@@ -382,6 +382,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: RealRail::RealRail.CryoStormPrototype
   session: {fileID: 1495662729}
   enemySpawner: {fileID: 263408989}
+  player: {fileID: 1513487249}
   enabledForDebug: 0
   cadenceSeconds: 4
   maximumTargets: 10

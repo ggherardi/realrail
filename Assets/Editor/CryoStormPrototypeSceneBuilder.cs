@@ -17,12 +17,14 @@ namespace RealRail.Editor
             ConfigureEnemyPrefab();
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var systems = FindRoot(scene, "Systems");
+            var player = FindRoot(scene, "Player");
             var prototype = systems.GetComponent<CryoStormPrototype>() ?? systems.AddComponent<CryoStormPrototype>();
             var debug = systems.GetComponent<GameplayDebugController>();
             var hud = FindRoot(scene, "Canvas").transform.Find("GameplayDebugHud").GetComponent<GameplayDebugHud>();
 
             SetReference(prototype, "session", systems.GetComponentInChildren<GameSession>(true));
             SetReference(prototype, "enemySpawner", systems.GetComponentInChildren<EnemySpawner>(true));
+            SetReference(prototype, "player", player.transform);
             SetLayerMask(prototype, "enemyLayers", 1 << LayerMask.NameToLayer(GameplayLayers.Enemy));
             SetReference(debug, "cryoStormPrototype", prototype);
             SetReference(hud, "cryoStormPrototype", prototype);

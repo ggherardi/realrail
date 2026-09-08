@@ -127,9 +127,41 @@ namespace RealRail.Tests
             Object.DestroyImmediate(prototypeOwner);
         }
 
+        [Test]
+        public void InitialSelection_PrefersThePlayersLaneEvenWhenOppositeLaneIsCloser()
+        {
+            var spawnerOwner = new GameObject("Spawner");
+            var spawner = spawnerOwner.AddComponent<EnemySpawner>();
+            var left = CreateWaveEnemy(-3f);
+            var right = CreateWaveEnemy(3f);
+            AddActiveEnemy(spawner, left.GetComponent<WaveEnemy>());
+            AddActiveEnemy(spawner, right.GetComponent<WaveEnemy>());
+
+            Assert.IsTrue(spawner.TryGetNearestActiveEnemy(new Vector3(-4f, 0f, 20f), out var selected, -4f));
+            Assert.AreSame(left.GetComponent<WaveEnemy>(), selected);
+            Object.DestroyImmediate(left); Object.DestroyImmediate(right); Object.DestroyImmediate(spawnerOwner);
+        }
+
+        [Test]
+        public void InitialSelection_FallsBackToOppositeLaneWhenPlayersLaneHasNoTarget()
+        {
+            var spawnerOwner = new GameObject("Spawner");
+            var spawner = spawnerOwner.AddComponent<EnemySpawner>();
+            var right = CreateWaveEnemy(3f);
+            AddActiveEnemy(spawner, right.GetComponent<WaveEnemy>());
+
+            Assert.IsTrue(spawner.TryGetNearestActiveEnemy(new Vector3(-4f, 0f, 20f), out var selected, -4f));
+            Assert.AreSame(right.GetComponent<WaveEnemy>(), selected);
+            Object.DestroyImmediate(right); Object.DestroyImmediate(spawnerOwner);
+        }
+
         static WaveEnemy InvokeNearest(CryoStormPrototype prototype, Vector3 position) =>
             (WaveEnemy)typeof(CryoStormPrototype).GetMethod("FindNearestUnvisited", BindingFlags.Instance | BindingFlags.NonPublic)
                 .Invoke(prototype, new object[] { position });
+
+        static void AddActiveEnemy(EnemySpawner spawner, WaveEnemy enemy) =>
+            ((HashSet<WaveEnemy>)typeof(EnemySpawner).GetField("_activeEnemies", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(spawner)).Add(enemy);
 
         static GameObject CreateWaveEnemy(float x)
         {

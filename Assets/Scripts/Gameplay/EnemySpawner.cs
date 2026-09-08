@@ -26,18 +26,38 @@ namespace RealRail
         public int ActiveEnemyCount => _activeEnemyCount;
 
         /// <summary>Bounded query over the spawner-owned live wave actors; avoids scene-wide discovery for prototypes.</summary>
-        public bool TryGetNearestActiveEnemy(Vector3 position, out WaveEnemy nearest)
+        public bool TryGetNearestActiveEnemy(Vector3 position, out WaveEnemy nearest, float preferredLaneX = float.NaN)
         {
             nearest = null;
             var nearestDistance = float.MaxValue;
+            WaveEnemy fallback = null;
+            var fallbackDistance = float.MaxValue;
+            var preferLeftLane = preferredLaneX < 0f;
             foreach (var enemy in _activeEnemies)
             {
                 if (enemy == null) continue;
                 var distance = (enemy.transform.position - position).sqrMagnitude;
-                if (distance >= nearestDistance) continue;
-                nearest = enemy;
-                nearestDistance = distance;
+                if (float.IsNaN(preferredLaneX))
+                {
+                    if (distance >= nearestDistance) continue;
+                    nearest = enemy;
+                    nearestDistance = distance;
+                    continue;
+                }
+
+                if ((enemy.transform.position.x < 0f) == preferLeftLane)
+                {
+                    if (distance >= nearestDistance) continue;
+                    nearest = enemy;
+                    nearestDistance = distance;
+                }
+                else if (distance < fallbackDistance)
+                {
+                    fallback = enemy;
+                    fallbackDistance = distance;
+                }
             }
+            if (nearest == null && !float.IsNaN(preferredLaneX)) nearest = fallback;
             return nearest != null;
         }
 

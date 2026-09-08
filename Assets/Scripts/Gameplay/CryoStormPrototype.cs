@@ -12,6 +12,7 @@ namespace RealRail
 
         [SerializeField] GameSession session;
         [SerializeField] EnemySpawner enemySpawner;
+        [SerializeField] Transform player;
         [SerializeField] bool enabledForDebug;
         [SerializeField, Min(0.5f)] float cadenceSeconds = 4f;
         [SerializeField, Min(2)] int maximumTargets = 10;
@@ -51,11 +52,12 @@ namespace RealRail
             Changed?.Invoke(enabledForDebug);
         }
 
-        /// <summary>Starts one chain from the nearest active real wave enemy, if available.</summary>
+        /// <summary>Starts from the nearest active enemy in the player's lane, falling back only when that lane is empty.</summary>
         public bool TryActivate()
         {
             if (_isPropagating || session == null || !session.IsPlaying || enemySpawner == null ||
-                !enemySpawner.TryGetNearestActiveEnemy(transform.position, out var source)) return false;
+                !enemySpawner.TryGetNearestActiveEnemy(player != null ? player.position : transform.position, out var source,
+                    player != null ? player.position.x : float.NaN)) return false;
             StartCoroutine(Propagate(source));
             _nextActivationTime = Time.time + cadenceSeconds;
             return true;
