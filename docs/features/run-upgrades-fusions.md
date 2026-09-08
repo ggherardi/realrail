@@ -139,7 +139,7 @@ shows it is needed.
 | Elemental | Ice + Lightning | Cryo Storm | Lightning propagates Frost/control through the horde. |
 | Elemental | Ice + Fire | Thermal Shock | Heat/cold stress causes fracture/burst. |
 | Elemental | Fire + Poison | Napalm | Persistent incendiary zones. |
-| Elemental | Fire + Explosion | Volcano | Destructible lava/rock obstacle; enemies route around it where possible or attack it, taking heat/lava damage on contact/attack. It channels the horde temporarily, has HP, and breaks. |
+| Elemental | Fire + Explosion | Volcano | **Candidate / visual not validated:** a projectile impact creates a violent burst and a short-lived point that erupts several more times. The rejected v1 lane obstacle felt like tower-defense placement rather than a weapon evolution. |
 | Elemental | Poison + Explosion | Toxic Cloud | Persistent toxic contamination from explosions. |
 | Elemental | Lightning + Explosion | Thunderburst | Radial electrical propagation from explosive impacts. |
 | Elemental | Lightning + Poison | Neurotoxin | Paralysis/control; paralyzed enemies may create local congestion. |
@@ -210,7 +210,7 @@ mechanics, readability, and satisfaction before final art.
 
 | Fusion | Prototype focus |
 | --- | --- |
-| Volcano (Fire + Explosion) | Battlefield manipulation, destructible obstacle, routing/lateral movement, congestion, persistent-world-object readability. Formation has HP, damages attackers/contacting enemies, then breaks to reopen the path. |
+| Volcano (Fire + Explosion) | Impact eruption: weapon shot → impact burst → temporary volcanic point → a few discrete secondary eruptions. Volcano v1's destructible lane obstacle/steering direction is rejected after manual gameplay evaluation. |
 | Railgun (Power Shot + Piercing) | Horde reaction, tracer readability, a visible temporary corridor/hole through dense enemies, and impact fantasy. |
 | Cryo Storm (Ice + Lightning) | Elemental propagation, readable Frost chaining, and low VFX noise; favor fast sequencing over dozens of simultaneous bolts. |
 

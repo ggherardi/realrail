@@ -101,7 +101,7 @@ namespace RealRail
                 return false;
             }
 
-            health.TakeDamage(_configuredDamage, DamageSource.Projectile);
+            health.TakeDamage(_configuredDamage);
             if (_hitTargets.Count >= _distinctHitCapacity)
             {
                 _resolved = true;

@@ -50,7 +50,6 @@ namespace RealRail.Tests
             AssertAssigned(spawner, "lanes");
             AssertAssigned(spawner, "enemyPrefab");
             AssertAssigned(spawner, "heavyEnemyPrefab");
-            AssertAssigned(spawner, "volcanoPrototype");
             var heavyReference = Property(spawner, "heavyEnemyPrefab").objectReferenceValue;
             Assert.IsInstanceOf<GameObject>(heavyReference);
             Assert.AreEqual(
@@ -90,7 +89,7 @@ namespace RealRail.Tests
             AssertAssigned(cryoStorm, "session");
             AssertAssigned(cryoStorm, "enemySpawner");
             AssertAssigned(volcano, "session");
-            AssertAssigned(volcano, "lanes");
+            AssertAssigned(volcano, "autoFire");
             Assert.AreEqual(1 << LayerMask.NameToLayer(GameplayLayers.Enemy), Property(cryoStorm, "enemyLayers").intValue);
             Assert.IsFalse(Property(railgun, "enabledForDebug").boolValue);
             Assert.IsFalse(Property(cryoStorm, "enabledForDebug").boolValue);
@@ -152,7 +151,7 @@ namespace RealRail.Tests
             Assert.NotNull(enemy.GetComponent<EnemyDefenseLine>());
             Assert.NotNull(enemy.GetComponent<WaveEnemy>());
             Assert.NotNull(enemy.GetComponent<FrostStatus>());
-            Assert.NotNull(enemy.GetComponent<VolcanoEnemyAttack>());
+            Assert.IsNull(enemy.GetComponent("VolcanoEnemyAttack"));
             Assert.AreEqual(1, Property(enemy.GetComponent<Health>(), "maxHealth").intValue);
             Assert.AreEqual(4f, Property(enemy.GetComponent<EnemyMover>(), "speed").floatValue);
             AssertVisualChild(enemy);

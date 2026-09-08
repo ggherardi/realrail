@@ -75,13 +75,13 @@ Each prototype activation follows the nearest spatially valid, unvisited real wa
 
 This is only a clean M2 prototype seam, not the final Ice, Lightning, Frost/Freeze/Shatter, status, Fusion-acquisition, persistence, rarity, or visual-resolution architecture. Tuning values are for manual visual validation and are not future balance requirements.
 
-## Volcano visual prototype (M3)
+## Volcano visual prototype (M3 v2)
 
-**EXPERIMENTAL / VISUAL NOT VALIDATED:** `F8` toggles periodic Volcano spawning and `F9` immediately spawns one formation during an active wave; `F5` remains the shared dense-horde setup. Only one formation may exist at once. It spawns in the left lane at Z `18`, offset `0.45` toward the outer side, with a `3.1 × 1.8` footprint, 42 HP, and a 12-second cleanup safeguard.
+**EXPERIMENTAL / VISUAL NOT VALIDATED:** Volcano v1's destructible lane obstacle is rejected: manual testing found it felt like an externally placed tower-defense obstruction instead of a natural Fire + Explosion weapon evolution. Its steering, engagement, obstacle HP, and environmental-removal semantics are removed.
 
-The formation is a real `Health` + collider world object, not a visual slow. Existing movers retain their exact forward/spawn-X behavior with no obstacle. When one blocks their local forward corridor, they select a stable lane-local bypass edge; when they reach its face before gaining sufficient lateral clearance, they stop and engage instead. The bounded per-enemy check has no NavMesh, scene search, or crowd-neighbor query, and preserves lane bounds and Frost's existing effective speed multiplier. Grunts deal 1 formation damage per one-second engagement tick; Heavies deal 2. Each engager also receives 1 volcanic Health damage per tick. Volcano deaths resolve wave enemies as **Removed**, rather than projectile kills, so they do not advance `KillCount` or upgrade triggers; standard Health/death cleanup remains authoritative.
+`F8` toggles a scheduled Volcano weapon shot every 5 seconds; `F9` immediately fires one from the player muzzle; `F5` remains the dense-horde setup. On hitting a real wave enemy, the orange projectile creates a 3-damage, 2.4-radius initial impact burst, then a non-blocking hot point produces three 2-damage, 2.0-radius secondary eruptions at 0.8-second intervals before its 3-second lifetime ends. Eruptions use bounded non-alloc enemy overlap queries and deduplicate Health targets within each burst. All Volcano damage counts as a player weapon kill through the established normal Health/WaveEnemy path, including secondary eruptions; it therefore advances KillCount exactly once per defeated enemy and can trigger normal rewards.
 
-This validates only a lightweight temporary-obstacle seam. It is not final Fire/Explosion acquisition, obstacle architecture, enemy navigation, crowd simulation, balance, VFX, or art. Because existing enemies do not collide with each other, observed congestion is local steering/engagement bunching rather than physical crowd pressure.
+The greybox uses a bright projectile, short vertical emissive eruption cylinders, and no persistent collider. It is deliberately distinct from future Napalm: concentrated, intermittent impact bursts rather than broad sustained terrain burning. This is not final Fire/Explosion acquisition, VFX, balance, or area-effect architecture.
 
 ## Initial balance
 

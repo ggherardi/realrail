@@ -155,12 +155,12 @@ namespace RealRail
 
         public bool SpawnVolcanoPrototype()
         {
-            if (volcanoPrototype == null || !volcanoPrototype.TrySpawnNow())
+            if (volcanoPrototype == null || !volcanoPrototype.FireImmediate())
             {
-                Report("Volcano requires an active wave and an empty battlefield slot");
+                Report("Volcano requires active gameplay");
                 return false;
             }
-            Report("Volcano prototype spawned");
+            Report("Volcano impact shot fired");
             return true;
         }
 

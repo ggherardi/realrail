@@ -11,8 +11,10 @@ namespace RealRail
         [SerializeField] float doubleShotSeparation = 0.45f;
         [SerializeField] UpgradeSystem upgradeSystem;
         [SerializeField] RailgunPrototype railgunPrototype;
+        [SerializeField] VolcanoPrototype volcanoPrototype;
 
         float _cooldown;
+        public Vector3 MuzzlePosition => muzzle != null ? muzzle.position : transform.position;
 
         void Update()
         {
@@ -24,6 +26,13 @@ namespace RealRail
             _cooldown -= Time.deltaTime;
             if (_cooldown > 0f)
             {
+                return;
+            }
+
+            if (volcanoPrototype != null && volcanoPrototype.TryConsumeScheduledShot(Time.time))
+            {
+                _cooldown = GetShotConfiguration().FireInterval;
+                volcanoPrototype.FireShot(muzzle.position);
                 return;
             }
 

@@ -22,7 +22,6 @@ namespace RealRail
             if (_health != null)
             {
                 _health.Died += OnDied;
-                _health.DiedWithSource += OnDiedWithSource;
             }
         }
 
@@ -31,7 +30,6 @@ namespace RealRail
             if (_health != null)
             {
                 _health.Died -= OnDied;
-                _health.DiedWithSource -= OnDiedWithSource;
             }
 
             Resolve(WaveEnemyResolution.Removed);
@@ -39,19 +37,18 @@ namespace RealRail
 
         void OnDied()
         {
-            // DiedWithSource is invoked first for normal Health deaths. This fallback
-            // keeps legacy/direct callers safe if they do not provide a source.
-            if (!_resolved) Resolve(WaveEnemyResolution.Killed);
-        }
-
-        void OnDiedWithSource(DamageSource source)
-        {
-            Resolve(source == DamageSource.Projectile ? WaveEnemyResolution.Killed : WaveEnemyResolution.Removed);
+            Resolve(WaveEnemyResolution.Killed);
         }
 
         public void ResolveRemoved()
         {
             Resolve(WaveEnemyResolution.Removed);
+        }
+
+        /// <summary>Lets weapon-owned area damage establish normal kill attribution before Health notifies listeners.</summary>
+        public void ResolveKilled()
+        {
+            Resolve(WaveEnemyResolution.Killed);
         }
 
         void Resolve(WaveEnemyResolution resolution)

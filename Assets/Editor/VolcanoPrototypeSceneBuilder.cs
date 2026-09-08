@@ -15,17 +15,18 @@ namespace RealRail.Editor
         [MenuItem("RealRail/Configure Volcano Prototype")]
         public static void Configure()
         {
-            ConfigureEnemy(EnemyPrefabPath, 1);
-            ConfigureEnemy(HeavyPrefabPath, 2);
+            ConfigureEnemy(EnemyPrefabPath);
+            ConfigureEnemy(HeavyPrefabPath);
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var systems = FindRoot(scene, "Systems");
             var prototype = systems.GetComponent<VolcanoPrototype>() ?? systems.AddComponent<VolcanoPrototype>();
             var debug = systems.GetComponent<GameplayDebugController>();
-            var spawner = systems.GetComponentInChildren<EnemySpawner>(true);
+            var player = FindRoot(scene, "Player");
+            var autoFire = player.GetComponent<AutoFire>();
             var hud = FindRoot(scene, "Canvas").transform.Find("GameplayDebugHud").GetComponent<GameplayDebugHud>();
             SetReference(prototype, "session", systems.GetComponentInChildren<GameSession>(true));
-            SetReference(prototype, "lanes", systems.GetComponentInChildren<LaneLayout>(true));
-            SetReference(spawner, "volcanoPrototype", prototype);
+            SetReference(prototype, "autoFire", autoFire);
+            SetReference(autoFire, "volcanoPrototype", prototype);
             SetReference(debug, "volcanoPrototype", prototype);
             SetReference(hud, "volcanoPrototype", prototype);
             EditorSceneManager.MarkSceneDirty(scene);
@@ -33,13 +34,12 @@ namespace RealRail.Editor
             AssetDatabase.SaveAssets();
         }
 
-        static void ConfigureEnemy(string path, int damage)
+        static void ConfigureEnemy(string path)
         {
             var enemy = PrefabUtility.LoadPrefabContents(path);
-            var attack = enemy.GetComponent<VolcanoEnemyAttack>() ?? enemy.AddComponent<VolcanoEnemyAttack>();
-            var serialized = new SerializedObject(attack);
-            serialized.FindProperty("damagePerHit").intValue = damage;
-            serialized.ApplyModifiedPropertiesWithoutUndo();
+            var attack = enemy.GetComponent("VolcanoEnemyAttack") as Component;
+            if (attack != null) Object.DestroyImmediate(attack, true);
+            GameObjectUtility.RemoveMonoBehavioursWithMissingScript(enemy);
             PrefabUtility.SaveAsPrefabAsset(enemy, path);
             PrefabUtility.UnloadPrefabContents(enemy);
         }
