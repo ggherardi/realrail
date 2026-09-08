@@ -47,6 +47,14 @@ namespace RealRail
             _isSpawning = false;
         }
 
+        /// <summary>Development-only burst using the current wave's real spawn, movement, and accounting path.</summary>
+        public bool SpawnDebugBurst(int count)
+        {
+            if (!_isSpawning || session == null || !session.IsPlaying || count <= 0) return false;
+            for (var index = 0; index < count; index++) Spawn();
+            return true;
+        }
+
         /// <summary>Stops the current plan and forgets actors that a run owner is about to remove.</summary>
         public void ResetSpawnerState()
         {

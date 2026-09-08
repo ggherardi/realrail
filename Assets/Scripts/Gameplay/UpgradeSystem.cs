@@ -14,18 +14,20 @@ namespace RealRail
 
     public readonly struct ShotConfiguration
     {
-        public ShotConfiguration(int projectileCount, float fireInterval, int damage, int distinctHitCapacity)
+        public ShotConfiguration(int projectileCount, float fireInterval, int damage, int distinctHitCapacity, bool isRailgunPrototype = false)
         {
             ProjectileCount = projectileCount;
             FireInterval = fireInterval;
             Damage = damage;
             DistinctHitCapacity = distinctHitCapacity;
+            IsRailgunPrototype = isRailgunPrototype;
         }
 
         public int ProjectileCount { get; }
         public float FireInterval { get; }
         public int Damage { get; }
         public int DistinctHitCapacity { get; }
+        public bool IsRailgunPrototype { get; }
     }
 
     public readonly struct UpgradeApplication

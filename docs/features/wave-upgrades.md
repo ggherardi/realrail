@@ -61,6 +61,12 @@ Gameplay Debug Tools V1 is development-only tooling, available in the Unity Edit
 
 Keys `1` through `4` apply exactly one level of Double Shot, Rapid Fire, Piercing Shot, and Power Shot respectively through the normal runtime upgrade application API. Caps are respected and reported. `R` resets acquired upgrade levels to baseline without resetting the wave, enemies, player position, health, kill count, or session state. These controls exist to make deterministic gameplay verification possible; they are not player-facing UI.
 
+## Railgun visual prototype (M1)
+
+**EXPERIMENTAL / VISUAL NOT VALIDATED:** `F3` toggles the Railgun prototype; while enabled, one normal auto-fire event becomes a Railgun every 3 seconds. `F4` immediately fires one Railgun for rapid visual evaluation. `F5` injects an 18-enemy dense-horde burst through the current wave's normal spawn and accounting path. The compact debug HUD reports `RAILGUN PROTOTYPE: ON/OFF`.
+
+The prototype Railgun is deliberately not a reward, rarity, or Fusion-acquisition implementation. Its temporary tuning is 6 damage and 24 distinct enemy hits, enough to kill current 1-HP Grunts and 4-HP Heavies while leaving existing projectile kill, enemy death, Defense Line, and Wave behavior authoritative. Its simple cyan elongated projectile is a greybox trajectory cue, not final art. Future Fusion eligibility, persistence, UI, balance, VFX, and the remaining Fusion concepts are outside this milestone.
+
 ## Initial balance
 
 | Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance | Upgrade triggers |

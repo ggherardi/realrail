@@ -61,6 +61,7 @@ namespace RealRail.Tests
             Assert.AreEqual(0.25f, shot.FireInterval);
             Assert.AreEqual(2, shot.Damage);
             Assert.AreEqual(3, shot.DistinctHitCapacity);
+            Assert.IsFalse(shot.IsRailgunPrototype, "Normal upgrade-derived shots must remain normal when the prototype is disabled.");
         }
 
         [Test]
@@ -240,6 +241,58 @@ namespace RealRail.Tests
             UnityEngine.Object.DestroyImmediate(firstOwner);
             UnityEngine.Object.DestroyImmediate(projectileOwner);
             UnityEngine.Object.DestroyImmediate(sessionOwner);
+        }
+
+        [Test]
+        public void RailgunPrototype_UsesExplicitPrototypeTuningWithoutChangingUpgradeState()
+        {
+            var owner = new GameObject("Railgun prototype");
+            var prototype = owner.AddComponent<RailgunPrototype>();
+            prototype.ConfigureForTests(2.5f, 6, 24);
+            var upgrades = new UpgradeState();
+
+            prototype.SetEnabled(true);
+            var enabledAt = Time.time;
+            Assert.IsFalse(prototype.TryConsumeScheduledShot(enabledAt + 2.49f));
+            Assert.IsTrue(prototype.TryConsumeScheduledShot(enabledAt + 2.5f));
+            var shot = prototype.GetShotConfiguration();
+
+            Assert.IsTrue(shot.IsRailgunPrototype);
+            Assert.AreEqual(6, shot.Damage);
+            Assert.AreEqual(24, shot.DistinctHitCapacity);
+            Assert.AreEqual(0, upgrades.GetLevel(UpgradeId.PowerShot));
+            Assert.AreEqual(0, upgrades.GetLevel(UpgradeId.PiercingShot));
+            Object.DestroyImmediate(owner);
+        }
+
+        [Test]
+        public void RailgunProjectile_HitsMultipleDistinctTargetsAndUsesNormalHealthDeaths()
+        {
+            var sessionOwner = new GameObject("Session");
+            var session = sessionOwner.AddComponent<GameSession>();
+            var projectileOwner = new GameObject("Railgun projectile");
+            var projectile = projectileOwner.AddComponent<Projectile>();
+            projectile.Initialize(session, 6, 24, true);
+            var firstOwner = new GameObject("First");
+            var first = firstOwner.AddComponent<Health>();
+            first.SetMaxHealth(4);
+            var secondOwner = new GameObject("Second");
+            var second = secondOwner.AddComponent<Health>();
+            second.SetMaxHealth(4);
+
+            Assert.IsTrue(projectile.IsRailgunPrototype);
+            Assert.IsTrue(projectile.TryApplyHit(first));
+            Assert.IsFalse(projectile.TryApplyHit(first));
+            Assert.IsTrue(projectile.TryApplyHit(second));
+            Assert.AreEqual(0, first.Current);
+            Assert.AreEqual(0, second.Current);
+            Assert.AreEqual(2, projectile.DistinctHitCount);
+            Assert.IsFalse(projectile.IsResolved, "The prototype capacity must permit a visible multi-enemy corridor.");
+
+            Object.DestroyImmediate(secondOwner);
+            Object.DestroyImmediate(firstOwner);
+            Object.DestroyImmediate(projectileOwner);
+            Object.DestroyImmediate(sessionOwner);
         }
     }
 }

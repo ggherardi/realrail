@@ -10,6 +10,7 @@ namespace RealRail
         [SerializeField] float fireInterval = 0.35f;
         [SerializeField] float doubleShotSeparation = 0.45f;
         [SerializeField] UpgradeSystem upgradeSystem;
+        [SerializeField] RailgunPrototype railgunPrototype;
 
         float _cooldown;
 
@@ -26,8 +27,15 @@ namespace RealRail
                 return;
             }
 
-            var shot = GetShotConfiguration();
+            var shot = railgunPrototype != null && railgunPrototype.TryConsumeScheduledShot(Time.time)
+                ? railgunPrototype.GetShotConfiguration()
+                : GetShotConfiguration();
             _cooldown = shot.FireInterval;
+            if (shot.IsRailgunPrototype)
+            {
+                FireProjectile(muzzle.position, shot);
+                return;
+            }
             if (shot.ProjectileCount == 2)
             {
                 var offset = muzzle.right * (doubleShotSeparation * 0.5f);
@@ -50,12 +58,20 @@ namespace RealRail
             _cooldown = 0f;
         }
 
+        /// <summary>Development-only immediate prototype shot; normal firing cadence is unchanged.</summary>
+        public bool FireRailgunNow()
+        {
+            if (session == null || !session.IsPlaying || projectilePrefab == null || muzzle == null || railgunPrototype == null) return false;
+            FireProjectile(muzzle.position, railgunPrototype.GetShotConfiguration());
+            return true;
+        }
+
         void FireProjectile(Vector3 position, ShotConfiguration shot)
         {
             var instance = Instantiate(projectilePrefab, position, Quaternion.identity);
             instance.SetActive(true);
             var projectile = instance.GetComponent<Projectile>();
-            projectile.Initialize(session, shot.Damage, shot.DistinctHitCapacity);
+            projectile.Initialize(session, shot.Damage, shot.DistinctHitCapacity, shot.IsRailgunPrototype);
         }
     }
 }

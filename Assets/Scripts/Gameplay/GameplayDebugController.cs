@@ -11,6 +11,9 @@ namespace RealRail
         [SerializeField] UpgradeSystem upgradeSystem;
         [SerializeField] GameplayDebugHud debugHud;
         [SerializeField] UpgradeRewardSelection upgradeRewardSelection;
+        [SerializeField] RailgunPrototype railgunPrototype;
+        [SerializeField] AutoFire autoFire;
+        [SerializeField] EnemySpawner enemySpawner;
 
         public event Action<string> Feedback;
 
@@ -36,6 +39,9 @@ namespace RealRail
             if (keyboard.digit3Key.wasPressedThisFrame) GrantUpgrade(UpgradeId.PiercingShot);
             if (keyboard.digit4Key.wasPressedThisFrame) GrantUpgrade(UpgradeId.PowerShot);
             if (keyboard.rKey.wasPressedThisFrame) ResetUpgrades();
+            if (keyboard.f3Key.wasPressedThisFrame) ToggleRailgunPrototype();
+            if (keyboard.f4Key.wasPressedThisFrame) FireRailgunPrototype();
+            if (keyboard.f5Key.wasPressedThisFrame) SpawnDenseHorde();
 #endif
         }
 
@@ -86,6 +92,34 @@ namespace RealRail
 
             upgradeSystem.ResetUpgrades();
             Report("Upgrades reset");
+        }
+
+        public void ToggleRailgunPrototype()
+        {
+            if (railgunPrototype == null) return;
+            railgunPrototype.SetEnabled(!railgunPrototype.IsEnabled);
+            Report($"Railgun Prototype {(railgunPrototype.IsEnabled ? "ON" : "OFF")}");
+        }
+
+        public bool FireRailgunPrototype()
+        {
+            if (autoFire == null || !autoFire.FireRailgunNow())
+            {
+                Report("Railgun prototype shot unavailable");
+                return false;
+            }
+            Report("Railgun prototype fired");
+            return true;
+        }
+
+        public void SpawnDenseHorde()
+        {
+            if (enemySpawner == null || !enemySpawner.SpawnDebugBurst(18))
+            {
+                Report("Dense horde unavailable outside an active wave");
+                return;
+            }
+            Report("Spawned dense-horde test burst");
         }
 
         void Report(string message)

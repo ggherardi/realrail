@@ -9,6 +9,7 @@ namespace RealRail
         [SerializeField] Text displayText;
         [SerializeField] UpgradeSystem upgradeSystem;
         [SerializeField] GameSession session;
+        [SerializeField] RailgunPrototype railgunPrototype;
 
         string _feedback;
 
@@ -23,6 +24,7 @@ namespace RealRail
         {
             if (upgradeSystem != null) upgradeSystem.UpgradesChanged += Refresh;
             if (session != null) session.GodModeChanged += OnGodModeChanged;
+            if (railgunPrototype != null) railgunPrototype.Changed += OnRailgunChanged;
             Refresh();
         }
 
@@ -30,6 +32,7 @@ namespace RealRail
         {
             if (upgradeSystem != null) upgradeSystem.UpgradesChanged -= Refresh;
             if (session != null) session.GodModeChanged -= OnGodModeChanged;
+            if (railgunPrototype != null) railgunPrototype.Changed -= OnRailgunChanged;
         }
 
         public void SetVisible(bool visible)
@@ -45,6 +48,7 @@ namespace RealRail
         }
 
         void OnGodModeChanged(bool _) => Refresh();
+        void OnRailgunChanged(bool _) => Refresh();
 
         void Refresh()
         {
@@ -66,7 +70,8 @@ namespace RealRail
                 FormatUpgrade(state, UpgradeId.RapidFire) + "\n" +
                 FormatUpgrade(state, UpgradeId.PiercingShot) + "\n" +
                 FormatUpgrade(state, UpgradeId.PowerShot) + "\n\n" +
-                $"GOD MODE: {(session != null && session.GodMode ? "ON" : "OFF")}" +
+                $"GOD MODE: {(session != null && session.GodMode ? "ON" : "OFF")}\n" +
+                $"RAILGUN PROTOTYPE: {(railgunPrototype != null && railgunPrototype.IsEnabled ? "ON" : "OFF")}" +
                 (string.IsNullOrEmpty(_feedback) ? string.Empty : $"\n\n{_feedback}");
         }
 

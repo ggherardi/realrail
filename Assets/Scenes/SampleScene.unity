@@ -253,6 +253,7 @@ GameObject:
   - component: {fileID: 9852106}
   - component: {fileID: 9852107}
   - component: {fileID: 9852108}
+  - component: {fileID: 9852109}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -307,6 +308,9 @@ MonoBehaviour:
   upgradeSystem: {fileID: 9852105}
   debugHud: {fileID: 99025763}
   upgradeRewardSelection: {fileID: 9852107}
+  railgunPrototype: {fileID: 9852109}
+  autoFire: {fileID: 1513487248}
+  enemySpawner: {fileID: 263408989}
 --- !u!114 &9852107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,6 +346,22 @@ MonoBehaviour:
   upgradeSystem: {fileID: 9852105}
   rewardSelection: {fileID: 9852107}
   playerBot: {fileID: 1513487254}
+--- !u!114 &9852109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9852103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfe34e4219af49748b96df74a970b54, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: RealRail::RealRail.RailgunPrototype
+  enabledForDebug: 0
+  cadenceSeconds: 3
+  damage: 6
+  distinctHitCapacity: 24
 --- !u!1 &26610029
 GameObject:
   m_ObjectHideFlags: 0
@@ -755,6 +775,7 @@ MonoBehaviour:
   displayText: {fileID: 99025764}
   upgradeSystem: {fileID: 9852105}
   session: {fileID: 1495662729}
+  railgunPrototype: {fileID: 9852109}
 --- !u!114 &99025764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4154,6 +4175,7 @@ MonoBehaviour:
   fireInterval: 0.35
   doubleShotSeparation: 0.45
   upgradeSystem: {fileID: 9852105}
+  railgunPrototype: {fileID: 9852109}
 --- !u!4 &1513487249
 Transform:
   m_ObjectHideFlags: 0

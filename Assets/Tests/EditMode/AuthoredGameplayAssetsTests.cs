@@ -31,6 +31,7 @@ namespace RealRail.Tests
             Assert.AreEqual(1, systems.GetComponentsInChildren<EnemySpawner>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<LaneLayout>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<UpgradeSystem>(true).Length);
+            Assert.AreEqual(1, systems.GetComponentsInChildren<RailgunPrototype>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<UpgradeRewardSelection>(true).Length);
 
             var session = systems.GetComponentInChildren<GameSession>(true);
@@ -73,6 +74,13 @@ namespace RealRail.Tests
                 Assert.IsTrue(button.interactable);
                 Assert.IsTrue(button.targetGraphic.raycastTarget);
             }
+
+            var railgun = systems.GetComponentInChildren<RailgunPrototype>(true);
+            var debug = systems.GetComponent<GameplayDebugController>();
+            AssertAssigned(debug, "railgunPrototype");
+            AssertAssigned(debug, "autoFire");
+            AssertAssigned(debug, "enemySpawner");
+            Assert.IsFalse(Property(railgun, "enabledForDebug").boolValue);
         }
 
         [Test]
@@ -89,6 +97,7 @@ namespace RealRail.Tests
             AssertAssigned(autoFire, "muzzle");
             AssertAssigned(autoFire, "projectilePrefab");
             AssertAssigned(autoFire, "upgradeSystem");
+            AssertAssigned(autoFire, "railgunPrototype");
             Assert.AreEqual(0.35f, Property(autoFire, "fireInterval").floatValue);
             Assert.AreEqual(0.45f, Property(autoFire, "doubleShotSeparation").floatValue);
             Assert.AreEqual(3, Property(player.GetComponent<Health>(), "maxHealth").intValue);
