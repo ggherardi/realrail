@@ -12,6 +12,17 @@ A 3D action game in which the player character automatically fires forward while
 4. Enemies take damage and can be defeated.
 5. The player loses if the fail condition is reached.
 
+## Future progression direction
+
+The future game separates account progression (shared permanent, capped,
+moderate bonuses), character progression (identity and skills), and temporary
+run progression (weapons/upgrades forming the current build). Run upgrades are
+intended to stack freely and may eventually enable authored Fusions/Evolutions.
+This is design direction, not the scope of the current playable prototype; see
+[Run Upgrades, Progression, and Fusions](features/run-upgrades-fusions.md) for
+the authoritative specification and its LOCKED/CANDIDATE/visual-validation
+status.
+
 ## Initial Scope
 
 The first playable prototype should contain only:

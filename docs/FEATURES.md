@@ -1,5 +1,13 @@
 # Feature Backlog
 
+## Run Upgrades, Progression, and Fusions
+
+Status: Future design direction / Not Implemented as specified. See [Run
+Upgrades, Progression, and Fusions](features/run-upgrades-fusions.md) for the
+authoritative progression, rarity, Fusion, and visual-prototype design. The
+currently implemented V3 upgrade slice is narrower and is documented as such
+in [Wave System and Upgrade System V2](features/wave-upgrades.md).
+
 ## Wave Director & Difficulty Simulation
 
 Status: Configurable waves, algorithmic bot profiles, seeded opt-in simulation, and bounded experimental balance search are implemented. See [Wave Director, Simulation, and Balance Search](features/wave-director-simulation.md).
@@ -118,10 +126,14 @@ Example progression:
 
 ## Modular Weapon System
 
-Weapons are composed of multiple interchangeable components that, when combined,
-define the final weapon behavior.
+Status: Superseded as a primary run-build model. The future direction is
+free-form stacking run upgrades, not rigid player-facing component slots; see
+[Run Upgrades, Progression, and Fusions](features/run-upgrades-fusions.md).
+This section preserves the useful long-term principle that weapons and upgrades
+can modify multiple behavior dimensions, but its slot/compatibility proposal is
+not a current requirement.
 
-Each component can modify one or more aspects of the weapon, such as:
+Run upgrades may modify one or more aspects of weapon behavior, such as:
 
 - damage type;
 - projectile behavior;
@@ -132,29 +144,11 @@ Each component can modify one or more aspects of the weapon, such as:
 - elemental properties;
 - special interactions.
 
-The important part is that components should not always produce purely additive
-benefits. Some combinations may interact poorly or even partially cancel each
-other.
-
-Example:
-
-- one component causes the weapon to apply Ice;
-- another component converts the weapon to Fire;
-- mounting both may make the Ice component ineffective, inefficient, or create
-  a different interaction depending on the final system design.
-
-This should make weapon construction a meaningful build decision rather than a
-simple sequence of upgrades.
-
-Players will therefore need to reason about which components work well together
-when assembling a weapon.
-
-Weapons and/or their components are intended to be discovered after a run has
-already started, so the player will progressively assemble and adapt their build
-during the match rather than always entering with a fully predefined weapon.
-
-The exact component slots, compatibility rules, elemental interactions, rarity,
-and acquisition system are still to be designed.
+The new direction favors stacking unless a specific incompatibility is needed.
+Meaningful authored Fusions/Evolutions should create emergent mechanics rather
+than merely canceling or adding independent effects. Players progressively
+assemble and adapt a run build during the match. Exact implementation,
+incompatibilities, acquisition, and balance remain TBD.
 
 ---
 

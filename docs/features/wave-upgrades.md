@@ -1,5 +1,13 @@
 # Wave System and Upgrade System V2
 
+## Scope note
+
+This document records the implemented V3 reward slice and its exact current
+runtime behavior. It is not the authoritative future progression or Fusion
+design. In particular, its fixed caps and simple reward behavior do not lock
+the future Level/rarity model, offer rules, or free-form Fusion direction; see
+[Run Upgrades, Progression, and Fusions](run-upgrades-fusions.md).
+
 ## Goal
 
 The run has three escalating enemy waves and five optional Upgrade Target opportunities. Targets remain independent of normal enemies and wave progression.
@@ -69,5 +77,6 @@ Keys `1` through `4` apply exactly one level of Double Shot, Rapid Fire, Piercin
 
 ## Out of scope
 
-- Rarity, rerolls, and permanent/meta progression.
-- Permanent/meta progression, currencies, inventory, shops, bosses, save/load, and procedural level generation.
+- The future rarity, reroll, and permanent/meta progression design.
+- Fusions/Evolutions and their visual-resolution architecture.
+- Currencies, inventory, shops, bosses, save/load, and procedural level generation.
