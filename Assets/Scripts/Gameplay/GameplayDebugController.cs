@@ -14,6 +14,7 @@ namespace RealRail
         [SerializeField] RailgunPrototype railgunPrototype;
         [SerializeField] AutoFire autoFire;
         [SerializeField] EnemySpawner enemySpawner;
+        [SerializeField] CryoStormPrototype cryoStormPrototype;
 
         public event Action<string> Feedback;
 
@@ -42,6 +43,8 @@ namespace RealRail
             if (keyboard.f3Key.wasPressedThisFrame) ToggleRailgunPrototype();
             if (keyboard.f4Key.wasPressedThisFrame) FireRailgunPrototype();
             if (keyboard.f5Key.wasPressedThisFrame) SpawnDenseHorde();
+            if (keyboard.f6Key.wasPressedThisFrame) ToggleCryoStormPrototype();
+            if (keyboard.f7Key.wasPressedThisFrame) TriggerCryoStormPrototype();
 #endif
         }
 
@@ -120,6 +123,24 @@ namespace RealRail
                 return;
             }
             Report("Spawned dense-horde test burst");
+        }
+
+        public void ToggleCryoStormPrototype()
+        {
+            if (cryoStormPrototype == null) return;
+            cryoStormPrototype.SetEnabled(!cryoStormPrototype.IsEnabled);
+            Report($"Cryo Storm Prototype {(cryoStormPrototype.IsEnabled ? "ON" : "OFF")}");
+        }
+
+        public bool TriggerCryoStormPrototype()
+        {
+            if (cryoStormPrototype == null || !cryoStormPrototype.TryActivate())
+            {
+                Report("Cryo Storm requires active wave enemies");
+                return false;
+            }
+            Report("Cryo Storm triggered");
+            return true;
         }
 
         void Report(string message)

@@ -67,6 +67,14 @@ Keys `1` through `4` apply exactly one level of Double Shot, Rapid Fire, Piercin
 
 The prototype Railgun is deliberately not a reward, rarity, or Fusion-acquisition implementation. Its temporary tuning is 6 damage and 24 distinct enemy hits, enough to kill current 1-HP Grunts and 4-HP Heavies while leaving existing projectile kill, enemy death, Defense Line, and Wave behavior authoritative. The Railgun travels at 80 units/second (about 3.6× normal projectile speed) and leaves a thin 0.14-second cyan tracer; this is a greybox trajectory cue, not final art. Future Fusion eligibility, persistence, UI, balance, VFX, and the remaining Fusion concepts are outside this milestone.
 
+## Cryo Storm visual prototype (M2)
+
+**EXPERIMENTAL / VISUAL NOT VALIDATED:** `F6` toggles the Cryo Storm prototype and `F7` immediately triggers it from the nearest real active wave enemy; `F5` remains the shared 18-enemy dense-horde setup. While enabled, Cryo Storm tries a chain every 4 seconds. The compact debug HUD reports `CRYO STORM PROTOTYPE: ON/OFF`.
+
+Each prototype activation follows the nearest spatially valid, unvisited real wave enemy within a 4.5-unit range, with a maximum of 10 affected enemies and a 0.11-second transfer delay. Each transfer gets one short, thin cyan line; the arc disappears quickly so the horde remains legible. Affected Grunts and Heavies receive Frost for 3.5 seconds: their existing movement is slowed to 55% through `EnemyMover` without changing their authored base speed, and their existing renderers receive a temporary cool tint/emissive property block. Cryo Storm deliberately deals no damage, so it cannot create projectile kills or change Wave/Defense Line semantics.
+
+This is only a clean M2 prototype seam, not the final Ice, Lightning, Frost/Freeze/Shatter, status, Fusion-acquisition, persistence, rarity, or visual-resolution architecture. Tuning values are for manual visual validation and are not future balance requirements.
+
 ## Initial balance
 
 | Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance | Upgrade triggers |

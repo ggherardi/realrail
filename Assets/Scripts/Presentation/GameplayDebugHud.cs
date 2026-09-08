@@ -10,6 +10,7 @@ namespace RealRail
         [SerializeField] UpgradeSystem upgradeSystem;
         [SerializeField] GameSession session;
         [SerializeField] RailgunPrototype railgunPrototype;
+        [SerializeField] CryoStormPrototype cryoStormPrototype;
 
         string _feedback;
 
@@ -25,6 +26,7 @@ namespace RealRail
             if (upgradeSystem != null) upgradeSystem.UpgradesChanged += Refresh;
             if (session != null) session.GodModeChanged += OnGodModeChanged;
             if (railgunPrototype != null) railgunPrototype.Changed += OnRailgunChanged;
+            if (cryoStormPrototype != null) cryoStormPrototype.Changed += OnCryoStormChanged;
             Refresh();
         }
 
@@ -33,6 +35,7 @@ namespace RealRail
             if (upgradeSystem != null) upgradeSystem.UpgradesChanged -= Refresh;
             if (session != null) session.GodModeChanged -= OnGodModeChanged;
             if (railgunPrototype != null) railgunPrototype.Changed -= OnRailgunChanged;
+            if (cryoStormPrototype != null) cryoStormPrototype.Changed -= OnCryoStormChanged;
         }
 
         public void SetVisible(bool visible)
@@ -49,6 +52,7 @@ namespace RealRail
 
         void OnGodModeChanged(bool _) => Refresh();
         void OnRailgunChanged(bool _) => Refresh();
+        void OnCryoStormChanged(bool _) => Refresh();
 
         void Refresh()
         {
@@ -71,7 +75,8 @@ namespace RealRail
                 FormatUpgrade(state, UpgradeId.PiercingShot) + "\n" +
                 FormatUpgrade(state, UpgradeId.PowerShot) + "\n\n" +
                 $"GOD MODE: {(session != null && session.GodMode ? "ON" : "OFF")}\n" +
-                $"RAILGUN PROTOTYPE: {(railgunPrototype != null && railgunPrototype.IsEnabled ? "ON" : "OFF")}" +
+                $"RAILGUN PROTOTYPE: {(railgunPrototype != null && railgunPrototype.IsEnabled ? "ON" : "OFF")}\n" +
+                $"CRYO STORM PROTOTYPE: {(cryoStormPrototype != null && cryoStormPrototype.IsEnabled ? "ON" : "OFF")}" +
                 (string.IsNullOrEmpty(_feedback) ? string.Empty : $"\n\n{_feedback}");
         }
 

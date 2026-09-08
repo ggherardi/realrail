@@ -254,6 +254,7 @@ GameObject:
   - component: {fileID: 9852107}
   - component: {fileID: 9852108}
   - component: {fileID: 9852109}
+  - component: {fileID: 9852110}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -311,6 +312,7 @@ MonoBehaviour:
   railgunPrototype: {fileID: 9852109}
   autoFire: {fileID: 1513487248}
   enemySpawner: {fileID: 263408989}
+  cryoStormPrototype: {fileID: 9852110}
 --- !u!114 &9852107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -362,6 +364,30 @@ MonoBehaviour:
   cadenceSeconds: 3
   damage: 6
   distinctHitCapacity: 24
+--- !u!114 &9852110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9852103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a74cf7ab2bebc474f943a9d26a2acf7e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: RealRail::RealRail.CryoStormPrototype
+  session: {fileID: 1495662729}
+  enemySpawner: {fileID: 263408989}
+  enabledForDebug: 0
+  cadenceSeconds: 4
+  maximumTargets: 10
+  chainRange: 4.5
+  stepDelaySeconds: 0.11
+  frostSpeedMultiplier: 0.55
+  frostDurationSeconds: 3.5
+  enemyLayers:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &26610029
 GameObject:
   m_ObjectHideFlags: 0
@@ -776,6 +802,7 @@ MonoBehaviour:
   upgradeSystem: {fileID: 9852105}
   session: {fileID: 1495662729}
   railgunPrototype: {fileID: 9852109}
+  cryoStormPrototype: {fileID: 9852110}
 --- !u!114 &99025764
 MonoBehaviour:
   m_ObjectHideFlags: 0

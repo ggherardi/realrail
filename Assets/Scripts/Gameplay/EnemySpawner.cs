@@ -25,6 +25,22 @@ namespace RealRail
         public bool IsSpawning => _isSpawning;
         public int ActiveEnemyCount => _activeEnemyCount;
 
+        /// <summary>Bounded query over the spawner-owned live wave actors; avoids scene-wide discovery for prototypes.</summary>
+        public bool TryGetNearestActiveEnemy(Vector3 position, out WaveEnemy nearest)
+        {
+            nearest = null;
+            var nearestDistance = float.MaxValue;
+            foreach (var enemy in _activeEnemies)
+            {
+                if (enemy == null) continue;
+                var distance = (enemy.transform.position - position).sqrMagnitude;
+                if (distance >= nearestDistance) continue;
+                nearest = enemy;
+                nearestDistance = distance;
+            }
+            return nearest != null;
+        }
+
         public void SetRunRandom(IRunRandom random)
         {
             _random = random ?? UnityRunRandom.Shared;

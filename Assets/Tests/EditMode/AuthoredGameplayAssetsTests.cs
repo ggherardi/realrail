@@ -32,6 +32,7 @@ namespace RealRail.Tests
             Assert.AreEqual(1, systems.GetComponentsInChildren<LaneLayout>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<UpgradeSystem>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<RailgunPrototype>(true).Length);
+            Assert.AreEqual(1, systems.GetComponentsInChildren<CryoStormPrototype>(true).Length);
             Assert.AreEqual(1, systems.GetComponentsInChildren<UpgradeRewardSelection>(true).Length);
 
             var session = systems.GetComponentInChildren<GameSession>(true);
@@ -76,11 +77,17 @@ namespace RealRail.Tests
             }
 
             var railgun = systems.GetComponentInChildren<RailgunPrototype>(true);
+            var cryoStorm = systems.GetComponentInChildren<CryoStormPrototype>(true);
             var debug = systems.GetComponent<GameplayDebugController>();
             AssertAssigned(debug, "railgunPrototype");
             AssertAssigned(debug, "autoFire");
             AssertAssigned(debug, "enemySpawner");
+            AssertAssigned(debug, "cryoStormPrototype");
+            AssertAssigned(cryoStorm, "session");
+            AssertAssigned(cryoStorm, "enemySpawner");
+            Assert.AreEqual(1 << LayerMask.NameToLayer(GameplayLayers.Enemy), Property(cryoStorm, "enemyLayers").intValue);
             Assert.IsFalse(Property(railgun, "enabledForDebug").boolValue);
+            Assert.IsFalse(Property(cryoStorm, "enabledForDebug").boolValue);
         }
 
         [Test]
@@ -137,6 +144,7 @@ namespace RealRail.Tests
             Assert.NotNull(enemy.GetComponent<EnemyMover>());
             Assert.NotNull(enemy.GetComponent<EnemyDefenseLine>());
             Assert.NotNull(enemy.GetComponent<WaveEnemy>());
+            Assert.NotNull(enemy.GetComponent<FrostStatus>());
             Assert.AreEqual(1, Property(enemy.GetComponent<Health>(), "maxHealth").intValue);
             Assert.AreEqual(4f, Property(enemy.GetComponent<EnemyMover>(), "speed").floatValue);
             AssertVisualChild(enemy);
@@ -361,6 +369,7 @@ namespace RealRail.Tests
             Assert.AreEqual(1, collider.direction);
             Assert.AreEqual(4, Property(heavy.GetComponent<Health>(), "maxHealth").intValue);
             Assert.AreEqual(3f, Property(heavy.GetComponent<EnemyMover>(), "speed").floatValue);
+            Assert.NotNull(heavy.GetComponent<FrostStatus>());
 
             AssertVisualChild(heavy);
         }

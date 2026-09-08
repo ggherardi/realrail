@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3466608644186997180}
   - component: {fileID: 5794169924294267283}
   - component: {fileID: 561666606183091433}
+  - component: {fileID: 2186101289733394696}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -151,6 +152,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f701854e423420cba6fd1864a93a8fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: RealRail::RealRail.WaveEnemy
+--- !u!114 &2186101289733394696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2750532192330122097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b700ef6dfd8ce4a679de4671566e1356, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: RealRail::RealRail.FrostStatus
+  frostColor: {r: 0.32, g: 0.88, b: 1, a: 1}
+  emissionIntensity: 0.7
 --- !u!1 &8609079290084822069
 GameObject:
   m_ObjectHideFlags: 0
