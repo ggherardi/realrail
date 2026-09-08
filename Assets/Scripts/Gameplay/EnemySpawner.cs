@@ -11,6 +11,7 @@ namespace RealRail
         [SerializeField] GameObject enemyPrefab;
         [SerializeField] GameObject heavyEnemyPrefab;
         [SerializeField] float spawnInterval = 1.6f;
+        [SerializeField] VolcanoPrototype volcanoPrototype;
 
         float _cooldown;
         float _moveSpeed;
@@ -114,7 +115,7 @@ namespace RealRail
 
             var mover = instance.GetComponent<EnemyMover>();
             var speedScale = _gruntBaseSpeed > 0f ? mover.BaseSpeed / _gruntBaseSpeed : 1f;
-            mover.Initialize(session, position.x, lanes.DefenseLineZ, lanes.ActorY, _moveSpeed * speedScale);
+            mover.Initialize(session, position.x, lanes.DefenseLineZ, lanes.ActorY, _moveSpeed * speedScale, volcanoPrototype, lanes);
 
             var defenseLine = instance.GetComponent<EnemyDefenseLine>();
             defenseLine.Initialize(session);

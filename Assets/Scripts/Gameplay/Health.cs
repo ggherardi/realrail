@@ -3,6 +3,13 @@ using UnityEngine;
 
 namespace RealRail
 {
+    public enum DamageSource
+    {
+        Generic,
+        Projectile,
+        Volcano
+    }
+
     public sealed class Health : MonoBehaviour
     {
         [SerializeField] int maxHealth = 3;
@@ -14,6 +21,7 @@ namespace RealRail
 
         public event Action<int, int> Changed;
         public event Action Died;
+        public event Action<DamageSource> DiedWithSource;
 
         void Awake()
         {
@@ -28,7 +36,7 @@ namespace RealRail
             Changed?.Invoke(Current, maxHealth);
         }
 
-        public void TakeDamage(int amount)
+        public void TakeDamage(int amount, DamageSource source = DamageSource.Generic)
         {
             EnsureInitialized();
             if (amount <= 0 || Current <= 0)
@@ -40,6 +48,7 @@ namespace RealRail
             Changed?.Invoke(Current, maxHealth);
             if (Current == 0)
             {
+                DiedWithSource?.Invoke(source);
                 Died?.Invoke();
             }
         }

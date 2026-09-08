@@ -75,6 +75,14 @@ Each prototype activation follows the nearest spatially valid, unvisited real wa
 
 This is only a clean M2 prototype seam, not the final Ice, Lightning, Frost/Freeze/Shatter, status, Fusion-acquisition, persistence, rarity, or visual-resolution architecture. Tuning values are for manual visual validation and are not future balance requirements.
 
+## Volcano visual prototype (M3)
+
+**EXPERIMENTAL / VISUAL NOT VALIDATED:** `F8` toggles periodic Volcano spawning and `F9` immediately spawns one formation during an active wave; `F5` remains the shared dense-horde setup. Only one formation may exist at once. It spawns in the left lane at Z `18`, offset `0.45` toward the outer side, with a `3.1 × 1.8` footprint, 42 HP, and a 12-second cleanup safeguard.
+
+The formation is a real `Health` + collider world object, not a visual slow. Existing movers retain their exact forward/spawn-X behavior with no obstacle. When one blocks their local forward corridor, they select a stable lane-local bypass edge; when they reach its face before gaining sufficient lateral clearance, they stop and engage instead. The bounded per-enemy check has no NavMesh, scene search, or crowd-neighbor query, and preserves lane bounds and Frost's existing effective speed multiplier. Grunts deal 1 formation damage per one-second engagement tick; Heavies deal 2. Each engager also receives 1 volcanic Health damage per tick. Volcano deaths resolve wave enemies as **Removed**, rather than projectile kills, so they do not advance `KillCount` or upgrade triggers; standard Health/death cleanup remains authoritative.
+
+This validates only a lightweight temporary-obstacle seam. It is not final Fire/Explosion acquisition, obstacle architecture, enemy navigation, crowd simulation, balance, VFX, or art. Because existing enemies do not collide with each other, observed congestion is local steering/engagement bunching rather than physical crowd pressure.
+
 ## Initial balance
 
 | Wave | KillGoal | SpawnInterval | Grunt speed | Heavy chance | Upgrade triggers |

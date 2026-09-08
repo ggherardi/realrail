@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5794169924294267283}
   - component: {fileID: 561666606183091433}
   - component: {fileID: 2186101289733394696}
+  - component: {fileID: 7088988438530534033}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -162,10 +163,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b700ef6dfd8ce4a679de4671566e1356, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: RealRail::RealRail.FrostStatus
   frostColor: {r: 0.32, g: 0.88, b: 1, a: 1}
   emissionIntensity: 0.7
+--- !u!114 &7088988438530534033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2750532192330122097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44cab27769864474cb872bd33d075a91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RealRail::RealRail.VolcanoEnemyAttack
+  damagePerHit: 1
 --- !u!1 &8609079290084822069
 GameObject:
   m_ObjectHideFlags: 0
@@ -260,7 +274,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6073088336778414266, guid: 97f1169adeaf34f8cb5d2cd00e115c11, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 35ee2817cab0840e8a5d17fe493ca7b5, type: 2}
     - target: {fileID: 919132149155446097, guid: 97f1169adeaf34f8cb5d2cd00e115c11, type: 3}
       propertyPath: m_Name
@@ -268,11 +282,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3798214047891171059, guid: 97f1169adeaf34f8cb5d2cd00e115c11, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 35ee2817cab0840e8a5d17fe493ca7b5, type: 2}
     - target: {fileID: 5866666021909216657, guid: 97f1169adeaf34f8cb5d2cd00e115c11, type: 3}
       propertyPath: m_Controller
-      value:
+      value: 
       objectReference: {fileID: 9100000, guid: 8f9afb0a78e7e41dd9b769fd78165979, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -22,6 +22,7 @@ namespace RealRail
             if (_health != null)
             {
                 _health.Died += OnDied;
+                _health.DiedWithSource += OnDiedWithSource;
             }
         }
 
@@ -30,6 +31,7 @@ namespace RealRail
             if (_health != null)
             {
                 _health.Died -= OnDied;
+                _health.DiedWithSource -= OnDiedWithSource;
             }
 
             Resolve(WaveEnemyResolution.Removed);
@@ -37,7 +39,14 @@ namespace RealRail
 
         void OnDied()
         {
-            Resolve(WaveEnemyResolution.Killed);
+            // DiedWithSource is invoked first for normal Health deaths. This fallback
+            // keeps legacy/direct callers safe if they do not provide a source.
+            if (!_resolved) Resolve(WaveEnemyResolution.Killed);
+        }
+
+        void OnDiedWithSource(DamageSource source)
+        {
+            Resolve(source == DamageSource.Projectile ? WaveEnemyResolution.Killed : WaveEnemyResolution.Removed);
         }
 
         public void ResolveRemoved()

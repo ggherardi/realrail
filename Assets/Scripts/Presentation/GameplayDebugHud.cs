@@ -11,6 +11,7 @@ namespace RealRail
         [SerializeField] GameSession session;
         [SerializeField] RailgunPrototype railgunPrototype;
         [SerializeField] CryoStormPrototype cryoStormPrototype;
+        [SerializeField] VolcanoPrototype volcanoPrototype;
 
         string _feedback;
 
@@ -27,6 +28,7 @@ namespace RealRail
             if (session != null) session.GodModeChanged += OnGodModeChanged;
             if (railgunPrototype != null) railgunPrototype.Changed += OnRailgunChanged;
             if (cryoStormPrototype != null) cryoStormPrototype.Changed += OnCryoStormChanged;
+            if (volcanoPrototype != null) volcanoPrototype.Changed += OnVolcanoChanged;
             Refresh();
         }
 
@@ -36,6 +38,7 @@ namespace RealRail
             if (session != null) session.GodModeChanged -= OnGodModeChanged;
             if (railgunPrototype != null) railgunPrototype.Changed -= OnRailgunChanged;
             if (cryoStormPrototype != null) cryoStormPrototype.Changed -= OnCryoStormChanged;
+            if (volcanoPrototype != null) volcanoPrototype.Changed -= OnVolcanoChanged;
         }
 
         public void SetVisible(bool visible)
@@ -53,6 +56,7 @@ namespace RealRail
         void OnGodModeChanged(bool _) => Refresh();
         void OnRailgunChanged(bool _) => Refresh();
         void OnCryoStormChanged(bool _) => Refresh();
+        void OnVolcanoChanged(bool _) => Refresh();
 
         void Refresh()
         {
@@ -76,7 +80,8 @@ namespace RealRail
                 FormatUpgrade(state, UpgradeId.PowerShot) + "\n\n" +
                 $"GOD MODE: {(session != null && session.GodMode ? "ON" : "OFF")}\n" +
                 $"RAILGUN PROTOTYPE: {(railgunPrototype != null && railgunPrototype.IsEnabled ? "ON" : "OFF")}\n" +
-                $"CRYO STORM PROTOTYPE: {(cryoStormPrototype != null && cryoStormPrototype.IsEnabled ? "ON" : "OFF")}" +
+                $"CRYO STORM PROTOTYPE: {(cryoStormPrototype != null && cryoStormPrototype.IsEnabled ? "ON" : "OFF")}\n" +
+                $"VOLCANO PROTOTYPE: {(volcanoPrototype != null && volcanoPrototype.IsEnabled ? "ON" : "OFF")}" +
                 (string.IsNullOrEmpty(_feedback) ? string.Empty : $"\n\n{_feedback}");
         }
 

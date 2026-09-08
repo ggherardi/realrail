@@ -15,6 +15,7 @@ namespace RealRail
         [SerializeField] AutoFire autoFire;
         [SerializeField] EnemySpawner enemySpawner;
         [SerializeField] CryoStormPrototype cryoStormPrototype;
+        [SerializeField] VolcanoPrototype volcanoPrototype;
 
         public event Action<string> Feedback;
 
@@ -45,6 +46,8 @@ namespace RealRail
             if (keyboard.f5Key.wasPressedThisFrame) SpawnDenseHorde();
             if (keyboard.f6Key.wasPressedThisFrame) ToggleCryoStormPrototype();
             if (keyboard.f7Key.wasPressedThisFrame) TriggerCryoStormPrototype();
+            if (keyboard.f8Key.wasPressedThisFrame) ToggleVolcanoPrototype();
+            if (keyboard.f9Key.wasPressedThisFrame) SpawnVolcanoPrototype();
 #endif
         }
 
@@ -140,6 +143,24 @@ namespace RealRail
                 return false;
             }
             Report("Cryo Storm triggered");
+            return true;
+        }
+
+        public void ToggleVolcanoPrototype()
+        {
+            if (volcanoPrototype == null) return;
+            volcanoPrototype.SetEnabled(!volcanoPrototype.IsEnabled);
+            Report($"Volcano Prototype {(volcanoPrototype.IsEnabled ? "ON" : "OFF")}");
+        }
+
+        public bool SpawnVolcanoPrototype()
+        {
+            if (volcanoPrototype == null || !volcanoPrototype.TrySpawnNow())
+            {
+                Report("Volcano requires an active wave and an empty battlefield slot");
+                return false;
+            }
+            Report("Volcano prototype spawned");
             return true;
         }
 
